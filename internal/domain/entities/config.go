@@ -32,9 +32,19 @@ type TemplatesConfig struct {
 
 // GitConfig contains git integration settings
 type GitConfig struct {
-	AutoLink            bool     `yaml:"auto_link" json:"auto_link"`
-	AutoCloseKeywords   []string `yaml:"auto_close_keywords" json:"auto_close_keywords"`
-	DefaultBranchPrefix string   `yaml:"default_branch_prefix" json:"default_branch_prefix"`
+	AutoLink            bool         `yaml:"auto_link" json:"auto_link"`
+	AutoCloseKeywords   []string     `yaml:"auto_close_keywords" json:"auto_close_keywords"`
+	DefaultBranchPrefix string       `yaml:"default_branch_prefix" json:"default_branch_prefix"`
+	BranchConfig        BranchConfig `yaml:"branch_config" json:"branch_config"`
+}
+
+// BranchConfig contains branch naming and management settings
+type BranchConfig struct {
+	Template         string            `yaml:"template" json:"template"`
+	PrefixByType     map[string]string `yaml:"prefix_by_type" json:"prefix_by_type"`
+	MaxTitleLength   int               `yaml:"max_title_length" json:"max_title_length"`
+	AutoSwitch       bool              `yaml:"auto_switch" json:"auto_switch"`
+	AutoMergeTargets []string          `yaml:"auto_merge_targets" json:"auto_merge_targets"`
 }
 
 // UIConfig contains user interface settings
@@ -80,7 +90,21 @@ func NewDefaultConfig() *Config {
 		Git: GitConfig{
 			AutoLink:            true,
 			AutoCloseKeywords:   []string{"closes", "fixes", "resolves"},
-			DefaultBranchPrefix: "feature/",
+			DefaultBranchPrefix: "feature",
+			BranchConfig: BranchConfig{
+				Template:       "{prefix}/{issue}-{title}",
+				MaxTitleLength: 50,
+				AutoSwitch:     true,
+				PrefixByType: map[string]string{
+					"bug":         "bugfix",
+					"feature":     "feature",
+					"task":        "feature",
+					"improvement": "feature",
+					"hotfix":      "hotfix",
+					"epic":        "feature",
+				},
+				AutoMergeTargets: []string{"main", "master", "develop"},
+			},
 		},
 		UI: UIConfig{
 			Colors:      true,
