@@ -118,7 +118,7 @@ func (s *AutomationService) validateFieldValue(field entities.TemplateField, val
 			if message == "" {
 				message = fmt.Sprintf("must be at least %d characters", field.Validation.MinLength)
 			}
-			return fmt.Errorf(message)
+			return fmt.Errorf("%s", message)
 		}
 
 		if field.Validation.MaxLength > 0 && len(strValue) > field.Validation.MaxLength {
@@ -126,7 +126,7 @@ func (s *AutomationService) validateFieldValue(field entities.TemplateField, val
 			if message == "" {
 				message = fmt.Sprintf("must be no more than %d characters", field.Validation.MaxLength)
 			}
-			return fmt.Errorf(message)
+			return fmt.Errorf("%s", message)
 		}
 
 		if field.Validation.Pattern != "" {
@@ -137,7 +137,7 @@ func (s *AutomationService) validateFieldValue(field entities.TemplateField, val
 				if message == "" {
 					message = "does not match required pattern"
 				}
-				return fmt.Errorf(message)
+				return fmt.Errorf("%s", message)
 			}
 		}
 	}
