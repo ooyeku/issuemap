@@ -144,7 +144,21 @@ func runBranch(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printSuccess(fmt.Sprintf("Created and switched to branch: %s", branchName))
+	// Switch to the branch only if auto-switch is enabled and working directory is clean
+	shouldSwitch := !branchAutoSwitch && config.Git.BranchConfig.AutoSwitch
+	if shouldSwitch {
+		err = gitClient.SwitchToBranch(ctx, branchName)
+		if err != nil {
+			printWarning(fmt.Sprintf("Created branch '%s' but couldn't switch to it: %v", branchName, err))
+			printInfo("You can switch manually with: git checkout " + branchName)
+		} else {
+			printSuccess(fmt.Sprintf("Created and switched to branch: %s", branchName))
+		}
+	} else {
+		printSuccess(fmt.Sprintf("Created branch: %s", branchName))
+		printInfo(fmt.Sprintf("Switch to it with: git checkout %s", branchName))
+	}
+
 	printInfo(fmt.Sprintf("Working on issue: %s - %s", issueID, issue.Title))
 
 	// Add helpful next steps
@@ -261,6 +275,8 @@ func generateBranchName(prefix string, issueID entities.IssueID, title string, t
 	// Remove trailing hyphens
 	sanitizedTitle = strings.TrimRight(sanitizedTitle, "-")
 
+	// Remove trailing slash from prefix to avoid double slashes
+	prefix = strings.TrimSuffix(prefix, "/")
 	return fmt.Sprintf("%s/%s-%s", prefix, issueID, sanitizedTitle)
 }
 
@@ -307,7 +323,9 @@ func customBranchTemplate(template, prefix, issueID, title string, config *entit
 
 	// Apply template replacements
 	result := template
-	result = strings.ReplaceAll(result, "{prefix}", prefix)
+	// Remove trailing slash from prefix to avoid double slashes in templates like "{prefix}/{issue}-{title}"
+	cleanPrefix := strings.TrimSuffix(prefix, "/")
+	result = strings.ReplaceAll(result, "{prefix}", cleanPrefix)
 	result = strings.ReplaceAll(result, "{issue}", issueID)
 	result = strings.ReplaceAll(result, "{title}", sanitizedTitle)
 

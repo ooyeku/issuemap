@@ -89,11 +89,6 @@ func (g *GitClient) GetCommitsSince(ctx context.Context, since time.Time) ([]rep
 
 // CreateBranch creates a new branch with the given name
 func (g *GitClient) CreateBranch(ctx context.Context, name string) error {
-	workTree, err := g.repo.Worktree()
-	if err != nil {
-		return errors.Wrap(err, "GitClient.CreateBranch", "worktree")
-	}
-
 	// Get current HEAD
 	head, err := g.repo.Head()
 	if err != nil {
@@ -107,12 +102,24 @@ func (g *GitClient) CreateBranch(ctx context.Context, name string) error {
 		return errors.Wrap(err, "GitClient.CreateBranch", "set_reference")
 	}
 
-	// Check out the new branch
+	return nil
+}
+
+// SwitchToBranch switches to an existing branch
+func (g *GitClient) SwitchToBranch(ctx context.Context, name string) error {
+	workTree, err := g.repo.Worktree()
+	if err != nil {
+		return errors.Wrap(err, "GitClient.SwitchToBranch", "worktree")
+	}
+
+	branchRef := plumbing.NewBranchReferenceName(name)
+
+	// Check out the branch
 	err = workTree.Checkout(&git.CheckoutOptions{
 		Branch: branchRef,
 	})
 	if err != nil {
-		return errors.Wrap(err, "GitClient.CreateBranch", "checkout")
+		return errors.Wrap(err, "GitClient.SwitchToBranch", "checkout")
 	}
 
 	return nil
