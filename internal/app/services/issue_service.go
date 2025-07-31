@@ -53,14 +53,15 @@ func NewIssueService(
 
 // CreateIssueRequest represents a request to create a new issue
 type CreateIssueRequest struct {
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-	Type        entities.IssueType `json:"type"`
-	Priority    entities.Priority  `json:"priority"`
-	Labels      []string           `json:"labels"`
-	Assignee    *string            `json:"assignee,omitempty"`
-	Milestone   *string            `json:"milestone,omitempty"`
-	Template    *string            `json:"template,omitempty"`
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
+	Type        entities.IssueType     `json:"type"`
+	Priority    entities.Priority      `json:"priority"`
+	Labels      []string               `json:"labels"`
+	Assignee    *string                `json:"assignee,omitempty"`
+	Milestone   *string                `json:"milestone,omitempty"`
+	Template    *string                `json:"template,omitempty"`
+	FieldValues map[string]interface{} `json:"field_values,omitempty"`
 }
 
 // CreateIssue creates a new issue
@@ -71,11 +72,21 @@ func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) 
 		return nil, errors.Wrap(err, "IssueService.CreateIssue", "get_next_id")
 	}
 
+	var template *entities.Template
 	// Apply template if specified
 	if req.Template != nil {
-		template, err := s.configRepo.GetTemplate(ctx, *req.Template)
+		tmpl, err := s.configRepo.GetTemplate(ctx, *req.Template)
 		if err != nil {
 			return nil, errors.Wrap(err, "IssueService.CreateIssue", "get_template")
+		}
+		template = tmpl
+
+		// Validate template fields if provided
+		if req.FieldValues != nil && len(template.Fields) > 0 {
+			automationService := NewAutomationService(s)
+			if err := automationService.ValidateTemplateFields(template, req.FieldValues); err != nil {
+				return nil, errors.Wrap(err, "IssueService.CreateIssue", "validate_fields")
+			}
 		}
 
 		// Apply template defaults if not overridden
@@ -141,6 +152,15 @@ func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) 
 	// Try to get current branch and link issue
 	if branch, err := s.gitRepo.GetCurrentBranch(ctx); err == nil {
 		issue.Branch = branch
+	}
+
+	// Process template automation if template was used
+	if template != nil && req.FieldValues != nil {
+		automationService := NewAutomationService(s)
+		if err := automationService.ProcessTemplateAutomation(ctx, issue, template, req.FieldValues); err != nil {
+			// Log automation error but don't fail issue creation
+			fmt.Printf("Warning: Template automation failed: %v\n", err)
+		}
 	}
 
 	// Save the issue

@@ -57,12 +57,82 @@ type UIConfig struct {
 
 // Template represents an issue template
 type Template struct {
-	Name        string    `yaml:"name" json:"name"`
-	Type        IssueType `yaml:"type" json:"type"`
-	Title       string    `yaml:"title" json:"title"`
-	Description string    `yaml:"description" json:"description"`
-	Labels      []string  `yaml:"labels" json:"labels"`
-	Priority    Priority  `yaml:"priority" json:"priority"`
+	Name        string          `yaml:"name" json:"name"`
+	Type        IssueType       `yaml:"type" json:"type"`
+	Title       string          `yaml:"title" json:"title"`
+	Description string          `yaml:"description" json:"description"`
+	Labels      []string        `yaml:"labels" json:"labels"`
+	Priority    Priority        `yaml:"priority" json:"priority"`
+	Fields      []TemplateField `yaml:"fields,omitempty" json:"fields,omitempty"`
+	Automation  TemplateAuto    `yaml:"automation,omitempty" json:"automation,omitempty"`
+}
+
+// TemplateField represents a custom field in a template
+type TemplateField struct {
+	Name        string            `yaml:"name" json:"name"`
+	Type        TemplateFieldType `yaml:"type" json:"type"`
+	Label       string            `yaml:"label" json:"label"`
+	Description string            `yaml:"description,omitempty" json:"description,omitempty"`
+	Required    bool              `yaml:"required,omitempty" json:"required,omitempty"`
+	Default     string            `yaml:"default,omitempty" json:"default,omitempty"`
+	Options     []string          `yaml:"options,omitempty" json:"options,omitempty"`
+	Validation  *FieldValidation  `yaml:"validation,omitempty" json:"validation,omitempty"`
+}
+
+// TemplateFieldType defines the type of a template field
+type TemplateFieldType string
+
+const (
+	FieldTypeText     TemplateFieldType = "text"
+	FieldTypeTextarea TemplateFieldType = "textarea"
+	FieldTypeSelect   TemplateFieldType = "select"
+	FieldTypeMulti    TemplateFieldType = "multiselect"
+	FieldTypeCheckbox TemplateFieldType = "checkbox"
+	FieldTypeNumber   TemplateFieldType = "number"
+	FieldTypeURL      TemplateFieldType = "url"
+	FieldTypeEmail    TemplateFieldType = "email"
+)
+
+// FieldValidation defines validation rules for template fields
+type FieldValidation struct {
+	MinLength int    `yaml:"min_length,omitempty" json:"min_length,omitempty"`
+	MaxLength int    `yaml:"max_length,omitempty" json:"max_length,omitempty"`
+	Pattern   string `yaml:"pattern,omitempty" json:"pattern,omitempty"`
+	Message   string `yaml:"message,omitempty" json:"message,omitempty"`
+}
+
+// TemplateAuto defines automation rules for templates
+type TemplateAuto struct {
+	AssigneeRules     []AssignmentRule `yaml:"assignee_rules,omitempty" json:"assignee_rules,omitempty"`
+	LabelRules        []LabelRule      `yaml:"label_rules,omitempty" json:"label_rules,omitempty"`
+	WorkflowRules     []WorkflowRule   `yaml:"workflow_rules,omitempty" json:"workflow_rules,omitempty"`
+	NotificationRules []NotifyRule     `yaml:"notification_rules,omitempty" json:"notification_rules,omitempty"`
+}
+
+// AssignmentRule defines automatic assignee assignment
+type AssignmentRule struct {
+	Condition string `yaml:"condition" json:"condition"`
+	Assignee  string `yaml:"assignee" json:"assignee"`
+}
+
+// LabelRule defines automatic label assignment
+type LabelRule struct {
+	Condition string   `yaml:"condition" json:"condition"`
+	Labels    []string `yaml:"labels" json:"labels"`
+}
+
+// WorkflowRule defines automatic status transitions
+type WorkflowRule struct {
+	Trigger   string `yaml:"trigger" json:"trigger"`
+	NewStatus Status `yaml:"new_status" json:"new_status"`
+	Condition string `yaml:"condition,omitempty" json:"condition,omitempty"`
+}
+
+// NotifyRule defines notification automation
+type NotifyRule struct {
+	Event      string   `yaml:"event" json:"event"`
+	Recipients []string `yaml:"recipients" json:"recipients"`
+	Message    string   `yaml:"message,omitempty" json:"message,omitempty"`
 }
 
 // NewDefaultConfig creates a new configuration with default values
@@ -126,6 +196,73 @@ func (c *Config) GetTemplate(name string) *Template {
 			Description: "## Description\nA clear and concise description of what the bug is.\n\n## Steps to Reproduce\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n## Expected Behavior\nA clear and concise description of what you expected to happen.\n\n## Actual Behavior\nA clear and concise description of what actually happened.\n\n## Additional Context\nAdd any other context about the problem here.",
 			Labels:      []string{"bug"},
 			Priority:    PriorityMedium,
+			Fields: []TemplateField{
+				{
+					Name:        "reproduction_steps",
+					Type:        FieldTypeTextarea,
+					Label:       "Steps to Reproduce",
+					Description: "Detailed steps to reproduce the bug",
+					Required:    true,
+					Validation: &FieldValidation{
+						MinLength: 10,
+						Message:   "Please provide detailed reproduction steps",
+					},
+				},
+				{
+					Name:        "environment",
+					Type:        FieldTypeSelect,
+					Label:       "Environment",
+					Description: "Environment where the bug occurs",
+					Required:    true,
+					Options:     []string{"development", "staging", "production"},
+				},
+				{
+					Name:        "browser",
+					Type:        FieldTypeSelect,
+					Label:       "Browser",
+					Description: "Browser where the bug occurs (if applicable)",
+					Options:     []string{"Chrome", "Firefox", "Safari", "Edge", "Other", "N/A"},
+				},
+				{
+					Name:        "severity",
+					Type:        FieldTypeSelect,
+					Label:       "Severity",
+					Description: "How severe is this bug?",
+					Required:    true,
+					Options:     []string{"low", "medium", "high", "critical"},
+					Default:     "medium",
+				},
+			},
+			Automation: TemplateAuto{
+				LabelRules: []LabelRule{
+					{
+						Condition: "severity == 'critical'",
+						Labels:    []string{"urgent", "critical"},
+					},
+					{
+						Condition: "environment == 'production'",
+						Labels:    []string{"prod-issue"},
+					},
+				},
+				AssigneeRules: []AssignmentRule{
+					{
+						Condition: "severity == 'critical'",
+						Assignee:  "lead-developer",
+					},
+				},
+				WorkflowRules: []WorkflowRule{
+					{
+						Trigger:   "on_create",
+						NewStatus: StatusOpen,
+						Condition: "severity != 'critical'",
+					},
+					{
+						Trigger:   "on_create",
+						NewStatus: StatusInProgress,
+						Condition: "severity == 'critical'",
+					},
+				},
+			},
 		}
 	case "feature":
 		return &Template{
@@ -135,6 +272,55 @@ func (c *Config) GetTemplate(name string) *Template {
 			Description: "## Summary\nA clear and concise description of the feature you'd like to see.\n\n## Motivation\nWhy is this feature important? What problem does it solve?\n\n## Detailed Description\nProvide a detailed description of the feature.\n\n## Acceptance Criteria\n- [ ] Criterion 1\n- [ ] Criterion 2\n- [ ] Criterion 3\n\n## Additional Context\nAdd any other context or screenshots about the feature request here.",
 			Labels:      []string{"enhancement"},
 			Priority:    PriorityMedium,
+			Fields: []TemplateField{
+				{
+					Name:        "user_story",
+					Type:        FieldTypeTextarea,
+					Label:       "User Story",
+					Description: "As a [user type], I want [functionality] so that [benefit]",
+					Required:    true,
+					Default:     "As a [user type], I want [functionality] so that [benefit]",
+				},
+				{
+					Name:        "acceptance_criteria",
+					Type:        FieldTypeTextarea,
+					Label:       "Acceptance Criteria",
+					Description: "Define what \"done\" means for this feature",
+					Required:    true,
+				},
+				{
+					Name:        "complexity",
+					Type:        FieldTypeSelect,
+					Label:       "Complexity",
+					Description: "Estimated complexity of implementation",
+					Options:     []string{"simple", "medium", "complex"},
+					Default:     "medium",
+				},
+				{
+					Name:        "target_release",
+					Type:        FieldTypeText,
+					Label:       "Target Release",
+					Description: "Target release version (optional)",
+				},
+			},
+			Automation: TemplateAuto{
+				LabelRules: []LabelRule{
+					{
+						Condition: "complexity == 'complex'",
+						Labels:    []string{"complex", "needs-design"},
+					},
+					{
+						Condition: "target_release != ''",
+						Labels:    []string{"scheduled"},
+					},
+				},
+				WorkflowRules: []WorkflowRule{
+					{
+						Trigger:   "on_create",
+						NewStatus: StatusOpen,
+					},
+				},
+			},
 		}
 	case "task":
 		return &Template{

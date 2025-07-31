@@ -5,21 +5,21 @@ This document tracks the development progress of new features for the IssueMap p
 ## 🚀 Phase 1: Quick Wins (High Impact, Low Complexity)
 
 ### Issue Templates & Automation
-- [ ] Create template system architecture
-- [ ] Implement `issuemap template create` command
-- [ ] Add template field definitions (reproduction_steps, expected, actual, environment)
-- [ ] Implement `issuemap create --template` functionality
-- [ ] Add built-in templates (bug, feature, task, improvement)
-- [ ] Create template validation system
+- [x] Create template system architecture
+- [x] Implement `issuemap template create` command
+- [x] Add template field definitions (reproduction_steps, expected, actual, environment)
+- [x] Implement `issuemap create --template` functionality
+- [x] Add built-in templates (bug, feature, task, improvement)
+- [x] Create template validation system
 - [ ] Add template sharing/export functionality
 - [ ] Write comprehensive tests for template system
 
 ### Smart Branch Integration
-- [ ] Implement `issuemap branch` command for auto-branch creation
-- [ ] Add branch naming conventions configuration
-- [ ] Create Git hook integration for commit-to-issue linking
-- [ ] Implement automatic issue detection from branch names
-- [ ] Add `issuemap merge` command for auto-closing issues
+- [x] Implement `issuemap branch` command for auto-branch creation
+- [x] Add branch naming conventions configuration
+- [x] Create Git hook integration for commit-to-issue linking
+- [x] Implement automatic issue detection from branch names
+- [x] Add `issuemap merge` command for auto-closing issues
 - [ ] Create branch status synchronization
 - [ ] Add conflict resolution for branch-issue mismatches
 - [ ] Write integration tests for Git workflow
