@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app"
@@ -41,6 +42,7 @@ change tracking capabilities.
 Examples:
   issuemap history                           # Show recent history for all issues
   issuemap history --issue ISSUE-001        # Show history for specific issue
+  issuemap history --issue 001              # Show history for specific issue (short format)
   issuemap history --author alice           # Show all changes by alice
   issuemap history --type updated           # Show only update events
   issuemap history --field priority         # Show only priority changes
@@ -148,7 +150,7 @@ func buildHistoryFilter() (repositories.HistoryFilter, error) {
 
 	// Parse issue ID
 	if historyIssueID != "" {
-		issueID := entities.IssueID(historyIssueID)
+		issueID := normalizeIssueID(historyIssueID)
 		filter.IssueID = &issueID
 	}
 
@@ -211,68 +213,164 @@ func displayHistory(historyList *repositories.HistoryList, detailed bool) {
 func displayHistoryEntry(entry entities.HistoryEntry, detailed bool) {
 	// Header with timestamp and author
 	timestamp := entry.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Printf("%s | %s | v%d\n", timestamp, entry.Author, entry.Version)
-
-	// Issue ID and change type
 	changeTypeIcon := getChangeTypeIcon(entry.Type)
-	fmt.Printf("%s %s %s: %s\n", changeTypeIcon, entry.IssueID, entry.Type, entry.Message)
+
+	if noColor {
+		fmt.Printf("%s | %s | v%d\n", timestamp, entry.Author, entry.Version)
+		fmt.Printf("%s %s %s: %s\n", changeTypeIcon, entry.IssueID, entry.Type, entry.Message)
+	} else {
+		fmt.Printf("%s │ %s │ %s\n",
+			color.HiBlackString(timestamp),
+			colorValue(entry.Author),
+			color.HiBlackString("v%d", entry.Version))
+		fmt.Printf("%s %s %s %s\n",
+			changeTypeIcon,
+			colorIssueID(entry.IssueID),
+			color.HiBlackString(string(entry.Type)),
+			colorValue(entry.Message))
+	}
 
 	// Show detailed field changes if requested
 	if detailed && len(entry.Changes) > 0 {
-		fmt.Printf("   Field changes:\n")
-		for _, change := range entry.Changes {
+		if noColor {
+			fmt.Printf("   Field changes:\n")
+		} else {
+			color.HiBlack("   ┌─ Field changes:")
+		}
+
+		for i, change := range entry.Changes {
 			oldVal := formatValue(change.OldValue)
 			newVal := formatValue(change.NewValue)
 
+			prefix := "   │"
+			if i == len(entry.Changes)-1 && len(entry.Metadata) == 0 {
+				prefix = "   └"
+			}
+
 			if change.OldValue == nil {
-				fmt.Printf("   - %s: %s\n", change.Field, newVal)
+				if noColor {
+					fmt.Printf("   - %s: %s\n", change.Field, newVal)
+				} else {
+					fmt.Printf("%s %s: %s\n",
+						color.HiBlackString(prefix),
+						colorLabel(change.Field),
+						color.GreenString(newVal))
+				}
 			} else if change.NewValue == nil {
-				fmt.Printf("   - %s: %s -> (removed)\n", change.Field, oldVal)
+				if noColor {
+					fmt.Printf("   - %s: %s -> (removed)\n", change.Field, oldVal)
+				} else {
+					fmt.Printf("%s %s: %s → %s\n",
+						color.HiBlackString(prefix),
+						colorLabel(change.Field),
+						color.RedString(oldVal),
+						color.HiBlackString("(removed)"))
+				}
 			} else {
-				fmt.Printf("   - %s: %s -> %s\n", change.Field, oldVal, newVal)
+				if noColor {
+					fmt.Printf("   - %s: %s -> %s\n", change.Field, oldVal, newVal)
+				} else {
+					fmt.Printf("%s %s: %s → %s\n",
+						color.HiBlackString(prefix),
+						colorLabel(change.Field),
+						color.RedString(oldVal),
+						color.GreenString(newVal))
+				}
 			}
 		}
 	}
 
 	// Show metadata if available
 	if detailed && len(entry.Metadata) > 0 {
-		fmt.Printf("   Metadata:\n")
+		if noColor {
+			fmt.Printf("   Metadata:\n")
+		} else {
+			color.HiBlack("   ┌─ Metadata:")
+		}
+
+		i := 0
 		for key, value := range entry.Metadata {
-			fmt.Printf("   - %s: %v\n", key, value)
+			prefix := "   │"
+			if i == len(entry.Metadata)-1 {
+				prefix = "   └"
+			}
+
+			if noColor {
+				fmt.Printf("   - %s: %v\n", key, value)
+			} else {
+				fmt.Printf("%s %s: %s\n",
+					color.HiBlackString(prefix),
+					colorLabel(key),
+					colorValue(fmt.Sprintf("%v", value)))
+			}
+			i++
 		}
 	}
 }
 
 func getChangeTypeIcon(changeType entities.ChangeType) string {
-	switch changeType {
-	case entities.ChangeTypeCreated:
-		return "[+]"
-	case entities.ChangeTypeUpdated:
-		return "[*]"
-	case entities.ChangeTypeClosed:
-		return "[X]"
-	case entities.ChangeTypeReopened:
-		return "[O]"
-	case entities.ChangeTypeAssigned:
-		return "[A]"
-	case entities.ChangeTypeUnassigned:
-		return "[-A]"
-	case entities.ChangeTypeLabeled:
-		return "[L]"
-	case entities.ChangeTypeUnlabeled:
-		return "[-L]"
-	case entities.ChangeTypeCommented:
-		return "[C]"
-	case entities.ChangeTypeMilestoned:
-		return "[M]"
-	case entities.ChangeTypeUnmilestoned:
-		return "[-M]"
-	case entities.ChangeTypeLinked:
-		return "[LK]"
-	case entities.ChangeTypeUnlinked:
-		return "[-LK]"
-	default:
-		return "[E]"
+	if noColor {
+		switch changeType {
+		case entities.ChangeTypeCreated:
+			return "[+]"
+		case entities.ChangeTypeUpdated:
+			return "[*]"
+		case entities.ChangeTypeClosed:
+			return "[X]"
+		case entities.ChangeTypeReopened:
+			return "[O]"
+		case entities.ChangeTypeAssigned:
+			return "[A]"
+		case entities.ChangeTypeUnassigned:
+			return "[-A]"
+		case entities.ChangeTypeLabeled:
+			return "[L]"
+		case entities.ChangeTypeUnlabeled:
+			return "[-L]"
+		case entities.ChangeTypeCommented:
+			return "[C]"
+		case entities.ChangeTypeMilestoned:
+			return "[M]"
+		case entities.ChangeTypeUnmilestoned:
+			return "[-M]"
+		case entities.ChangeTypeLinked:
+			return "[LK]"
+		case entities.ChangeTypeUnlinked:
+			return "[-LK]"
+		default:
+			return "[E]"
+		}
+	} else {
+		switch changeType {
+		case entities.ChangeTypeCreated:
+			return color.GreenString("✓")
+		case entities.ChangeTypeUpdated:
+			return color.YellowString("●")
+		case entities.ChangeTypeClosed:
+			return color.RedString("✗")
+		case entities.ChangeTypeReopened:
+			return color.CyanString("○")
+		case entities.ChangeTypeAssigned:
+			return color.BlueString("→")
+		case entities.ChangeTypeUnassigned:
+			return color.HiBlackString("←")
+		case entities.ChangeTypeLabeled:
+			return color.MagentaString("🏷")
+		case entities.ChangeTypeUnlabeled:
+			return color.HiBlackString("🏷")
+		case entities.ChangeTypeCommented:
+			return color.CyanString("💬")
+		case entities.ChangeTypeMilestoned:
+			return color.BlueString("🎯")
+		case entities.ChangeTypeUnmilestoned:
+			return color.HiBlackString("🎯")
+		case entities.ChangeTypeLinked:
+			return color.GreenString("🔗")
+		case entities.ChangeTypeUnlinked:
+			return color.HiBlackString("🔗")
+		default:
+			return color.RedString("⚠")
+		}
 	}
 }
 

@@ -419,6 +419,30 @@ func (s *IssueService) ReopenIssue(ctx context.Context, issueID entities.IssueID
 	return nil
 }
 
+// DeleteIssue completely removes an issue and its history
+func (s *IssueService) DeleteIssue(ctx context.Context, issueID entities.IssueID) error {
+	// First check if the issue exists
+	_, err := s.issueRepo.GetByID(ctx, issueID)
+	if err != nil {
+		return errors.Wrap(err, "IssueService.DeleteIssue", "get_issue")
+	}
+
+	// Delete the issue from the repository
+	if err := s.issueRepo.Delete(ctx, issueID); err != nil {
+		return errors.Wrap(err, "IssueService.DeleteIssue", "delete_issue")
+	}
+
+	// Delete the history if history service is available
+	if s.historyService != nil {
+		if err := s.historyService.DeleteIssueHistory(ctx, issueID); err != nil {
+			// Log warning but don't fail the deletion if history cleanup fails
+			fmt.Printf("Warning: Failed to delete issue history: %v\n", err)
+		}
+	}
+
+	return nil
+}
+
 // CreateBranchForIssue creates a git branch for an issue
 func (s *IssueService) CreateBranchForIssue(ctx context.Context, issueID entities.IssueID, branchName string) error {
 	issue, err := s.issueRepo.GetByID(ctx, issueID)

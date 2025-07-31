@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app/services"
-	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
@@ -21,8 +20,9 @@ var assignCmd = &cobra.Command{
 
 Examples:
   issuemap assign ISSUE-001 john        # Assign to john
+  issuemap assign 001 john              # Assign to john (short format)
   issuemap assign ISSUE-001             # Unassign (interactive prompt)
-  issuemap assign ISSUE-001 --unassign  # Unassign the issue`,
+  issuemap assign 001 --unassign        # Unassign the issue`,
 	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAssign(cmd, args)
@@ -38,7 +38,7 @@ func init() {
 
 func runAssign(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	issueID := entities.IssueID(args[0])
+	issueID := normalizeIssueID(args[0])
 
 	var username string
 	if len(args) > 1 {

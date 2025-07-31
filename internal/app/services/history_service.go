@@ -349,6 +349,16 @@ func (s *HistoryService) GetActivitySince(ctx context.Context, since time.Time) 
 	return s.GetAllHistory(ctx, filter)
 }
 
+// DeleteIssueHistory removes all history for a specific issue
+func (s *HistoryService) DeleteIssueHistory(ctx context.Context, issueID entities.IssueID) error {
+	err := s.historyRepo.DeleteHistory(ctx, issueID)
+	if err != nil {
+		return errors.Wrap(err, "HistoryService.DeleteIssueHistory", "delete_history")
+	}
+
+	return nil
+}
+
 // joinWithComma joins a slice of strings with commas
 func joinWithComma(items []string) string {
 	if len(items) == 0 {

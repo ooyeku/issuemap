@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app/services"
-	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
@@ -35,8 +34,9 @@ priority, assignee, labels, milestone, and branch.
 
 Examples:
   issuemap edit ISSUE-001 --type bug --priority high
+  issuemap edit 001 --type bug --priority high
   issuemap edit ISSUE-001 --status in-progress --assignee john
-  issuemap edit ISSUE-001 --title "New title" --description "Updated description"
+  issuemap edit 001 --title "New title" --description "Updated description"
   issuemap edit ISSUE-001 --labels bug,urgent --milestone v1.0.0`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -60,7 +60,7 @@ func init() {
 
 func runEdit(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	issueID := entities.IssueID(args[0])
+	issueID := normalizeIssueID(args[0])
 
 	// Initialize services
 	repoPath, err := findGitRoot()

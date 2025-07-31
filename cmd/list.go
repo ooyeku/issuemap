@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app"
@@ -120,7 +122,11 @@ func runList(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(issueList.Issues) == 0 {
-		fmt.Println("No issues found.")
+		if noColor {
+			fmt.Println("No issues found.")
+		} else {
+			color.HiBlack("No issues found.")
+		}
 		return nil
 	}
 
@@ -136,50 +142,202 @@ func runList(cmd *cobra.Command, args []string) error {
 	}
 
 	if issueList.Total > issueList.Count {
-		fmt.Printf("\nShowing %d of %d issues. Use --limit or --all to see more.\n", issueList.Count, issueList.Total)
+		if noColor {
+			fmt.Printf("\nShowing %d of %d issues. Use --limit or --all to see more.\n", issueList.Count, issueList.Total)
+		} else {
+			fmt.Printf("\n")
+			color.HiBlack("Showing %d of %d issues. Use --limit or --all to see more.", issueList.Count, issueList.Total)
+		}
 	}
 
 	return nil
 }
 
 func displayIssuesTable(issues []entities.Issue) {
-	// Print header
-	fmt.Printf("%-12s %-30s %-8s %-12s %-8s %-12s %-15s %-8s\n",
-		"ID", "Title", "Type", "Status", "Priority", "Assignee", "Labels", "Updated")
-	fmt.Printf("%-12s %-30s %-8s %-12s %-8s %-12s %-15s %-8s\n",
-		"---", "-----", "----", "------", "--------", "--------", "------", "-------")
+	// Column widths - optimized for better terminal fit
+	const (
+		idWidth       = 10
+		titleWidth    = 24
+		typeWidth     = 7
+		statusWidth   = 10
+		priorityWidth = 8
+		assigneeWidth = 10
+		labelWidth    = 12
+		updatedWidth  = 6
+	)
+
+	// Print enhanced header
+	if noColor {
+		fmt.Printf("%-*s %-*s %-*s %-*s %-*s %-*s %-*s %-*s\n",
+			idWidth, "ID", titleWidth, "Title", typeWidth, "Type",
+			statusWidth, "Status", priorityWidth, "Priority", assigneeWidth, "Assignee",
+			labelWidth, "Labels", updatedWidth, "Updated")
+		fmt.Printf("%s %s %s %s %s %s %s %s\n",
+			strings.Repeat("-", idWidth), strings.Repeat("-", titleWidth), strings.Repeat("-", typeWidth),
+			strings.Repeat("-", statusWidth), strings.Repeat("-", priorityWidth), strings.Repeat("-", assigneeWidth),
+			strings.Repeat("-", labelWidth), strings.Repeat("-", updatedWidth))
+	} else {
+		// For colored headers, use simple padding without complex calculations
+		fmt.Printf("%s %s %s %s %s %s %s %s\n",
+			padColoredString(colorHeader("ID"), idWidth),
+			padColoredString(colorHeader("Title"), titleWidth),
+			padColoredString(colorHeader("Type"), typeWidth),
+			padColoredString(colorHeader("Status"), statusWidth),
+			padColoredString(colorHeader("Priority"), priorityWidth),
+			padColoredString(colorHeader("Assignee"), assigneeWidth),
+			padColoredString(colorHeader("Labels"), labelWidth),
+			padColoredString(colorHeader("Updated"), updatedWidth))
+		color.HiBlack("%s+%s+%s+%s+%s+%s+%s+%s",
+			strings.Repeat("-", idWidth), strings.Repeat("-", titleWidth), strings.Repeat("-", typeWidth),
+			strings.Repeat("-", statusWidth), strings.Repeat("-", priorityWidth), strings.Repeat("-", assigneeWidth),
+			strings.Repeat("-", labelWidth), strings.Repeat("-", updatedWidth))
+	}
 
 	for _, issue := range issues {
-		assignee := ""
+		// Format and truncate each field to fit column width
+		id := truncateString(string(issue.ID), idWidth)
+		title := truncateString(issue.Title, titleWidth)
+		issueType := truncateString(string(issue.Type), typeWidth)
+		status := truncateString(string(issue.Status), statusWidth)
+		priority := truncateString(string(issue.Priority), priorityWidth)
+
+		assignee := "-"
 		if issue.Assignee != nil {
-			assignee = issue.Assignee.Username
+			assignee = truncateString(issue.Assignee.Username, assigneeWidth)
 		}
 
-		var labelNames []string
-		for _, label := range issue.Labels {
-			labelNames = append(labelNames, label.Name)
-		}
-		labels := strings.Join(labelNames, ", ")
-		if len(labels) > 15 {
-			labels = labels[:15] + "..."
-		}
-
-		title := issue.Title
-		if len(title) > 30 {
-			title = title[:30] + "..."
+		// Format labels
+		var labelDisplay string
+		if len(issue.Labels) > 0 {
+			var labelNames []string
+			for _, label := range issue.Labels {
+				labelNames = append(labelNames, label.Name)
+			}
+			labelDisplay = truncateString(strings.Join(labelNames, ","), labelWidth)
+		} else {
+			labelDisplay = "-"
 		}
 
 		updated := issue.Timestamps.Updated.Format("Jan 02")
 
-		fmt.Printf("%-12s %-30s %-8s %-12s %-8s %-12s %-15s %-8s\n",
-			string(issue.ID),
-			title,
-			string(issue.Type),
-			string(issue.Status),
-			string(issue.Priority),
-			assignee,
-			labels,
-			updated,
-		)
+		if noColor {
+			fmt.Printf("%-*s %-*s %-*s %-*s %-*s %-*s %-*s %-*s\n",
+				idWidth, id, titleWidth, title, typeWidth, issueType,
+				statusWidth, status, priorityWidth, priority, assigneeWidth, assignee,
+				labelWidth, labelDisplay, updatedWidth, updated)
+		} else {
+			// For colored output, create each field with exact width and join them
+			fields := []string{
+				padColoredString(colorIssueID(entities.IssueID(id)), idWidth),
+				padColoredString(colorValue(title), titleWidth),
+				padColoredString(colorType(entities.IssueType(issueType)), typeWidth),
+				padColoredString(colorStatus(entities.Status(status)), statusWidth),
+				padColoredString(colorPriority(entities.Priority(priority)), priorityWidth),
+				padColoredString(colorValue(assignee), assigneeWidth),
+				padColoredString(formatLabelsColored(issue.Labels, labelWidth), labelWidth),
+				color.HiBlackString(updated), // Last column doesn't need padding
+			}
+			fmt.Printf("%s\n", strings.Join(fields, " "))
+		}
 	}
+
+	if !noColor {
+		color.HiBlack("%s+%s+%s+%s+%s+%s+%s+%s",
+			strings.Repeat("-", idWidth), strings.Repeat("-", titleWidth), strings.Repeat("-", typeWidth),
+			strings.Repeat("-", statusWidth), strings.Repeat("-", priorityWidth), strings.Repeat("-", assigneeWidth),
+			strings.Repeat("-", labelWidth), strings.Repeat("-", updatedWidth))
+	}
+}
+
+// truncateString truncates a string to fit within the specified width
+func truncateString(s string, width int) string {
+	if len(s) <= width {
+		return s
+	}
+	if width <= 3 {
+		return s[:width]
+	}
+	return s[:width-3] + "..."
+}
+
+// padColoredString pads a colored string to the specified width
+// This accounts for ANSI escape codes that don't contribute to visual width
+func padColoredString(coloredStr string, width int) string {
+	// Calculate visual width by removing ANSI escape codes
+	stripped := stripAnsiCodes(coloredStr)
+	visualWidth := len(stripped)
+
+	if visualWidth >= width {
+		// If content is too long, truncate the visual part and reapply colors
+		if visualWidth > width {
+			truncated := truncateString(stripped, width)
+			// For truncated content, we can't preserve colors perfectly,
+			// so just return the truncated version
+			return truncated
+		}
+		return coloredStr
+	}
+
+	// Add padding spaces to reach exact desired width
+	padding := strings.Repeat(" ", width-visualWidth)
+	return coloredStr + padding
+}
+
+// stripAnsiCodes removes ANSI escape codes from a string to calculate visual width
+func stripAnsiCodes(s string) string {
+	// Simple regex to remove ANSI escape sequences
+	// This handles standard color codes like \033[31m, \033[0m etc.
+	ansiRegex := regexp.MustCompile(`\x1b\[[0-9;]*[mK]`)
+	return ansiRegex.ReplaceAllString(s, "")
+}
+
+// formatLabelsColored formats labels with colors for the given width
+func formatLabelsColored(labels []entities.Label, width int) string {
+	if len(labels) == 0 {
+		return "-"
+	}
+
+	if noColor {
+		var labelNames []string
+		for _, label := range labels {
+			labelNames = append(labelNames, label.Name)
+		}
+		result := strings.Join(labelNames, ",")
+		return truncateString(result, width)
+	}
+
+	// For colored output, try to fit as many labels as possible
+	var coloredLabels []string
+	totalWidth := 0
+
+	for i, label := range labels {
+		colored := color.HiYellowString(label.Name)
+		labelWidth := len(label.Name) // Visual width without ANSI codes
+
+		if i > 0 {
+			totalWidth += 1 // for comma
+		}
+
+		if totalWidth+labelWidth > width {
+			if len(coloredLabels) == 0 {
+				// At least show first label truncated
+				return color.HiYellowString(truncateString(label.Name, width))
+			}
+			// Add "+N" indicator for remaining labels
+			remaining := len(labels) - i
+			indicator := color.HiBlackString("+%d", remaining)
+			indicatorWidth := len(fmt.Sprintf("+%d", remaining))
+
+			if totalWidth+1+indicatorWidth <= width {
+				return strings.Join(coloredLabels, ",") + "," + indicator
+			}
+			// Not enough space for indicator, just return what we have
+			return strings.Join(coloredLabels, ",")
+		}
+
+		coloredLabels = append(coloredLabels, colored)
+		totalWidth += labelWidth
+	}
+
+	return strings.Join(coloredLabels, ",")
 }

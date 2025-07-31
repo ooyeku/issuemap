@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app/services"
@@ -23,6 +24,7 @@ comments, commits, and all metadata.
 
 Examples:
   issuemap show ISSUE-001
+  issuemap show 001
   issuemap show ISSUE-001 --format json`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,7 +38,7 @@ func init() {
 
 func runShow(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	issueID := entities.IssueID(args[0])
+	issueID := normalizeIssueID(args[0])
 
 	// Initialize services
 	repoPath, err := findGitRoot()
@@ -69,72 +71,132 @@ func runShow(cmd *cobra.Command, args []string) error {
 }
 
 func displayIssueDetails(issue *entities.Issue) {
-	fmt.Printf("Issue %s\n", issue.ID)
-	fmt.Printf("Title: %s\n", issue.Title)
-	fmt.Printf("Type: %s\n", issue.Type)
-	fmt.Printf("Status: %s\n", issue.Status)
-	fmt.Printf("Priority: %s\n", issue.Priority)
-
-	if issue.Assignee != nil {
-		fmt.Printf("Assignee: %s (%s)\n", issue.Assignee.Username, issue.Assignee.Email)
+	// Header with issue ID and title
+	if noColor {
+		fmt.Printf("Issue %s\n", issue.ID)
+		fmt.Printf("Title: %s\n", issue.Title)
 	} else {
-		fmt.Printf("Assignee: Unassigned\n")
+		fmt.Printf("%s %s\n", colorHeader("Issue"), colorIssueID(issue.ID))
+		fmt.Printf("%s %s\n", colorLabel("Title:"), colorValue(issue.Title))
 	}
 
+	printSeparator()
+
+	// Core properties
+	printSectionHeader("Properties")
+	if noColor {
+		fmt.Printf("Type: %s\n", issue.Type)
+		fmt.Printf("Status: %s\n", issue.Status)
+		fmt.Printf("Priority: %s\n", issue.Priority)
+	} else {
+		fmt.Printf("%s %s\n", colorLabel("Type:"), colorType(issue.Type))
+		fmt.Printf("%s %s\n", colorLabel("Status:"), colorStatus(issue.Status))
+		fmt.Printf("%s %s\n", colorLabel("Priority:"), colorPriority(issue.Priority))
+	}
+
+	// Assignment info
+	if issue.Assignee != nil {
+		assigneeText := fmt.Sprintf("%s (%s)", issue.Assignee.Username, issue.Assignee.Email)
+		formatFieldValue("Assignee", assigneeText)
+	} else {
+		formatFieldValue("Assignee", "Unassigned")
+	}
+
+	// Labels with colors
 	if len(issue.Labels) > 0 {
 		var labelNames []string
 		for _, label := range issue.Labels {
-			labelNames = append(labelNames, label.Name)
+			if noColor {
+				labelNames = append(labelNames, label.Name)
+			} else {
+				labelNames = append(labelNames, color.HiYellowString(label.Name))
+			}
 		}
-		fmt.Printf("Labels: %s\n", strings.Join(labelNames, ", "))
+		if noColor {
+			fmt.Printf("Labels: %s\n", strings.Join(labelNames, ", "))
+		} else {
+			fmt.Printf("%s %s\n", colorLabel("Labels:"), strings.Join(labelNames, " "))
+		}
 	}
 
+	// Milestone
 	if issue.Milestone != nil {
-		fmt.Printf("Milestone: %s", issue.Milestone.Name)
+		milestoneText := issue.Milestone.Name
 		if issue.Milestone.DueDate != nil {
-			fmt.Printf(" (due %s)", issue.Milestone.DueDate.Format("2006-01-02"))
+			milestoneText += fmt.Sprintf(" (due %s)", issue.Milestone.DueDate.Format("2006-01-02"))
 		}
-		fmt.Println()
+		formatFieldValue("Milestone", milestoneText)
 	}
 
+	// Branch
 	if issue.Branch != "" {
-		fmt.Printf("Branch: %s\n", issue.Branch)
+		formatFieldValue("Branch", issue.Branch)
 	}
 
-	fmt.Printf("Created: %s\n", issue.Timestamps.Created.Format("2006-01-02 15:04:05"))
-	fmt.Printf("Updated: %s\n", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
+	// Timestamps
+	printSectionHeader("Timeline")
+	formatFieldValue("Created", issue.Timestamps.Created.Format("2006-01-02 15:04:05"))
+	formatFieldValue("Updated", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
 
 	if issue.Timestamps.Closed != nil {
-		fmt.Printf("Closed: %s\n", issue.Timestamps.Closed.Format("2006-01-02 15:04:05"))
+		formatFieldValue("Closed", issue.Timestamps.Closed.Format("2006-01-02 15:04:05"))
 	}
 
+	// Description
 	if issue.Description != "" {
-		fmt.Printf("\nDescription:\n%s\n", issue.Description)
+		printSectionHeader("Description")
+		if noColor {
+			fmt.Printf("%s\n", issue.Description)
+		} else {
+			color.White("%s", issue.Description)
+		}
 	}
 
+	// Commits
 	if len(issue.Commits) > 0 {
-		fmt.Printf("\nCommits (%d):\n", len(issue.Commits))
+		printSectionHeader(fmt.Sprintf("Commits (%d)", len(issue.Commits)))
 		for _, commit := range issue.Commits {
-			fmt.Printf("  %s - %s (%s)\n",
-				commit.Hash[:8],
-				commit.Message[:min(50, len(commit.Message))],
-				commit.Author)
+			commitMsg := commit.Message
+			if len(commitMsg) > 50 {
+				commitMsg = commitMsg[:50] + "..."
+			}
+
+			if noColor {
+				fmt.Printf("  %s - %s (%s)\n",
+					commit.Hash[:8], commitMsg, commit.Author)
+			} else {
+				fmt.Printf("  %s - %s %s\n",
+					color.YellowString(commit.Hash[:8]),
+					colorValue(commitMsg),
+					color.HiBlackString("(%s)", commit.Author))
+			}
 		}
 	}
 
+	// Comments
 	if len(issue.Comments) > 0 {
-		fmt.Printf("\nComments (%d):\n", len(issue.Comments))
-		for _, comment := range issue.Comments {
-			fmt.Printf("\n--- Comment #%d by %s on %s ---\n",
-				comment.ID,
-				comment.Author,
-				comment.Date.Format("2006-01-02 15:04:05"))
-			fmt.Printf("%s\n", comment.Text)
+		printSectionHeader(fmt.Sprintf("Comments (%d)", len(issue.Comments)))
+		for i, comment := range issue.Comments {
+			if i > 0 {
+				fmt.Println()
+			}
+
+			if noColor {
+				fmt.Printf("── Comment #%d by %s on %s ──\n",
+					comment.ID, comment.Author, comment.Date.Format("2006-01-02 15:04:05"))
+				fmt.Printf("%s\n", comment.Text)
+			} else {
+				color.HiBlack("── Comment #%d by %s on %s ──",
+					comment.ID, comment.Author, comment.Date.Format("2006-01-02 15:04:05"))
+				color.White("%s", comment.Text)
+			}
 		}
 	}
 
+	// Metadata
 	if issue.Metadata.EstimatedHours != nil {
-		fmt.Printf("\nEstimated Hours: %.1f\n", *issue.Metadata.EstimatedHours)
+		printSectionHeader("Metadata")
+		formatFieldValue("Estimated Hours", fmt.Sprintf("%.1f", *issue.Metadata.EstimatedHours))
 	}
 	if issue.Metadata.ActualHours != nil {
 		fmt.Printf("Actual Hours: %.1f\n", *issue.Metadata.ActualHours)

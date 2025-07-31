@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app/services"
-	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
@@ -23,8 +22,9 @@ var closeCmd = &cobra.Command{
 
 Examples:
   issuemap close ISSUE-001
+  issuemap close 001
   issuemap close ISSUE-001 --reason "Fixed in commit abc123"
-  issuemap close ISSUE-001 --reason "Won't fix - duplicate of ISSUE-002"`,
+  issuemap close 001 --reason "Won't fix - duplicate of ISSUE-002"`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runClose(cmd, args)
@@ -38,7 +38,7 @@ func init() {
 
 func runClose(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	issueID := entities.IssueID(args[0])
+	issueID := normalizeIssueID(args[0])
 
 	// Initialize services
 	repoPath, err := findGitRoot()
@@ -94,7 +94,7 @@ func init() {
 
 func runReopen(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	issueID := entities.IssueID(args[0])
+	issueID := normalizeIssueID(args[0])
 
 	// Initialize services
 	repoPath, err := findGitRoot()
