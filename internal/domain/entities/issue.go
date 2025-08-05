@@ -196,6 +196,57 @@ func (i *Issue) SetMilestone(milestone *Milestone) {
 	i.Timestamps.Updated = time.Now()
 }
 
+// SetEstimate sets the estimated hours for the issue
+func (i *Issue) SetEstimate(hours float64) {
+	i.Metadata.EstimatedHours = &hours
+	i.Timestamps.Updated = time.Now()
+}
+
+// AddTimeEntry adds time to the actual hours for the issue
+func (i *Issue) AddTimeEntry(hours float64) {
+	if i.Metadata.ActualHours == nil {
+		i.Metadata.ActualHours = &hours
+	} else {
+		*i.Metadata.ActualHours += hours
+	}
+	i.Timestamps.Updated = time.Now()
+}
+
+// GetEstimatedHours returns the estimated hours or 0 if not set
+func (i *Issue) GetEstimatedHours() float64 {
+	if i.Metadata.EstimatedHours == nil {
+		return 0
+	}
+	return *i.Metadata.EstimatedHours
+}
+
+// GetActualHours returns the actual hours or 0 if not set
+func (i *Issue) GetActualHours() float64 {
+	if i.Metadata.ActualHours == nil {
+		return 0
+	}
+	return *i.Metadata.ActualHours
+}
+
+// GetRemainingHours returns the remaining hours (estimate - actual)
+func (i *Issue) GetRemainingHours() float64 {
+	estimated := i.GetEstimatedHours()
+	actual := i.GetActualHours()
+	remaining := estimated - actual
+	if remaining < 0 {
+		return 0
+	}
+	return remaining
+}
+
+// IsOverEstimate returns true if actual hours exceed estimated hours
+func (i *Issue) IsOverEstimate() bool {
+	if i.Metadata.EstimatedHours == nil {
+		return false
+	}
+	return i.GetActualHours() > i.GetEstimatedHours()
+}
+
 // AddCommit adds a commit reference to the issue
 func (i *Issue) AddCommit(commit CommitRef) {
 	i.Commits = append(i.Commits, commit)

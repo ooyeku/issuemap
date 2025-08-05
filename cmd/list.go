@@ -28,6 +28,7 @@ var (
 	listBranch    string
 	listLimit     int
 	listAll       bool
+	listBlocked   bool
 )
 
 // listCmd represents the list command
@@ -60,6 +61,7 @@ func init() {
 	listCmd.Flags().StringVarP(&listBranch, "branch", "b", "", "filter by branch")
 	listCmd.Flags().IntVar(&listLimit, "limit", 20, "limit number of results")
 	listCmd.Flags().BoolVar(&listAll, "all", false, "show all issues (no limit)")
+	listCmd.Flags().BoolVar(&listBlocked, "blocked", false, "show only blocked issues")
 }
 
 func runList(cmd *cobra.Command, args []string) error {
@@ -82,6 +84,15 @@ func runList(cmd *cobra.Command, args []string) error {
 	}
 
 	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
+
+	// Initialize dependency service if needed for blocked filtering
+	var dependencyService *services.DependencyService
+	if listBlocked {
+		dependencyRepo := storage.NewFileDependencyRepository(issuemapPath)
+		historyRepo := storage.NewFileHistoryRepository(issuemapPath)
+		historyService := services.NewHistoryService(historyRepo, gitRepo)
+		dependencyService = services.NewDependencyService(dependencyRepo, issueService, historyService)
+	}
 
 	// Build filter
 	filter := repositories.IssueFilter{}
@@ -119,6 +130,33 @@ func runList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		printError(fmt.Errorf("failed to list issues: %w", err))
 		return err
+	}
+
+	// Filter for blocked issues if requested
+	if listBlocked && dependencyService != nil {
+		blockedIssueIDs, err := dependencyService.GetBlockedIssues(ctx)
+		if err != nil {
+			printError(fmt.Errorf("failed to get blocked issues: %w", err))
+			return err
+		}
+
+		// Create a map for faster lookup
+		blockedMap := make(map[entities.IssueID]bool)
+		for _, id := range blockedIssueIDs {
+			blockedMap[id] = true
+		}
+
+		// Filter the issues to only include blocked ones
+		var blockedIssues []entities.Issue
+		for _, issue := range issueList.Issues {
+			if blockedMap[issue.ID] {
+				blockedIssues = append(blockedIssues, issue)
+			}
+		}
+
+		// Update the issue list
+		issueList.Issues = blockedIssues
+		issueList.Count = len(blockedIssues)
 	}
 
 	if len(issueList.Issues) == 0 {

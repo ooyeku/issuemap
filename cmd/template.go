@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -23,6 +26,7 @@ var (
 	templateFields      []string
 	templateInteractive bool
 	templateFormat      string
+	templateOverwrite   bool
 )
 
 // templateCmd represents the template command
@@ -120,6 +124,40 @@ Examples:
 	},
 }
 
+// templateExportCmd exports a template to a file
+var templateExportCmd = &cobra.Command{
+	Use:   "export <template-name> [output-file]",
+	Short: "Export a template to a file",
+	Long: `Export a template to a YAML file for sharing or backup.
+If no output file is specified, exports to <template-name>.yaml
+
+Examples:
+  issuemap template export bug bug-template.yaml
+  issuemap template export my-custom-template
+  issuemap template export feature --format json`,
+	Args: cobra.RangeArgs(1, 2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runTemplateExport(cmd, args)
+	},
+}
+
+// templateImportCmd imports a template from a file
+var templateImportCmd = &cobra.Command{
+	Use:   "import <file-path> [template-name]",
+	Short: "Import a template from a file",
+	Long: `Import a template from a YAML or JSON file.
+If no template name is specified, uses the name from the file.
+
+Examples:
+  issuemap template import bug-template.yaml
+  issuemap template import shared-template.yaml my-template
+  issuemap template import --overwrite existing-template.yaml`,
+	Args: cobra.RangeArgs(1, 2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runTemplateImport(cmd, args)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(templateCmd)
 
@@ -129,6 +167,8 @@ func init() {
 	templateCmd.AddCommand(templateCreateCmd)
 	templateCmd.AddCommand(templateValidateCmd)
 	templateCmd.AddCommand(templateDeleteCmd)
+	templateCmd.AddCommand(templateExportCmd)
+	templateCmd.AddCommand(templateImportCmd)
 
 	// Template create flags
 	templateCreateCmd.Flags().StringVar(&templateType, "type", "task", "default issue type (bug, feature, task, epic)")
@@ -138,6 +178,12 @@ func init() {
 	templateCreateCmd.Flags().StringVar(&templatePriority, "priority", "medium", "default priority")
 	templateCreateCmd.Flags().StringSliceVar(&templateFields, "fields", []string{}, "custom fields (key:type:description)")
 	templateCreateCmd.Flags().BoolVarP(&templateInteractive, "interactive", "i", false, "interactive template creation")
+
+	// Template export flags
+	templateExportCmd.Flags().StringVarP(&templateFormat, "format", "f", "yaml", "export format (yaml, json)")
+
+	// Template import flags
+	templateImportCmd.Flags().BoolVar(&templateOverwrite, "overwrite", false, "overwrite existing template")
 
 	// Global template flags
 	templateCmd.PersistentFlags().StringVarP(&templateFormat, "format", "f", "table", "output format (table, json, yaml)")
@@ -435,5 +481,171 @@ func outputYAML(data interface{}) error {
 		return err
 	}
 	fmt.Print(string(output))
+	return nil
+}
+
+func runTemplateExport(cmd *cobra.Command, args []string) error {
+	ctx := context.Background()
+	templateName := args[0]
+
+	// Determine output file
+	var outputFile string
+	if len(args) > 1 {
+		outputFile = args[1]
+	} else {
+		ext := "yaml"
+		if templateFormat == "json" {
+			ext = "json"
+		}
+		outputFile = fmt.Sprintf("%s.%s", templateName, ext)
+	}
+
+	// Initialize repositories
+	repoPath, err := findGitRoot()
+	if err != nil {
+		printError(fmt.Errorf("not in a git repository: %w", err))
+		return err
+	}
+
+	issuemapPath := filepath.Join(repoPath, ".issuemap")
+	configRepo := storage.NewFileConfigRepository(issuemapPath)
+
+	// Get the template
+	template, err := configRepo.GetTemplate(ctx, templateName)
+	if err != nil {
+		printError(fmt.Errorf("failed to get template '%s': %w", templateName, err))
+		return err
+	}
+
+	// Create export data with metadata
+	exportData := map[string]interface{}{
+		"template": template,
+		"metadata": map[string]interface{}{
+			"exported_at": time.Now().Format(time.RFC3339),
+			"version":     "1.0",
+			"source":      "issuemap",
+		},
+	}
+
+	// Marshal to requested format
+	var data []byte
+	switch templateFormat {
+	case "json":
+		data, err = json.MarshalIndent(exportData, "", "  ")
+	case "yaml":
+		data, err = yaml.Marshal(exportData)
+	default:
+		return fmt.Errorf("unsupported export format: %s", templateFormat)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to marshal template: %w", err)
+	}
+
+	// Write to file
+	err = ioutil.WriteFile(outputFile, data, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write template to file: %w", err)
+	}
+
+	printSuccess(fmt.Sprintf("Template '%s' exported to '%s'", templateName, outputFile))
+	return nil
+}
+
+func runTemplateImport(cmd *cobra.Command, args []string) error {
+	ctx := context.Background()
+	filePath := args[0]
+
+	// Read the file
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read template file: %w", err)
+	}
+
+	// Parse the file
+	var importData map[string]interface{}
+
+	// Try YAML first, then JSON
+	err = yaml.Unmarshal(data, &importData)
+	if err != nil {
+		err = json.Unmarshal(data, &importData)
+		if err != nil {
+			return fmt.Errorf("failed to parse template file (not valid YAML or JSON): %w", err)
+		}
+	}
+
+	// Extract template data
+	templateData, exists := importData["template"]
+	if !exists {
+		// Maybe it's a direct template file without metadata wrapper
+		templateData = importData
+	}
+
+	// Convert to template struct
+	templateBytes, err := yaml.Marshal(templateData)
+	if err != nil {
+		return fmt.Errorf("failed to process template data: %w", err)
+	}
+
+	var template entities.Template
+	err = yaml.Unmarshal(templateBytes, &template)
+	if err != nil {
+		return fmt.Errorf("failed to parse template structure: %w", err)
+	}
+
+	// Determine template name
+	if len(args) > 1 {
+		template.Name = args[1]
+	}
+
+	if template.Name == "" {
+		return fmt.Errorf("template name is required (either specify as argument or include in template file)")
+	}
+
+	// Validate template
+	err = validateTemplate(&template)
+	if err != nil {
+		return fmt.Errorf("template validation failed: %w", err)
+	}
+
+	// Initialize repositories
+	repoPath, err := findGitRoot()
+	if err != nil {
+		printError(fmt.Errorf("not in a git repository: %w", err))
+		return err
+	}
+
+	issuemapPath := filepath.Join(repoPath, ".issuemap")
+	configRepo := storage.NewFileConfigRepository(issuemapPath)
+
+	// Check if template already exists
+	if !templateOverwrite {
+		existing, err := configRepo.GetTemplate(ctx, template.Name)
+		if err == nil && existing != nil {
+			return fmt.Errorf("template '%s' already exists. Use --overwrite to replace it", template.Name)
+		}
+	}
+
+	// Save the template
+	err = configRepo.SaveTemplate(ctx, &template)
+	if err != nil {
+		return fmt.Errorf("failed to save template: %w", err)
+	}
+
+	printSuccess(fmt.Sprintf("Template '%s' imported successfully", template.Name))
+
+	// Show template details
+	fmt.Println()
+	printSectionHeader("Template Details:")
+	fmt.Printf("  Name: %s\n", template.Name)
+	fmt.Printf("  Type: %s\n", template.Type)
+	fmt.Printf("  Priority: %s\n", template.Priority)
+	if len(template.Labels) > 0 {
+		fmt.Printf("  Labels: %s\n", strings.Join(template.Labels, ", "))
+	}
+	if len(template.Fields) > 0 {
+		fmt.Printf("  Custom Fields: %d\n", len(template.Fields))
+	}
+
 	return nil
 }

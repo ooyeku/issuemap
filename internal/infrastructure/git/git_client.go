@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -335,4 +336,143 @@ func (g *GitClient) getGitConfig(key string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(output)), nil
+}
+
+// GetBranches returns a list of all branches
+func (g *GitClient) GetBranches(ctx context.Context) ([]string, error) {
+	refs, err := g.repo.Branches()
+	if err != nil {
+		return nil, errors.Wrap(err, "GitClient.GetBranches", "list_branches")
+	}
+
+	var branches []string
+	err = refs.ForEach(func(ref *plumbing.Reference) error {
+		branchName := ref.Name().Short()
+		branches = append(branches, branchName)
+		return nil
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "GitClient.GetBranches", "iterate_branches")
+	}
+
+	return branches, nil
+}
+
+// BranchExists checks if a branch exists
+func (g *GitClient) BranchExists(ctx context.Context, name string) (bool, error) {
+	branchRef := plumbing.NewBranchReferenceName(name)
+	_, err := g.repo.Reference(branchRef, false)
+	if err != nil {
+		if err == plumbing.ErrReferenceNotFound {
+			return false, nil
+		}
+		return false, errors.Wrap(err, "GitClient.BranchExists", "check_reference")
+	}
+	return true, nil
+}
+
+// GetBranchStatus returns the status of a branch relative to origin
+func (g *GitClient) GetBranchStatus(ctx context.Context, branch string) (*repositories.BranchStatus, error) {
+	status := &repositories.BranchStatus{
+		Name:   branch,
+		Exists: false,
+	}
+
+	// Check if branch exists
+	exists, err := g.BranchExists(ctx, branch)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return status, nil
+	}
+
+	status.Exists = true
+
+	// Get branch reference
+	branchRef := plumbing.NewBranchReferenceName(branch)
+	ref, err := g.repo.Reference(branchRef, false)
+	if err != nil {
+		return status, nil
+	}
+
+	// Get last commit info
+	commit, err := g.repo.CommitObject(ref.Hash())
+	if err == nil {
+		status.LastCommit = commit.Hash.String()[:8]
+		status.LastCommitMsg = strings.Split(commit.Message, "\n")[0]
+	}
+
+	// Check if branch is tracked (has upstream)
+	cmd := exec.Command("git", "branch", "-vv")
+	cmd.Dir = g.repoPath
+	output, err := cmd.Output()
+	if err == nil {
+		lines := strings.Split(string(output), "\n")
+		for _, line := range lines {
+			if strings.Contains(line, branch) && strings.Contains(line, "[") {
+				status.IsTracked = true
+				// Parse ahead/behind info from git branch -vv output
+				if strings.Contains(line, "ahead") {
+					status.HasUnpushed = true
+					// Extract ahead count with regex
+					re := regexp.MustCompile(`ahead (\d+)`)
+					if matches := re.FindStringSubmatch(line); len(matches) > 1 {
+						if count, err := strconv.Atoi(matches[1]); err == nil {
+							status.AheadBy = count
+						}
+					}
+				}
+				if strings.Contains(line, "behind") {
+					status.HasUnpulled = true
+					// Extract behind count with regex
+					re := regexp.MustCompile(`behind (\d+)`)
+					if matches := re.FindStringSubmatch(line); len(matches) > 1 {
+						if count, err := strconv.Atoi(matches[1]); err == nil {
+							status.BehindBy = count
+						}
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return status, nil
+}
+
+// PushBranch pushes a branch to the remote repository
+func (g *GitClient) PushBranch(ctx context.Context, branch string) error {
+	cmd := exec.Command("git", "push", "origin", branch)
+	cmd.Dir = g.repoPath
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, "GitClient.PushBranch", "push_failed: "+string(output))
+	}
+
+	return nil
+}
+
+// PullBranch pulls changes from the remote repository
+func (g *GitClient) PullBranch(ctx context.Context, branch string) error {
+	// First, fetch from origin
+	cmd := exec.Command("git", "fetch", "origin")
+	cmd.Dir = g.repoPath
+	if err := cmd.Run(); err != nil {
+		return errors.Wrap(err, "GitClient.PullBranch", "fetch_failed")
+	}
+
+	// Then merge origin/branch into current branch
+	cmd = exec.Command("git", "merge", "origin/"+branch)
+	cmd.Dir = g.repoPath
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, "GitClient.PullBranch", "merge_failed: "+string(output))
+	}
+
+	return nil
 }

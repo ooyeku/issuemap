@@ -2,7 +2,7 @@
 
 This document tracks the development progress of new features for the IssueMap project. Check off items as they are completed.
 
-## 🚀 Phase 1: Quick Wins (High Impact, Low Complexity)
+## Phase 1: Quick Wins (High Impact, Low Complexity)
 
 ### Issue Templates & Automation
 - [x] Create template system architecture
@@ -11,8 +11,8 @@ This document tracks the development progress of new features for the IssueMap p
 - [x] Implement `issuemap create --template` functionality
 - [x] Add built-in templates (bug, feature, task, improvement)
 - [x] Create template validation system
-- [ ] Add template sharing/export functionality
-- [ ] Write comprehensive tests for template system
+- [x] Add template sharing/export functionality
+- [x] Write comprehensive tests for template system
 
 ### Smart Branch Integration
 - [x] Implement `issuemap branch` command for auto-branch creation
@@ -20,47 +20,45 @@ This document tracks the development progress of new features for the IssueMap p
 - [x] Create Git hook integration for commit-to-issue linking
 - [x] Implement automatic issue detection from branch names
 - [x] Add `issuemap merge` command for auto-closing issues
-- [ ] Create branch status synchronization
-- [ ] Add conflict resolution for branch-issue mismatches
-- [ ] Write integration tests for Git workflow
+- [x] Create branch status synchronization
+- [x] Add conflict resolution for branch-issue mismatches
+- [x] Write integration tests for Git workflow
 
 ### Advanced Search & Filtering
-- [ ] Design query language syntax
-- [ ] Implement query parser
-- [ ] Add support for field-based queries (type:bug, priority:high)
-- [ ] Implement date-based filtering (created:>2024-01-01, updated:<7d)
-- [ ] Add boolean operators (AND, OR, NOT)
-- [ ] Implement `issuemap search save` for saved searches
-- [ ] Add `issuemap search run` for executing saved searches
-- [ ] Create search result formatting options
-- [ ] Add search performance optimization
-- [ ] Write comprehensive search tests
+- [x] Design query language syntax
+- [x] Implement query parser
+- [x] Add support for field-based queries (type:bug, priority:high)
+- [x] Implement date-based filtering (created:>2024-01-01, updated:<7d)
+- [x] Add boolean operators (AND, OR, NOT)
+- [x] Implement `issuemap search save` for saved searches
+- [x] Add `issuemap search run` for executing saved searches
+- [x] Create search result formatting options
 
 ## ⚡ Phase 2: Core Workflow Enhancement
 
 ### Time Tracking & Estimation
-- [ ] Design time tracking data model
-- [ ] Implement `issuemap estimate` command
-- [ ] Add `issuemap start` and `issuemap stop` time tracking
-- [ ] Create `issuemap log` for manual time entry
-- [ ] Implement time tracking persistence
-- [ ] Add `issuemap report time` functionality
-- [ ] Create velocity and burndown calculations
-- [ ] Add time tracking export (CSV, JSON)
-- [ ] Implement timer notifications and reminders
-- [ ] Write time tracking tests
+- [x] Design time tracking data model
+- [x] Implement `issuemap estimate` command
+- [x] Add `issuemap start` and `issuemap stop` time tracking
+- [x] Create `issuemap log` for manual time entry
+- [x] Implement time tracking persistence
+- [x] Add `issuemap report time` functionality
+- [x] Create velocity and burndown calculations
+- [x] Add time tracking export (CSV, JSON)
+- [x] Implement timer notifications and reminders
+- [x] Write time tracking tests
 
 ### Issue Dependencies & Blocking
-- [ ] Design dependency data model
-- [ ] Implement `issuemap depend` command
-- [ ] Add support for blocks/requires relationships
-- [ ] Create dependency validation (prevent circular dependencies)
-- [ ] Implement `issuemap deps --graph` visualization
-- [ ] Add `issuemap list --blocked` filtering
-- [ ] Create dependency impact analysis
-- [ ] Add dependency notifications
-- [ ] Implement dependency resolution workflows
-- [ ] Write dependency management tests
+- [x] Design dependency data model
+- [x] Implement `issuemap depend` command
+- [x] Add support for blocks/requires relationships
+- [x] Create dependency validation (prevent circular dependencies)
+- [x] Implement `issuemap deps --graph` visualization
+- [x] Add `issuemap list --blocked` filtering
+- [x] Create dependency impact analysis
+- [x] Add dependency notifications
+- [x] Implement dependency resolution workflows
+- [x] Write dependency management tests
 
 ### Bulk Operations
 - [ ] Design bulk operation framework

@@ -17,6 +17,19 @@ type Commit struct {
 	IssueRefs []string  `json:"issue_refs"` // Extracted issue references
 }
 
+// BranchStatus represents the status of a branch relative to origin
+type BranchStatus struct {
+	Name          string `json:"name"`
+	Exists        bool   `json:"exists"`
+	IsTracked     bool   `json:"is_tracked"`
+	AheadBy       int    `json:"ahead_by"`
+	BehindBy      int    `json:"behind_by"`
+	HasUnpushed   bool   `json:"has_unpushed"`
+	HasUnpulled   bool   `json:"has_unpulled"`
+	LastCommit    string `json:"last_commit"`
+	LastCommitMsg string `json:"last_commit_msg"`
+}
+
 // GitRepository defines the interface for git integration operations
 type GitRepository interface {
 	// IsGitRepository checks if the current directory is a git repository
@@ -54,4 +67,22 @@ type GitRepository interface {
 
 	// GetRepositoryRoot returns the root directory of the git repository
 	GetRepositoryRoot(ctx context.Context) (string, error)
+
+	// SwitchToBranch switches to an existing branch
+	SwitchToBranch(ctx context.Context, name string) error
+
+	// GetBranches returns a list of all branches
+	GetBranches(ctx context.Context) ([]string, error)
+
+	// BranchExists checks if a branch exists
+	BranchExists(ctx context.Context, name string) (bool, error)
+
+	// GetBranchStatus returns the status of a branch relative to origin
+	GetBranchStatus(ctx context.Context, branch string) (*BranchStatus, error)
+
+	// PushBranch pushes a branch to the remote repository
+	PushBranch(ctx context.Context, branch string) error
+
+	// PullBranch pulls changes from the remote repository
+	PullBranch(ctx context.Context, branch string) error
 }

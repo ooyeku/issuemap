@@ -2,13 +2,14 @@ package entities
 
 // Config represents the project configuration
 type Config struct {
-	Project    ProjectConfig   `yaml:"project" json:"project"`
-	Workflow   WorkflowConfig  `yaml:"workflow" json:"workflow"`
-	Templates  TemplatesConfig `yaml:"templates" json:"templates"`
-	Labels     []Label         `yaml:"labels" json:"labels"`
-	Milestones []Milestone     `yaml:"milestones" json:"milestones"`
-	Git        GitConfig       `yaml:"git" json:"git"`
-	UI         UIConfig        `yaml:"ui" json:"ui"`
+	Project       ProjectConfig     `yaml:"project" json:"project"`
+	Workflow      WorkflowConfig    `yaml:"workflow" json:"workflow"`
+	Templates     TemplatesConfig   `yaml:"templates" json:"templates"`
+	Labels        []Label           `yaml:"labels" json:"labels"`
+	Milestones    []Milestone       `yaml:"milestones" json:"milestones"`
+	Git           GitConfig         `yaml:"git" json:"git"`
+	UI            UIConfig          `yaml:"ui" json:"ui"`
+	SavedSearches map[string]string `yaml:"saved_searches,omitempty" json:"saved_searches,omitempty"`
 }
 
 // ProjectConfig contains project-specific settings

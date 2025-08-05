@@ -384,6 +384,132 @@ func joinWithComma(items []string) string {
 	return result
 }
 
+// RecordTimerStarted records when a timer is started for an issue
+func (s *HistoryService) RecordTimerStarted(ctx context.Context, issueID entities.IssueID, author, description string) error {
+	message := "Started timer"
+	if description != "" {
+		message = fmt.Sprintf("Started timer: %s", description)
+	}
+
+	entry := entities.NewHistoryEntry(
+		issueID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "timer_started")
+	if description != "" {
+		entry.SetMetadata("description", description)
+	}
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordTimerStopped records when a timer is stopped for an issue
+func (s *HistoryService) RecordTimerStopped(ctx context.Context, issueID entities.IssueID, author string, hours float64) error {
+	message := fmt.Sprintf("Stopped timer (%.1f hours)", hours)
+
+	entry := entities.NewHistoryEntry(
+		issueID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "timer_stopped")
+	entry.SetMetadata("hours_logged", fmt.Sprintf("%.2f", hours))
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordTimeLogged records when time is manually logged for an issue
+func (s *HistoryService) RecordTimeLogged(ctx context.Context, issueID entities.IssueID, author string, hours float64, description string) error {
+	message := fmt.Sprintf("Logged %.1f hours", hours)
+	if description != "" {
+		message = fmt.Sprintf("Logged %.1f hours: %s", hours, description)
+	}
+
+	entry := entities.NewHistoryEntry(
+		issueID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "time_logged")
+	entry.SetMetadata("hours_logged", fmt.Sprintf("%.2f", hours))
+	if description != "" {
+		entry.SetMetadata("description", description)
+	}
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordDependencyCreated records when a dependency is created
+func (s *HistoryService) RecordDependencyCreated(ctx context.Context, sourceID, targetID entities.IssueID, depType entities.DependencyType, author, message string) error {
+	entry := entities.NewHistoryEntry(
+		sourceID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "dependency_created")
+	entry.SetMetadata("target_issue", string(targetID))
+	entry.SetMetadata("dependency_type", string(depType))
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordDependencyRemoved records when a dependency is removed
+func (s *HistoryService) RecordDependencyRemoved(ctx context.Context, sourceID, targetID entities.IssueID, depType entities.DependencyType, author, message string) error {
+	entry := entities.NewHistoryEntry(
+		sourceID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "dependency_removed")
+	entry.SetMetadata("target_issue", string(targetID))
+	entry.SetMetadata("dependency_type", string(depType))
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordDependencyResolved records when a dependency is resolved
+func (s *HistoryService) RecordDependencyResolved(ctx context.Context, sourceID, targetID entities.IssueID, depType entities.DependencyType, author, message string) error {
+	entry := entities.NewHistoryEntry(
+		sourceID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "dependency_resolved")
+	entry.SetMetadata("target_issue", string(targetID))
+	entry.SetMetadata("dependency_type", string(depType))
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
+// RecordDependencyReactivated records when a dependency is reactivated
+func (s *HistoryService) RecordDependencyReactivated(ctx context.Context, sourceID, targetID entities.IssueID, depType entities.DependencyType, author, message string) error {
+	entry := entities.NewHistoryEntry(
+		sourceID,
+		entities.ChangeTypeUpdated,
+		author,
+		message,
+	)
+
+	entry.SetMetadata("action", "dependency_reactivated")
+	entry.SetMetadata("target_issue", string(targetID))
+	entry.SetMetadata("dependency_type", string(depType))
+
+	return s.historyRepo.AddEntry(ctx, entry)
+}
+
 // stringSlicesEqual compares two string slices for equality
 func stringSlicesEqual(a, b []string) bool {
 	if len(a) != len(b) {
