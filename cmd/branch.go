@@ -144,6 +144,15 @@ func runBranch(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Update the issue with the branch information
+	issue.Branch = branchName
+	_, err = issueService.UpdateIssue(ctx, issueID, map[string]interface{}{
+		"branch": branchName,
+	})
+	if err != nil {
+		printWarning(fmt.Sprintf("Created branch but couldn't update issue: %v", err))
+	}
+
 	// Switch to the branch only if auto-switch is enabled and working directory is clean
 	shouldSwitch := !branchAutoSwitch && config.Git.BranchConfig.AutoSwitch
 	if shouldSwitch {
@@ -228,24 +237,41 @@ func runMerge(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("cannot merge from main branch")
 	}
 
-	// Merge to main/master (simplified - in real implementation you'd want proper merge handling)
-	printInfo(fmt.Sprintf("Merging branch '%s' and closing issue %s", currentBranch, issueID))
-
-	// For now, just close the issue (in a full implementation, you'd handle the actual Git merge)
-	err = issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch: %s", currentBranch))
+	// Get the main branch name
+	mainBranch, err := gitClient.GetMainBranch(ctx)
 	if err != nil {
-		printError(fmt.Errorf("failed to close issue: %w", err))
+		printError(fmt.Errorf("failed to determine main branch: %w", err))
 		return err
 	}
 
-	printSuccess(fmt.Sprintf("Issue %s closed successfully", issueID))
+	printInfo(fmt.Sprintf("Merging branch '%s' into '%s' and closing issue %s", currentBranch, mainBranch, issueID))
+
+	// Perform the actual Git merge
+	err = gitClient.MergeBranch(ctx, currentBranch, mainBranch)
+	if err != nil {
+		printError(fmt.Errorf("failed to merge branch '%s' into '%s': %w", currentBranch, mainBranch, err))
+		printWarning("Merge failed. You may need to resolve conflicts manually.")
+		return err
+	}
+
+	printSuccess(fmt.Sprintf("Successfully merged branch '%s' into '%s'", currentBranch, mainBranch))
+
+	// Close the issue after successful merge
+	err = issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", currentBranch, mainBranch))
+	if err != nil {
+		printWarning(fmt.Sprintf("Merge completed, but failed to close issue: %v", err))
+	} else {
+		printSuccess(fmt.Sprintf("Issue %s closed successfully", issueID))
+	}
+
 	printInfo(fmt.Sprintf("Issue: %s - %s", issueID, issue.Title))
 
 	// Add helpful next steps
 	fmt.Println()
 	printSectionHeader("Merge completed:")
+	fmt.Printf("  • Branch '%s' merged into '%s'\n", currentBranch, mainBranch)
 	fmt.Printf("  • Issue %s has been closed\n", issueID)
-	fmt.Printf("  • Consider switching back to main: git checkout main\n")
+	fmt.Printf("  • You are now on the '%s' branch\n", mainBranch)
 	fmt.Printf("  • Delete the feature branch if no longer needed: git branch -d %s\n", currentBranch)
 
 	return nil
@@ -334,14 +360,15 @@ func customBranchTemplate(template, prefix, issueID, title string, config *entit
 
 // checkBranchExists checks if a branch already exists
 func checkBranchExists(gitClient *git.GitClient, branchName string) (bool, error) {
-	// This is a simplified check - in a full implementation you'd use git commands
-	// For now, we'll assume branches don't exist to avoid complexity
-	return false, nil
+	return gitClient.BranchExists(context.Background(), branchName)
 }
 
 // switchToBranch switches to an existing branch
 func switchToBranch(gitClient *git.GitClient, branchName string) error {
-	// Simplified - in real implementation you'd call git checkout
+	err := gitClient.SwitchToBranch(context.Background(), branchName)
+	if err != nil {
+		return err
+	}
 	printInfo(fmt.Sprintf("Switched to branch: %s", branchName))
 	return nil
 }

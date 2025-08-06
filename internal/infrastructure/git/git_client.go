@@ -2,6 +2,7 @@ package git
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -475,4 +476,54 @@ func (g *GitClient) PullBranch(ctx context.Context, branch string) error {
 	}
 
 	return nil
+}
+
+// MergeBranch merges a source branch into a target branch
+func (g *GitClient) MergeBranch(ctx context.Context, sourceBranch, targetBranch string) error {
+	// First, switch to the target branch
+	err := g.SwitchToBranch(ctx, targetBranch)
+	if err != nil {
+		return errors.Wrap(err, "GitClient.MergeBranch", "switch_to_target")
+	}
+
+	// Pull latest changes from origin for the target branch
+	cmd := exec.Command("git", "pull", "origin", targetBranch)
+	cmd.Dir = g.repoPath
+	if err := cmd.Run(); err != nil {
+		// Don't fail if pull fails (might be no remote), just warn
+		fmt.Printf("Warning: Could not pull latest changes for %s: %v\n", targetBranch, err)
+	}
+
+	// Perform the merge with --no-ff to create a merge commit
+	cmd = exec.Command("git", "merge", sourceBranch, "--no-ff", "-m", fmt.Sprintf("Merge branch '%s' into %s", sourceBranch, targetBranch))
+	cmd.Dir = g.repoPath
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, "GitClient.MergeBranch", "merge_failed: "+string(output))
+	}
+
+	return nil
+}
+
+// GetMainBranch returns the main branch name (main or master)
+func (g *GitClient) GetMainBranch(ctx context.Context) (string, error) {
+	// Check if 'main' branch exists
+	cmd := exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/main")
+	cmd.Dir = g.repoPath
+
+	if err := cmd.Run(); err == nil {
+		return "main", nil
+	}
+
+	// Check if 'master' branch exists
+	cmd = exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/master")
+	cmd.Dir = g.repoPath
+
+	if err := cmd.Run(); err == nil {
+		return "master", nil
+	}
+
+	// If neither exists, default to 'main'
+	return "main", nil
 }
