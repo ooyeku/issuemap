@@ -3,6 +3,8 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -151,6 +153,18 @@ func runBranch(cmd *cobra.Command, args []string) error {
 	})
 	if err != nil {
 		printWarning(fmt.Sprintf("Created branch but couldn't update issue: %v", err))
+	}
+
+	// Check if .issuemap directory exists and ensure it's committed before switching
+	if _, statErr := os.Stat(issuemapPath); statErr == nil {
+		// Check if .issuemap directory has uncommitted changes
+		if hasUncommittedIssuemapFiles(repoPath) {
+			printWarning("Uncommitted .issuemap files detected. Committing them before branch switch.")
+			if err := commitIssuemapFiles(repoPath, issueID); err != nil {
+				printWarning(fmt.Sprintf("Failed to commit .issuemap files: %v", err))
+				printInfo("You may need to manually commit .issuemap files before switching branches")
+			}
+		}
 	}
 
 	// Switch to the branch only if auto-switch is enabled and working directory is clean
@@ -370,5 +384,36 @@ func switchToBranch(gitClient *git.GitClient, branchName string) error {
 		return err
 	}
 	printInfo(fmt.Sprintf("Switched to branch: %s", branchName))
+	return nil
+}
+
+// hasUncommittedIssuemapFiles checks if there are uncommitted files in .issuemap
+func hasUncommittedIssuemapFiles(repoPath string) bool {
+	cmd := exec.Command("git", "status", "--porcelain", ".issuemap")
+	cmd.Dir = repoPath
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	return len(strings.TrimSpace(string(output))) > 0
+}
+
+// commitIssuemapFiles commits all .issuemap files
+func commitIssuemapFiles(repoPath string, issueID entities.IssueID) error {
+	// Add .issuemap directory to git
+	addCmd := exec.Command("git", "add", ".issuemap")
+	addCmd.Dir = repoPath
+	if err := addCmd.Run(); err != nil {
+		return fmt.Errorf("failed to add .issuemap files: %w", err)
+	}
+
+	// Commit the changes
+	commitMsg := fmt.Sprintf("Add issuemap files for %s", issueID)
+	commitCmd := exec.Command("git", "commit", "-m", commitMsg)
+	commitCmd.Dir = repoPath
+	if err := commitCmd.Run(); err != nil {
+		return fmt.Errorf("failed to commit .issuemap files: %w", err)
+	}
+
 	return nil
 }
