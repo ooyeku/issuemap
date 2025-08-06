@@ -85,4 +85,10 @@ type GitRepository interface {
 
 	// PullBranch pulls changes from the remote repository
 	PullBranch(ctx context.Context, branch string) error
+
+	// MergeBranch merges a source branch into a target branch
+	MergeBranch(ctx context.Context, sourceBranch, targetBranch string) error
+
+	// GetMainBranch returns the main branch name (main or master)
+	GetMainBranch(ctx context.Context) (string, error)
 }

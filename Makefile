@@ -7,7 +7,7 @@ GO_FILES=$(shell find . -name "*.go" -type f)
 VERSION?=0.1.0
 
 # Default target
-.PHONY: all build install test test-unit test-coverage test-integration test-stress test-performance test-all test-full lint fmt vet clean deps docs setup dev build-all check help
+.PHONY: all build install install-with-path uninstall check-path test test-unit test-coverage test-integration test-stress test-performance test-all test-full lint fmt vet clean deps docs setup dev build-all check help
 
 # Build the application
 build:
@@ -19,6 +19,77 @@ build:
 install: build
 	@echo "Installing $(BINARY_NAME)..."
 	@go install -ldflags="-X 'github.com/ooyeku/$(BINARY_NAME)/internal/app.Version=$(VERSION)'" .
+	@echo "$(BINARY_NAME) installed successfully!"
+	@echo "Binary location: $$(go env GOPATH)/bin/$(BINARY_NAME)"
+	@echo "Make sure $$(go env GOPATH)/bin is in your PATH to run '$(BINARY_NAME)' from anywhere"
+	@echo ""
+	@echo "Test the installation:"
+	@echo "  $(BINARY_NAME) --version"
+	@echo "  $(BINARY_NAME) --help"
+
+# Uninstall the application
+uninstall:
+	@echo "Uninstalling $(BINARY_NAME)..."
+	@if [ -f "$$(go env GOPATH)/bin/$(BINARY_NAME)" ]; then \
+		rm -f "$$(go env GOPATH)/bin/$(BINARY_NAME)"; \
+		echo "✅ $(BINARY_NAME) uninstalled successfully!"; \
+	else \
+		echo "⚠️  $(BINARY_NAME) not found in $$(go env GOPATH)/bin/"; \
+	fi
+
+# Check PATH configuration
+check-path:
+	@echo "Checking PATH configuration..."
+	@GOPATH_BIN="$$(go env GOPATH)/bin"; \
+	echo "📁 GOPATH/bin location: $$GOPATH_BIN"; \
+	if echo "$$PATH" | grep -q "$$GOPATH_BIN"; then \
+		echo "✅ $$GOPATH_BIN is in your PATH"; \
+		if command -v $(BINARY_NAME) >/dev/null 2>&1; then \
+			echo "✅ $(BINARY_NAME) is accessible from terminal"; \
+		else \
+			echo "⚠️  $(BINARY_NAME) not found in PATH (try 'make install')"; \
+		fi; \
+	else \
+		echo "❌ $$GOPATH_BIN is NOT in your PATH"; \
+		echo ""; \
+		echo "To add it to your PATH, add this line to your shell profile:"; \
+		echo "  export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
+		echo ""; \
+		echo "For bash: ~/.bashrc or ~/.bash_profile"; \
+		echo "For zsh:  ~/.zshrc"; \
+		echo "For fish: ~/.config/fish/config.fish"; \
+		echo ""; \
+		echo "Then reload your shell or run: source ~/.zshrc"; \
+	fi
+
+# Install and setup PATH automatically
+install-with-path: install
+	@echo ""
+	@echo "Setting up PATH automatically..."
+	@GOPATH_BIN="$$(go env GOPATH)/bin"; \
+	SHELL_RC=""; \
+	if [ "$$SHELL" = "/bin/zsh" ] || [ "$$SHELL" = "/usr/bin/zsh" ]; then \
+		SHELL_RC="$$HOME/.zshrc"; \
+	elif [ "$$SHELL" = "/bin/bash" ] || [ "$$SHELL" = "/usr/bin/bash" ]; then \
+		if [ -f "$$HOME/.bashrc" ]; then \
+			SHELL_RC="$$HOME/.bashrc"; \
+		else \
+			SHELL_RC="$$HOME/.bash_profile"; \
+		fi; \
+	fi; \
+	if [ -n "$$SHELL_RC" ]; then \
+		if ! grep -q "$$GOPATH_BIN" "$$SHELL_RC" 2>/dev/null; then \
+			echo "export PATH=\"\$$PATH:$$GOPATH_BIN\"" >> "$$SHELL_RC"; \
+			echo "✅ Added $$GOPATH_BIN to $$SHELL_RC"; \
+			echo "🔄 Please run: source $$SHELL_RC"; \
+			echo "   Or restart your terminal to use 'issuemap' from anywhere"; \
+		else \
+			echo "✅ $$GOPATH_BIN already in $$SHELL_RC"; \
+		fi; \
+	else \
+		echo "⚠️  Could not detect shell profile. Please manually add:"; \
+		echo "   export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
+	fi
 
 # Run unit tests (if any exist, otherwise run integration tests)
 test:
@@ -167,7 +238,10 @@ test-quick: build
 help:
 	@echo "Available targets:"
 	@echo "  build           - Build the application"
-	@echo "  install         - Install the application"
+	@echo "  install         - Install the application to GOPATH/bin"
+	@echo "  install-with-path - Install and automatically add GOPATH/bin to PATH"
+	@echo "  uninstall       - Remove the application from GOPATH/bin"
+	@echo "  check-path      - Check if GOPATH/bin is in PATH and provide setup instructions"
 	@echo ""
 	@echo "Testing targets:"
 	@echo "  test            - Run tests (unit if available, else integration)"
