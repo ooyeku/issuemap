@@ -34,8 +34,10 @@ type IntegrationTestSuite struct {
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Error   interface{} `json:"error,omitempty"` // Can be bool or string
 	Count   int         `json:"count,omitempty"`
+	Message string      `json:"message,omitempty"`
+	Code    int         `json:"code,omitempty"`
 }
 
 // IssueData represents issue data from API responses
@@ -451,6 +453,17 @@ func (suite *IntegrationTestSuite) assertAPISuccess(response string) {
 	var apiResp APIResponse
 	err := json.Unmarshal([]byte(response), &apiResp)
 	require.NoError(suite.T(), err, "Failed to parse API response: %s", response)
+
+	// Check for error response (error field can be bool or string)
+	if apiResp.Error != nil {
+		if errorBool, ok := apiResp.Error.(bool); ok && errorBool {
+			suite.T().Fatalf("API returned error: %s (code: %d)", apiResp.Message, apiResp.Code)
+		}
+		if errorStr, ok := apiResp.Error.(string); ok && errorStr != "" {
+			suite.T().Fatalf("API returned error: %s", errorStr)
+		}
+	}
+
 	assert.True(suite.T(), apiResp.Success, "API response not successful: %s", response)
 }
 

@@ -150,8 +150,10 @@ func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) 
 	}
 
 	// Try to get current branch and link issue
-	if branch, err := s.gitRepo.GetCurrentBranch(ctx); err == nil {
-		issue.Branch = branch
+	if s.gitRepo != nil {
+		if branch, err := s.gitRepo.GetCurrentBranch(ctx); err == nil {
+			issue.Branch = branch
+		}
 	}
 
 	// Process template automation if template was used
@@ -194,7 +196,7 @@ func (s *IssueService) GetIssue(ctx context.Context, id entities.IssueID) (*enti
 	}
 
 	// Update issue with latest commits if linked to git
-	if issue.Branch != "" {
+	if issue.Branch != "" && s.gitRepo != nil {
 		commits, err := s.gitRepo.GetCommitsByIssue(ctx, id)
 		if err == nil {
 			// Update commits in issue
@@ -335,6 +337,18 @@ func (s *IssueService) UpdateIssue(ctx context.Context, id entities.IssueID, upd
 							break
 						}
 					}
+				}
+			}
+		case "estimated_hours":
+			if hours, ok := value.(float64); ok {
+				issue.SetEstimate(hours)
+			}
+		case "actual_hours":
+			if hours, ok := value.(float64); ok {
+				if issue.Metadata.ActualHours == nil {
+					issue.Metadata.ActualHours = &hours
+				} else {
+					*issue.Metadata.ActualHours = hours
 				}
 			}
 		}
@@ -488,6 +502,9 @@ func (s *IssueService) CreateBranchForIssue(ctx context.Context, issueID entitie
 	}
 
 	// Create the branch
+	if s.gitRepo == nil {
+		return errors.Wrap(fmt.Errorf("git repository not configured"), "IssueService.CreateBranchForIssue", "git_repo_nil")
+	}
 	if err := s.gitRepo.CreateBranch(ctx, branchName); err != nil {
 		return errors.Wrap(err, "IssueService.CreateBranchForIssue", "create_branch")
 	}

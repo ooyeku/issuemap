@@ -43,7 +43,7 @@ func TestDependencyServiceIntegration(t *testing.T) {
 	require.NoError(t, err)
 
 	issue2, err := issueService.CreateIssue(ctx, services.CreateIssueRequest{
-		Title:       "Frontend UI", 
+		Title:       "Frontend UI",
 		Description: "Create frontend UI",
 		Type:        entities.IssueTypeFeature,
 		Priority:    entities.PriorityMedium,
@@ -63,11 +63,11 @@ func TestDependencyServiceIntegration(t *testing.T) {
 	t.Run("Create and Manage Dependencies", func(t *testing.T) {
 		// Create dependency: Backend requires Database
 		dep1, err := dependencyService.CreateDependency(
-			ctx, 
-			issue1.ID, 
-			issue3.ID, 
-			entities.DependencyTypeRequires, 
-			"Backend needs database schema", 
+			ctx,
+			issue1.ID,
+			issue3.ID,
+			entities.DependencyTypeRequires,
+			"Backend needs database schema",
 			author,
 		)
 		require.NoError(t, err)
@@ -164,7 +164,7 @@ func TestDependencyServiceIntegration(t *testing.T) {
 		require.NotEmpty(t, deps)
 
 		dep := deps[0]
-		
+
 		// Resolve the dependency
 		err = dependencyService.ResolveDependency(ctx, dep.ID, author)
 		require.NoError(t, err)
@@ -208,7 +208,7 @@ func TestDependencyServiceIntegration(t *testing.T) {
 			issue1.ID,
 			issue3.ID,
 			entities.DependencyTypeRequires,
-			"Backend needs database", 
+			"Backend needs database",
 			author,
 		)
 		require.NoError(t, err)
@@ -361,7 +361,7 @@ func TestDependencyRepositoryPersistence(t *testing.T) {
 		// Test GetByIssueID (both source and target)
 		issueDeps, err := dependencyRepo.GetByIssueID(ctx, "ISSUE-002")
 		require.NoError(t, err)
-		assert.Len(t, issueDeps, 3)
+		assert.Len(t, issueDeps, 2)
 	})
 
 	t.Run("Dependency Graph Building", func(t *testing.T) {

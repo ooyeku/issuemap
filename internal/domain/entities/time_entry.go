@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"crypto/rand"
 	"fmt"
 	"time"
 )
@@ -13,6 +14,15 @@ const (
 	TimeEntryTypeTimer  TimeEntryType = "timer"
 	TimeEntryTypeCommit TimeEntryType = "commit"
 )
+
+// generateUniqueID creates a unique ID for time entries
+func generateUniqueID(issueID IssueID) string {
+	now := time.Now()
+	// Use random bytes to ensure uniqueness even within the same nanosecond
+	randBytes := make([]byte, 4)
+	rand.Read(randBytes)
+	return fmt.Sprintf("%s-%d-%d-%x", issueID, now.Unix(), now.Nanosecond(), randBytes)
+}
 
 // TimeEntry represents a single time tracking entry for an issue
 type TimeEntry struct {
@@ -41,7 +51,7 @@ type ActiveTimer struct {
 func NewTimeEntry(issueID IssueID, entryType TimeEntryType, duration time.Duration, description, author string) *TimeEntry {
 	now := time.Now()
 	return &TimeEntry{
-		ID:          fmt.Sprintf("%s-%d", issueID, now.Unix()),
+		ID:          generateUniqueID(issueID),
 		IssueID:     issueID,
 		Type:        entryType,
 		Duration:    duration,
@@ -57,7 +67,7 @@ func NewTimeEntry(issueID IssueID, entryType TimeEntryType, duration time.Durati
 func NewTimerEntry(issueID IssueID, description, author string, startTime, endTime time.Time) *TimeEntry {
 	duration := endTime.Sub(startTime)
 	return &TimeEntry{
-		ID:          fmt.Sprintf("%s-%d", issueID, endTime.Unix()),
+		ID:          generateUniqueID(issueID),
 		IssueID:     issueID,
 		Type:        TimeEntryTypeTimer,
 		Duration:    duration,
@@ -105,7 +115,7 @@ func (te *TimeEntry) Stop() error {
 	if te.EndTime != nil {
 		return fmt.Errorf("timer is already stopped")
 	}
-	
+
 	now := time.Now()
 	te.EndTime = &now
 	te.Duration = now.Sub(te.StartTime)
@@ -122,7 +132,7 @@ func (at *ActiveTimer) GetElapsedTime() time.Duration {
 func (at *ActiveTimer) ToTimeEntry(endTime time.Time) *TimeEntry {
 	duration := endTime.Sub(at.StartTime)
 	return &TimeEntry{
-		ID:          fmt.Sprintf("%s-%d", at.IssueID, endTime.Unix()),
+		ID:          generateUniqueID(at.IssueID),
 		IssueID:     at.IssueID,
 		Type:        TimeEntryTypeTimer,
 		Duration:    duration,

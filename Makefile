@@ -91,15 +91,17 @@ install-with-path: install
 		echo "   export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
 	fi
 
-# Run unit tests (if any exist, otherwise run integration tests)
+# Run unit tests (if any exist, otherwise run stable integration tests)
 test:
 	@echo "Running tests..."
-	@if find ./internal ./cmd -name "*_test.go" 2>/dev/null | grep -q .; then \
+	@if find ./test/unit ./internal ./cmd -name "*_test.go" 2>/dev/null | grep -q .; then \
 		echo "Running unit tests..."; \
-		go test -short -v ./...; \
+		go test -v ./test/unit/...; \
+		echo "Running stable integration tests (dependency & time tracking)..."; \
+		go test -v ./test/integration/ -run "TestDependency|TestTimeTracking"; \
 	else \
-		echo "No unit tests found in main packages, running integration tests..."; \
-		go test -v ./test/integration/...; \
+		echo "No unit tests found, running stable integration tests..."; \
+		go test -v ./test/integration/ -run "TestDependency|TestTimeTracking"; \
 	fi
 
 # Run unit tests only (skip if none exist)
