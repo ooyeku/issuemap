@@ -2,7 +2,7 @@ id: ISSUE-003
 title: Bulk Operationsimplementation
 description: ""
 type: feature
-status: open
+status: closed
 priority: high
 labels: []
 assignee:
@@ -10,8 +10,14 @@ assignee:
     email: ""
 branch: feature/ISSUE-003-bulk-operationsimplementation
 commits: []
-comments: []
-metadata: {}
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T17:50:24.703363-05:00
+      text: 'Issue closed: Merged branch ''feature/ISSUE-003-bulk-operationsimplementation'' into main'
+metadata:
+    actual_hours: 0.8338787427777777
 timestamps:
     created: 2025-08-08T16:49:45.220447-05:00
-    updated: 2025-08-08T16:59:15.527736-05:00
+    updated: 2025-08-08T17:50:24.703367-05:00
+    closed: 2025-08-08T17:50:24.703359-05:00

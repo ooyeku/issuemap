@@ -61,15 +61,15 @@ This document tracks the development progress of new features for the IssueMap p
 - [x] Write dependency management tests
 
 ### Bulk Operations
-- [ ] Design bulk operation framework
-- [ ] Implement `issuemap bulk` command with query support
-- [ ] Add bulk assignment functionality
-- [ ] Create bulk status updates
-- [ ] Implement bulk labeling operations
-- [ ] Add CSV import/export functionality
-- [ ] Create bulk validation and rollback
-- [ ] Add progress indicators for bulk operations
-- [ ] Implement bulk operation audit logging
+- [x] Design bulk operation framework
+- [x] Implement `issuemap bulk` command with query support
+- [x] Add bulk assignment functionality
+- [x] Create bulk status updates
+- [x] Implement bulk labeling operations
+- [x] Add CSV import/export functionality
+- [x] Create bulk validation and rollback
+- [x] Add progress indicators for bulk operations
+- [x] Implement bulk operation audit logging
 - [ ] Write bulk operation tests
 
 ### Smart Notifications & Reminders
