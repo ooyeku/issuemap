@@ -1,0 +1,16 @@
+id: ISSUE-001
+title: Test complete golden workflow
+description: ""
+type: task
+status: open
+priority: high
+labels:
+    - name: testing
+      color: '#gray'
+branch: feature/ISSUE-001-test-complete-golden-workflow
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-07T20:10:17.643297-05:00
+    updated: 2025-08-07T20:13:10.098564-05:00

@@ -1,7 +1,7 @@
 issue_id: ISSUE-003
-current_version: 27
+current_version: 28
 created_at: 2025-08-06T19:20:14.300571-05:00
-updated_at: 2025-08-07T19:41:57.283517-05:00
+updated_at: 2025-08-07T20:11:59.685405-05:00
 entries:
     - id: hist_1754526014300564000
       issue_id: ISSUE-003
@@ -607,6 +607,29 @@ entries:
       type: created
       author: system
       timestamp: 2025-08-07T19:41:57.282907-05:00
+      message: 'Issue created: Database Schema'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Database Schema
+        - field: description
+          old_value: null
+          new_value: Create database schema
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+    - id: hist_1754615519684837000
+      issue_id: ISSUE-003
+      version: 28
+      type: created
+      author: system
+      timestamp: 2025-08-07T20:11:59.684837-05:00
       message: 'Issue created: Database Schema'
       changes:
         - field: title

@@ -1,7 +1,7 @@
 issue_id: ISSUE-002
-current_version: 27
+current_version: 28
 created_at: 2025-08-06T19:20:14.300388-05:00
-updated_at: 2025-08-07T19:41:57.281365-05:00
+updated_at: 2025-08-07T20:11:59.683705-05:00
 entries:
     - id: hist_1754526014300385000
       issue_id: ISSUE-002
@@ -607,6 +607,29 @@ entries:
       type: created
       author: system
       timestamp: 2025-08-07T19:41:57.280676-05:00
+      message: 'Issue created: Frontend UI'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Frontend UI
+        - field: description
+          old_value: null
+          new_value: Create frontend UI
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+    - id: hist_1754615519682983000
+      issue_id: ISSUE-002
+      version: 28
+      type: created
+      author: system
+      timestamp: 2025-08-07T20:11:59.682983-05:00
       message: 'Issue created: Frontend UI'
       changes:
         - field: title

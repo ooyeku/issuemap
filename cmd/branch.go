@@ -272,6 +272,29 @@ func runMerge(cmd *cobra.Command, args []string) error {
 
 	printInfo(fmt.Sprintf("Merging branch '%s' into '%s' and closing issue %s", sourceBranch, mainBranch, issueID))
 
+	// Pre-close the issue on the source branch to ensure the status change is carried by the merge
+	// This avoids cases where the target branch doesn't yet have the issue file when closing post-merge
+	if currentBranch == mainBranch {
+		// We are on main; switch to source branch to perform the close
+		if err := gitClient.SwitchToBranch(ctx, sourceBranch); err == nil {
+			// Ensure any pending .issuemap changes are recorded before modifying
+			if hasUncommittedIssuemapFiles(repoPath) {
+				_ = commitIssuemapFiles(repoPath, issueID)
+			}
+			if cerr := issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", sourceBranch, mainBranch)); cerr == nil {
+				// Commit the closure
+				_ = commitIssuemapFiles(repoPath, issueID)
+			}
+			// Switch back to main to proceed with merge
+			_ = gitClient.SwitchToBranch(ctx, mainBranch)
+		}
+	} else {
+		// We are on the feature/source branch; close here first so the merge carries the change
+		if cerr := issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", sourceBranch, mainBranch)); cerr == nil {
+			_ = commitIssuemapFiles(repoPath, issueID)
+		}
+	}
+
 	// Perform the actual Git merge
 	err = gitClient.MergeBranch(ctx, sourceBranch, mainBranch)
 	if err != nil {
@@ -282,12 +305,11 @@ func runMerge(cmd *cobra.Command, args []string) error {
 
 	printSuccess(fmt.Sprintf("Successfully merged branch '%s' into '%s'", sourceBranch, mainBranch))
 
-	// Close the issue after successful merge
-	err = issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", sourceBranch, mainBranch))
-	if err != nil {
-		printWarning(fmt.Sprintf("Merge completed, but failed to close issue: %v", err))
-	} else {
+	// Best-effort post-merge close in case pre-close didn't happen
+	if cerr := issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", sourceBranch, mainBranch)); cerr == nil {
 		printSuccess(fmt.Sprintf("Issue %s closed successfully", issueID))
+	} else {
+		printWarning(fmt.Sprintf("Merge completed, but issue closure will be reflected after branch sync. You can run: issuemap sync --auto-update and re-check with: issuemap show %s", issueID))
 	}
 
 	printInfo(fmt.Sprintf("Issue: %s - %s", issueID, issue.Title))
@@ -296,7 +318,8 @@ func runMerge(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 	printSectionHeader("Merge completed:")
 	fmt.Printf("  • Branch '%s' merged into '%s'\n", currentBranch, mainBranch)
-	fmt.Printf("  • Issue %s has been closed\n", issueID)
+	// Only print closure hint; actual success message printed above when closed
+	fmt.Printf("  • Verify the issue: issuemap show %s\n", issueID)
 	fmt.Printf("  • You are now on the '%s' branch\n", mainBranch)
 	fmt.Printf("  • Delete the feature branch if no longer needed: git branch -d %s\n", currentBranch)
 
@@ -413,7 +436,8 @@ func hasUncommittedIssuemapFiles(repoPath string) bool {
 // commitIssuemapFiles commits all .issuemap files
 func commitIssuemapFiles(repoPath string, issueID entities.IssueID) error {
 	// Add .issuemap directory to git
-	addCmd := exec.Command("git", "add", ".issuemap")
+	// Force add in case .issuemap is ignored in user .gitignore
+	addCmd := exec.Command("git", "add", "-f", ".issuemap")
 	addCmd.Dir = repoPath
 	if err := addCmd.Run(); err != nil {
 		return fmt.Errorf("failed to add .issuemap files: %w", err)
