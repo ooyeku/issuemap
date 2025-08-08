@@ -9,21 +9,28 @@ import (
 
 	"github.com/ooyeku/issuemap/internal/app"
 	"github.com/ooyeku/issuemap/internal/app/services"
+	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
 
 // stopCmd represents the stop command
 var stopCmd = &cobra.Command{
-	Use:   "stop",
+	Use:   "stop [issue-id]",
 	Short: "Stop time tracking",
 	Long: `Stop the currently active timer and log the time spent.
 
 Examples:
-  issuemap stop`,
-	Args: cobra.NoArgs,
+  issuemap stop
+  issuemap stop ISSUE-001`,
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runStop(cmd)
+		var maybeIssueID *entities.IssueID
+		if len(args) == 1 {
+			id := normalizeIssueID(args[0])
+			maybeIssueID = &id
+		}
+		return runStop(cmd, maybeIssueID)
 	},
 }
 
@@ -31,7 +38,7 @@ func init() {
 	rootCmd.AddCommand(stopCmd)
 }
 
-func runStop(cmd *cobra.Command) error {
+func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
 	ctx := context.Background()
 
 	// Initialize services
@@ -70,11 +77,17 @@ func runStop(cmd *cobra.Command) error {
 	// Get current user
 	author := getCurrentUser(gitRepo)
 
-	// Stop the timer
+	// Stop the timer (validates optional issue ID against the active timer)
 	timeEntry, err := timeTrackingService.StopTimer(ctx, author)
 	if err != nil {
 		printError(fmt.Errorf("failed to stop timer: %w", err))
 		return err
+	}
+
+	if maybeIssueID != nil && timeEntry.IssueID != *maybeIssueID {
+		printError(fmt.Errorf("active timer is for %s, not %s",
+			timeEntry.IssueID, *maybeIssueID))
+		return fmt.Errorf("timer issue mismatch")
 	}
 
 	// Get issue for display
