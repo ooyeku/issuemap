@@ -86,11 +86,11 @@ func runLog(cmd *cobra.Command, issueID entities.IssueID, hours float64, descrip
 	// Initialize time tracking repositories and service
 	timeEntryRepo := storage.NewFileTimeEntryRepository(issuemapPath)
 	activeTimerRepo := storage.NewFileActiveTimerRepository(issuemapPath)
-	
+
 	// Create history service for time tracking
 	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	
+
 	timeTrackingService := services.NewTimeTrackingService(
 		timeEntryRepo,
 		activeTimerRepo,
@@ -131,12 +131,12 @@ func runLog(cmd *cobra.Command, issueID entities.IssueID, hours float64, descrip
 	if issue.GetEstimatedHours() > 0 {
 		fmt.Printf("Estimated: %.1f hours\n", issue.GetEstimatedHours())
 		fmt.Printf("Remaining: %.1f hours\n", issue.GetRemainingHours())
-		
+
 		progress := (issue.GetActualHours() / issue.GetEstimatedHours()) * 100
 		fmt.Printf("Progress: %.1f%%\n", progress)
-		
+
 		if issue.IsOverEstimate() {
-			printWarning("⚠️  Actual time exceeds estimate")
+			printWarning("Actual time exceeds estimate")
 		}
 	}
 

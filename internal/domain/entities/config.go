@@ -149,7 +149,7 @@ func NewDefaultConfig() *Config {
 		},
 		Templates: TemplatesConfig{
 			Default:   "task",
-			Available: []string{"bug", "feature", "task", "epic"},
+			Available: []string{"bug", "feature", "task", "epic", "improvement"},
 		},
 		Labels: []Label{
 			{Name: "bug", Color: "#d73a4a"},
@@ -330,6 +330,15 @@ func (c *Config) GetTemplate(name string) *Template {
 			Title:       "Task",
 			Description: "## Description\nA clear description of the task to be completed.\n\n## Acceptance Criteria\n- [ ] Criterion 1\n- [ ] Criterion 2\n- [ ] Criterion 3\n\n## Notes\nAny additional notes or context.",
 			Labels:      []string{},
+			Priority:    PriorityMedium,
+		}
+	case "improvement":
+		return &Template{
+			Name:        "improvement",
+			Type:        IssueTypeFeature,
+			Title:       "Improvement",
+			Description: "## Description\nDescribe the improvement.\n\n## Current Behavior\nDescribe the current behavior.\n\n## Proposed Changes\nDescribe the proposed improvements.",
+			Labels:      []string{"enhancement"},
 			Priority:    PriorityMedium,
 		}
 	case "epic":

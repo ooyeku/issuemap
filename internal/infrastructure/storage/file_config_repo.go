@@ -49,6 +49,15 @@ func (r *FileConfigRepository) Load(ctx context.Context) (*entities.Config, erro
 func (r *FileConfigRepository) Save(ctx context.Context, config *entities.Config) error {
 	configPath := filepath.Join(r.basePath, "config.yaml")
 
+	// Ensure templates list includes improvement
+	ensure := map[string]bool{}
+	for _, n := range config.Templates.Available {
+		ensure[n] = true
+	}
+	if !ensure["improvement"] {
+		config.Templates.Available = append(config.Templates.Available, "improvement")
+	}
+
 	data, err := yaml.Marshal(config)
 	if err != nil {
 		return errors.Wrap(err, "FileConfigRepository.Save", "marshal")
@@ -122,6 +131,18 @@ func (r *FileConfigRepository) ListTemplates(ctx context.Context) ([]*entities.T
 	for _, templateName := range config.Templates.Available {
 		template := config.GetTemplate(templateName)
 		templates = append(templates, template)
+	}
+
+	// Ensure new built-ins are included even if older configs are present
+	ensureNames := []string{"improvement"}
+	existing := make(map[string]bool)
+	for _, t := range templates {
+		existing[t.Name] = true
+	}
+	for _, name := range ensureNames {
+		if !existing[name] {
+			templates = append(templates, config.GetTemplate(name))
+		}
 	}
 
 	// Add custom templates

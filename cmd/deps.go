@@ -154,7 +154,7 @@ func runDepsBlocked(cmd *cobra.Command) error {
 	}
 
 	if len(blockedIssues) == 0 {
-		printSuccess("✓ No issues are currently blocked")
+		printSuccess("No issues are currently blocked")
 		return nil
 	}
 
@@ -172,15 +172,15 @@ func runDepsBlocked(cmd *cobra.Command) error {
 		if len(blockingInfo.BlockedBy) > 0 {
 			fmt.Printf("  Blocked by: %s\n", strings.Join(issueIDsToStrings(blockingInfo.BlockedBy), ", "))
 		}
-		
+
 		if blockingInfo.CriticalPath {
-			fmt.Printf("  ⚡ Critical Path\n")
+			fmt.Printf("  Critical Path\n")
 		}
-		
+
 		if blockingInfo.BlockingCount > 0 {
-			fmt.Printf("  🔒 Also blocking %d other issues\n", blockingInfo.BlockingCount)
+			fmt.Printf("  Also blocking %d other issues\n", blockingInfo.BlockingCount)
 		}
-		
+
 		fmt.Printf("\n")
 	}
 
@@ -205,16 +205,16 @@ func runDepsValidate(cmd *cobra.Command) error {
 	fmt.Printf("===========================\n\n")
 
 	if result.IsValid {
-		printSuccess("✓ Dependency graph is valid")
+		printSuccess("Dependency graph is valid")
 	} else {
-		printError(fmt.Errorf("❌ Dependency graph has issues"))
+		printError(fmt.Errorf("Dependency graph has issues"))
 	}
 
 	if len(result.CircularPaths) > 0 {
 		fmt.Printf("\nCircular Dependencies Found (%d):\n", len(result.CircularPaths))
 		fmt.Printf("----------------------------------\n")
 		for i, cycle := range result.CircularPaths {
-			fmt.Printf("%d. %s → %s\n", i+1, 
+			fmt.Printf("%d. %s → %s\n", i+1,
 				strings.Join(issueIDsToStrings(cycle), " → "),
 				cycle[0]) // Show the cycle back to start
 		}
@@ -264,7 +264,7 @@ func runDepsStats(cmd *cobra.Command) error {
 	fmt.Printf("  Average Dependencies per Issue: %.1f\n", stats.AverageDepPerIssue)
 
 	if stats.CircularDependencies > 0 {
-		printWarning(fmt.Sprintf("  ⚠️  Circular Dependencies: %d", stats.CircularDependencies))
+		printWarning(fmt.Sprintf("  Circular Dependencies: %d", stats.CircularDependencies))
 	}
 
 	fmt.Printf("\nBy Type:\n")
@@ -380,12 +380,12 @@ func runDepsOverview(cmd *cobra.Command) error {
 	fmt.Printf("Dependencies Overview\n")
 	fmt.Printf("====================\n\n")
 
-	fmt.Printf("📊 Statistics:\n")
+	fmt.Printf("Statistics:\n")
 	fmt.Printf("  Total Dependencies: %d\n", stats.TotalDependencies)
 	fmt.Printf("  Active Dependencies: %d\n", stats.ActiveDependencies)
 	fmt.Printf("  Issues with Dependencies: %d\n", stats.IssuesWithDeps)
 
-	fmt.Printf("\n🚫 Blocking Status:\n")
+	fmt.Printf("\nBlocking Status:\n")
 	if len(blockedIssues) > 0 {
 		printWarning(fmt.Sprintf("  %d issues are currently blocked", len(blockedIssues)))
 		if len(blockedIssues) <= 5 {
@@ -403,11 +403,11 @@ func runDepsOverview(cmd *cobra.Command) error {
 	}
 
 	if stats.CircularDependencies > 0 {
-		fmt.Printf("\n⚠️  Issues:\n")
+		fmt.Printf("\nIssues:\n")
 		printWarning(fmt.Sprintf("  %d circular dependencies detected", stats.CircularDependencies))
 	}
 
-	fmt.Printf("\n💡 Available Commands:\n")
+	fmt.Printf("\nAvailable Commands:\n")
 	fmt.Printf("  issuemap deps --graph      Show dependency visualization\n")
 	fmt.Printf("  issuemap deps --blocked    List all blocked issues\n")
 	fmt.Printf("  issuemap deps --validate   Check for circular dependencies\n")
@@ -439,11 +439,11 @@ func issueIDsToStrings(issues []entities.IssueID) []string {
 
 func showSimpleGraph(graph *entities.DependencyGraph, nodes []entities.IssueID) {
 	fmt.Printf("\n")
-	
+
 	// Simple ASCII visualization for small graphs
 	for _, node := range nodes {
 		blocking := graph.GetBlockedIssues(node)
-		
+
 		if len(blocking) > 0 {
 			fmt.Printf("%s\n", node)
 			for i, blocked := range blocking {

@@ -107,19 +107,19 @@ func runResolve(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(conflicts) == 0 {
-		printSuccess("✅ No conflicts detected! Your branches and issues are in sync.")
+		printSuccess("No conflicts detected! Your branches and issues are in sync.")
 		return nil
 	}
 
 	// Display conflicts
-	fmt.Printf("\n🔍 Found %d conflict(s):\n\n", len(conflicts))
+	fmt.Printf("\nFound %d conflict(s):\n\n", len(conflicts))
 	for i, conflict := range conflicts {
 		displayConflict(i+1, conflict)
 	}
 
 	// Handle resolution based on flags
 	if resolveDryRun {
-		fmt.Printf("\n🔍 Dry run - no changes made\n")
+		fmt.Printf("\nDry run - no changes made\n")
 		return nil
 	}
 
@@ -137,14 +137,14 @@ func runResolve(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		fmt.Printf("\n💡 To resolve conflicts, use:\n")
+		fmt.Printf("\nTo resolve conflicts, use:\n")
 		fmt.Printf("  issuemap resolve --interactive  # Interactive resolution\n")
 		fmt.Printf("  issuemap resolve --auto-fix     # Automatic safe fixes\n")
 		return nil
 	}
 
 	// Summary
-	fmt.Printf("\n📊 Resolution Summary:\n")
+	fmt.Printf("\nResolution Summary:\n")
 	fmt.Printf("  Conflicts detected: %d\n", len(conflicts))
 	fmt.Printf("  Conflicts resolved: %d\n", resolvedCount)
 	if resolvedCount < len(conflicts) {
@@ -286,20 +286,20 @@ func displayConflict(index int, conflict Conflict) {
 	var severityEmoji string
 	switch conflict.Severity {
 	case "low":
-		severityEmoji = "🔵"
+		severityEmoji = "LOW"
 	case "medium":
-		severityEmoji = "🟡"
+		severityEmoji = "MEDIUM"
 	case "high":
-		severityEmoji = "🔴"
+		severityEmoji = "HIGH"
 	}
 
 	fmt.Printf("%s %d. %s\n", severityEmoji, index, conflict.Description)
 	fmt.Printf("   Type: %s\n", conflict.Type)
 	fmt.Printf("   Severity: %s\n", conflict.Severity)
 	if conflict.AutoFixable {
-		fmt.Printf("   Auto-fixable: ✅\n")
+		fmt.Printf("   Auto-fixable: YES\n")
 	} else {
-		fmt.Printf("   Auto-fixable: ❌\n")
+		fmt.Printf("   Auto-fixable: NO\n")
 	}
 	if len(conflict.Issues) > 0 {
 		fmt.Printf("   Issues: ")
@@ -317,14 +317,14 @@ func displayConflict(index int, conflict Conflict) {
 func autoFixConflicts(ctx context.Context, conflicts []Conflict, issueService *services.IssueService, gitClient *git.GitClient) (int, error) {
 	resolvedCount := 0
 
-	fmt.Printf("\n🔧 Auto-fixing safe conflicts...\n\n")
+	fmt.Printf("\nAuto-fixing safe conflicts...\n\n")
 
 	for _, conflict := range conflicts {
 		if !conflict.AutoFixable {
 			continue
 		}
 
-		fmt.Printf("🔧 Fixing: %s\n", conflict.Description)
+		fmt.Printf("Fixing: %s\n", conflict.Description)
 
 		switch conflict.Type {
 		case ConflictClosedIssueOpenBranch:
@@ -332,7 +332,7 @@ func autoFixConflicts(ctx context.Context, conflicts []Conflict, issueService *s
 			fmt.Printf("   Deleting branch '%s' (issue is closed)\n", conflict.Branch)
 			// Note: We're not actually deleting the branch here as it might have unpushed commits
 			// In a real implementation, you'd want to check for unpushed commits first
-			fmt.Printf("   ⚠️  Branch deletion skipped - please verify no important changes exist\n")
+			fmt.Printf("   Branch deletion skipped - please verify no important changes exist\n")
 
 		case ConflictIssueNoBranch:
 			// Clear the branch reference from the issue
@@ -344,13 +344,13 @@ func autoFixConflicts(ctx context.Context, conflicts []Conflict, issueService *s
 				}
 				_, err := issueService.UpdateIssue(ctx, issue.ID, updates)
 				if err != nil {
-					fmt.Printf("   ❌ Failed to update issue: %v\n", err)
+					fmt.Printf("   Failed to update issue: %v\n", err)
 					continue
 				}
 			}
 		}
 
-		fmt.Printf("   ✅ Fixed\n\n")
+		fmt.Printf("   Fixed\n\n")
 		resolvedCount++
 	}
 
@@ -361,7 +361,7 @@ func interactiveResolve(ctx context.Context, conflicts []Conflict, issueService 
 	resolvedCount := 0
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Printf("\n🔧 Interactive conflict resolution...\n\n")
+	fmt.Printf("\nInteractive conflict resolution...\n\n")
 
 	for i, conflict := range conflicts {
 		fmt.Printf("Conflict %d of %d:\n", i+1, len(conflicts))

@@ -32,25 +32,25 @@ uninstall:
 	@echo "Uninstalling $(BINARY_NAME)..."
 	@if [ -f "$$(go env GOPATH)/bin/$(BINARY_NAME)" ]; then \
 		rm -f "$$(go env GOPATH)/bin/$(BINARY_NAME)"; \
-		echo "✅ $(BINARY_NAME) uninstalled successfully!"; \
+		echo "$(BINARY_NAME) uninstalled successfully!"; \
 	else \
-		echo "⚠️  $(BINARY_NAME) not found in $$(go env GOPATH)/bin/"; \
+		echo "$(BINARY_NAME) not found in $$(go env GOPATH)/bin/"; \
 	fi
 
 # Check PATH configuration
 check-path:
 	@echo "Checking PATH configuration..."
 	@GOPATH_BIN="$$(go env GOPATH)/bin"; \
-	echo "📁 GOPATH/bin location: $$GOPATH_BIN"; \
+echo "GOPATH/bin location: $$GOPATH_BIN"; \
 	if echo "$$PATH" | grep -q "$$GOPATH_BIN"; then \
-		echo "✅ $$GOPATH_BIN is in your PATH"; \
+		echo "$$GOPATH_BIN is in your PATH"; \
 		if command -v $(BINARY_NAME) >/dev/null 2>&1; then \
-			echo "✅ $(BINARY_NAME) is accessible from terminal"; \
+			echo "$(BINARY_NAME) is accessible from terminal"; \
 		else \
-			echo "⚠️  $(BINARY_NAME) not found in PATH (try 'make install')"; \
+			echo "$(BINARY_NAME) not found in PATH (try 'make install')"; \
 		fi; \
 	else \
-		echo "❌ $$GOPATH_BIN is NOT in your PATH"; \
+	echo "$$GOPATH_BIN is NOT in your PATH"; \
 		echo ""; \
 		echo "To add it to your PATH, add this line to your shell profile:"; \
 		echo "  export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
@@ -80,14 +80,14 @@ install-with-path: install
 	if [ -n "$$SHELL_RC" ]; then \
 		if ! grep -q "$$GOPATH_BIN" "$$SHELL_RC" 2>/dev/null; then \
 			echo "export PATH=\"\$$PATH:$$GOPATH_BIN\"" >> "$$SHELL_RC"; \
-			echo "✅ Added $$GOPATH_BIN to $$SHELL_RC"; \
-			echo "🔄 Please run: source $$SHELL_RC"; \
+			echo "Added $$GOPATH_BIN to $$SHELL_RC"; \
+			echo "Please run: source $$SHELL_RC"; \
 			echo "   Or restart your terminal to use 'issuemap' from anywhere"; \
 		else \
-			echo "✅ $$GOPATH_BIN already in $$SHELL_RC"; \
+			echo "$$GOPATH_BIN already in $$SHELL_RC"; \
 		fi; \
 	else \
-		echo "⚠️  Could not detect shell profile. Please manually add:"; \
+	echo "Could not detect shell profile. Please manually add:"; \
 		echo "   export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
 	fi
 

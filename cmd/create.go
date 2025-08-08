@@ -70,12 +70,14 @@ func runCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("title required")
 	}
 
-	// Set defaults
-	if createType == "" {
-		createType = "task"
-	}
-	if createPriority == "" {
-		createPriority = "medium"
+	// Set defaults only when no template is provided (template should provide defaults)
+	if createTemplate == "" {
+		if createType == "" {
+			createType = "task"
+		}
+		if createPriority == "" {
+			createPriority = "medium"
+		}
 	}
 
 	// Initialize services

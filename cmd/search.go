@@ -197,7 +197,7 @@ func runSearch(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			printWarning(fmt.Sprintf("Failed to save search: %v", err))
 		} else {
-			fmt.Printf("\n✅ Search saved as '%s'\n", searchSave)
+			fmt.Printf("\nSearch saved as '%s'\n", searchSave)
 		}
 	}
 
@@ -289,7 +289,7 @@ func runSearchList(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Found %d saved search(es):\n\n", len(searches))
 
 	for name, query := range searches {
-		fmt.Printf("📄 %s\n", name)
+		fmt.Printf("%s\n", name)
 		fmt.Printf("   Query: %s\n", query)
 		fmt.Printf("   Run: issuemap search run \"%s\"\n\n", name)
 	}
@@ -300,14 +300,14 @@ func runSearchList(cmd *cobra.Command, args []string) error {
 func explainSearchQuery(query *services.SearchQuery) {
 	printSectionHeader("Search Query Explanation")
 
-	fmt.Printf("📝 Text Search: ")
+	fmt.Printf("Text Search: ")
 	if query.Text != "" {
 		fmt.Printf("\"%s\"\n", query.Text)
 	} else {
 		fmt.Printf("(none)\n")
 	}
 
-	fmt.Printf("🔍 Filters:\n")
+	fmt.Printf("Filters:\n")
 	if len(query.Filters) == 0 {
 		fmt.Printf("   (none)\n")
 	} else {
@@ -316,7 +316,7 @@ func explainSearchQuery(query *services.SearchQuery) {
 		}
 	}
 
-	fmt.Printf("📅 Date Filters:\n")
+	fmt.Printf("Date Filters:\n")
 	if len(query.DateFilters) == 0 {
 		fmt.Printf("   (none)\n")
 	} else {
@@ -329,17 +329,17 @@ func explainSearchQuery(query *services.SearchQuery) {
 		}
 	}
 
-	fmt.Printf("🔗 Boolean Operator: %s\n", query.BoolOperator)
+	fmt.Printf("Boolean Operator: %s\n", query.BoolOperator)
 
 	if len(query.Negated) > 0 {
-		fmt.Printf("❌ Negated Fields: %s\n", strings.Join(query.Negated, ", "))
+		fmt.Printf("Negated Fields: %s\n", strings.Join(query.Negated, ", "))
 	}
 
 	if query.SortBy != "" {
-		fmt.Printf("📊 Sort: %s (%s)\n", query.SortBy, query.SortOrder)
+		fmt.Printf("Sort: %s (%s)\n", query.SortBy, query.SortOrder)
 	}
 
-	fmt.Printf("📏 Limit: %d\n", query.Limit)
+	fmt.Printf("Limit: %d\n", query.Limit)
 }
 
 func displaySearchResultsTable(result *repositories.SearchResult) {

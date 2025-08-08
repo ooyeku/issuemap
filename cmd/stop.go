@@ -55,11 +55,11 @@ func runStop(cmd *cobra.Command) error {
 	// Initialize time tracking repositories and service
 	timeEntryRepo := storage.NewFileTimeEntryRepository(issuemapPath)
 	activeTimerRepo := storage.NewFileActiveTimerRepository(issuemapPath)
-	
+
 	// Create history service for time tracking
 	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	
+
 	timeTrackingService := services.NewTimeTrackingService(
 		timeEntryRepo,
 		activeTimerRepo,
@@ -86,7 +86,7 @@ func runStop(cmd *cobra.Command) error {
 
 	// Display success message
 	printSuccess(fmt.Sprintf("Stopped timer for %s", timeEntry.IssueID))
-	
+
 	fmt.Printf("\nIssue: %s - %s\n", issue.ID, issue.Title)
 	fmt.Printf("Author: %s\n", author)
 	if timeEntry.Description != "" {
@@ -95,18 +95,18 @@ func runStop(cmd *cobra.Command) error {
 	fmt.Printf("Duration: %.1f hours\n", timeEntry.GetDurationHours())
 	fmt.Printf("Started: %s\n", timeEntry.StartTime.Format("2006-01-02 15:04:05"))
 	fmt.Printf("Stopped: %s\n", timeEntry.EndTime.Format("2006-01-02 15:04:05"))
-	
+
 	fmt.Printf("Total actual: %.1f hours\n", issue.GetActualHours())
 
 	if issue.GetEstimatedHours() > 0 {
 		fmt.Printf("Estimated: %.1f hours\n", issue.GetEstimatedHours())
 		fmt.Printf("Remaining: %.1f hours\n", issue.GetRemainingHours())
-		
+
 		progress := (issue.GetActualHours() / issue.GetEstimatedHours()) * 100
 		fmt.Printf("Progress: %.1f%%\n", progress)
-		
+
 		if issue.IsOverEstimate() {
-			printWarning("⚠️  Actual time exceeds estimate")
+			printWarning("Actual time exceeds estimate")
 		}
 	}
 

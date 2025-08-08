@@ -20,6 +20,47 @@ type APIResponse struct {
 	Count   int         `json:"count,omitempty"`
 }
 
+// IssueDTO is a response-friendly representation of an issue
+type IssueDTO struct {
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	Type        string            `json:"type"`
+	Status      string            `json:"status"`
+	Priority    string            `json:"priority"`
+	Labels      []string          `json:"labels"`
+	Branch      string            `json:"branch"`
+	Timestamps  map[string]string `json:"timestamps"`
+}
+
+func issueToDTO(issue *entities.Issue) IssueDTO {
+	// Extract label names
+	var labelNames []string
+	for _, l := range issue.Labels {
+		labelNames = append(labelNames, l.Name)
+	}
+	// Timestamps as strings
+	ts := map[string]string{
+		"created": issue.Timestamps.Created.Format("2006-01-02T15:04:05Z07:00"),
+		"updated": issue.Timestamps.Updated.Format("2006-01-02T15:04:05Z07:00"),
+	}
+	if issue.Timestamps.Closed != nil {
+		ts["closed"] = issue.Timestamps.Closed.Format("2006-01-02T15:04:05Z07:00")
+	}
+
+	return IssueDTO{
+		ID:          issue.ID.String(),
+		Title:       issue.Title,
+		Description: issue.Description,
+		Type:        string(issue.Type),
+		Status:      string(issue.Status),
+		Priority:    string(issue.Priority),
+		Labels:      labelNames,
+		Branch:      issue.Branch,
+		Timestamps:  ts,
+	}
+}
+
 type IssueCreateRequest struct {
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
@@ -118,10 +159,16 @@ func (s *Server) listIssuesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Convert to DTOs
+	dto := make([]IssueDTO, 0, len(issues))
+	for _, iss := range issues {
+		dto = append(dto, issueToDTO(iss))
+	}
+
 	response := APIResponse{
 		Success: true,
-		Data:    issues,
-		Count:   len(issues),
+		Data:    dto,
+		Count:   len(dto),
 	}
 	s.jsonResponse(w, response, http.StatusOK)
 }
@@ -139,7 +186,7 @@ func (s *Server) getIssueHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := APIResponse{
 		Success: true,
-		Data:    issue,
+		Data:    issueToDTO(issue),
 	}
 	s.jsonResponse(w, response, http.StatusOK)
 }

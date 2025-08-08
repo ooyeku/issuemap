@@ -110,9 +110,9 @@ func runDelete(cmd *cobra.Command, args []string) error {
 	printSuccess(fmt.Sprintf("Issue %s has been permanently deleted", issueID))
 
 	if noColor {
-		fmt.Println("⚠️  This action cannot be undone.")
+		fmt.Println("This action cannot be undone.")
 	} else {
-		color.HiRed("⚠️  This action cannot be undone.")
+		color.HiRed("This action cannot be undone.")
 	}
 
 	return nil
@@ -121,10 +121,10 @@ func runDelete(cmd *cobra.Command, args []string) error {
 // askForConfirmation prompts the user for confirmation before deleting
 func askForConfirmation(issueID entities.IssueID) bool {
 	if noColor {
-		fmt.Printf("\n⚠️  WARNING: This will permanently delete issue %s and all its history.\n", issueID)
+		fmt.Printf("\nWARNING: This will permanently delete issue %s and all its history.\n", issueID)
 		fmt.Print("This action cannot be undone. Are you sure? (yes/no): ")
 	} else {
-		color.HiRed("\n⚠️  WARNING: This will permanently delete issue %s and all its history.", issueID)
+		color.HiRed("\nWARNING: This will permanently delete issue %s and all its history.", issueID)
 		color.White("This action cannot be undone. Are you sure? (yes/no): ")
 	}
 

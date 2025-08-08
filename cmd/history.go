@@ -343,11 +343,11 @@ func getChangeTypeIcon(changeType entities.ChangeType) string {
 	} else {
 		switch changeType {
 		case entities.ChangeTypeCreated:
-			return color.GreenString("✓")
+			return color.GreenString("OK")
 		case entities.ChangeTypeUpdated:
 			return color.YellowString("●")
 		case entities.ChangeTypeClosed:
-			return color.RedString("✗")
+			return color.RedString("X")
 		case entities.ChangeTypeReopened:
 			return color.CyanString("○")
 		case entities.ChangeTypeAssigned:
@@ -355,21 +355,21 @@ func getChangeTypeIcon(changeType entities.ChangeType) string {
 		case entities.ChangeTypeUnassigned:
 			return color.HiBlackString("←")
 		case entities.ChangeTypeLabeled:
-			return color.MagentaString("🏷")
+			return color.MagentaString("T")
 		case entities.ChangeTypeUnlabeled:
-			return color.HiBlackString("🏷")
+			return color.HiBlackString("T")
 		case entities.ChangeTypeCommented:
-			return color.CyanString("💬")
+			return color.CyanString("C")
 		case entities.ChangeTypeMilestoned:
-			return color.BlueString("🎯")
+			return color.BlueString("G")
 		case entities.ChangeTypeUnmilestoned:
-			return color.HiBlackString("🎯")
+			return color.HiBlackString("G")
 		case entities.ChangeTypeLinked:
-			return color.GreenString("🔗")
+			return color.GreenString("L")
 		case entities.ChangeTypeUnlinked:
-			return color.HiBlackString("🔗")
+			return color.HiBlackString("L")
 		default:
-			return color.RedString("⚠")
+			return color.RedString("!")
 		}
 	}
 }

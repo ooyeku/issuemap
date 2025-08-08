@@ -9,6 +9,8 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
+	"os"
+
 	"github.com/ooyeku/issuemap/internal/app"
 	"github.com/ooyeku/issuemap/internal/domain/entities"
 )
@@ -41,6 +43,11 @@ func NewSyncService(server *Server, basePath string) (*SyncService, error) {
 // Start begins watching for file system changes
 func (s *SyncService) Start() error {
 	// Add the issues directory to the watcher
+	// Ensure directory exists
+	if err := ensureDirExists(s.issuesPath); err != nil {
+		return err
+	}
+
 	err := s.watcher.Add(s.issuesPath)
 	if err != nil {
 		return err
@@ -51,6 +58,14 @@ func (s *SyncService) Start() error {
 	// Start the event processing goroutine
 	go s.processEvents()
 
+	return nil
+}
+
+// ensureDirExists creates the directory if it doesn't exist
+func ensureDirExists(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return os.MkdirAll(path, 0755)
+	}
 	return nil
 }
 
@@ -65,7 +80,7 @@ func (s *SyncService) Stop() {
 func (s *SyncService) processEvents() {
 	// Debounce timer to handle rapid file changes
 	var debounceTimer *time.Timer
-	debounceDuration := 100 * time.Millisecond
+	debounceDuration := 50 * time.Millisecond
 
 	for {
 		select {
@@ -84,8 +99,12 @@ func (s *SyncService) processEvents() {
 				debounceTimer.Stop()
 			}
 
+			// Debounced full reload to ensure no events are dropped under bursty writes
 			debounceTimer = time.AfterFunc(debounceDuration, func() {
-				s.handleFileEvent(event)
+				// Reload from disk to reflect all recent changes
+				if err := s.server.loadIssuesIntoMemory(); err != nil {
+					log.Printf("Failed to reload issues from disk: %v", err)
+				}
 			})
 
 		case err, ok := <-s.watcher.Errors:

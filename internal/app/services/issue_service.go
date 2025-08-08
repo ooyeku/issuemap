@@ -89,22 +89,30 @@ func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) 
 			}
 		}
 
-		// Apply template defaults if not overridden
-		if req.Title == "" {
+		// Apply template values; template takes precedence for type/priority/labels
+		if req.Title == "" && template.Title != "" {
 			req.Title = template.Title
 		}
-		if req.Description == "" {
+		if req.Description == "" && template.Description != "" {
 			req.Description = template.Description
 		}
-		if req.Type == "" {
+		if template.Type != "" {
 			req.Type = template.Type
 		}
-		if req.Priority == "" {
+		if template.Priority != "" {
 			req.Priority = template.Priority
 		}
-		if len(req.Labels) == 0 {
+		if len(template.Labels) > 0 {
 			req.Labels = template.Labels
 		}
+	}
+
+	// Ensure sensible defaults if still unset
+	if req.Type == "" {
+		req.Type = entities.IssueTypeTask
+	}
+	if req.Priority == "" {
+		req.Priority = entities.PriorityMedium
 	}
 
 	// Create the issue

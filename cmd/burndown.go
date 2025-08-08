@@ -67,7 +67,7 @@ func runBurndown(cmd *cobra.Command) error {
 	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
 	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	
+
 	timeTrackingService := services.NewTimeTrackingService(
 		timeEntryRepo,
 		activeTimerRepo,
@@ -79,7 +79,7 @@ func runBurndown(cmd *cobra.Command) error {
 
 	// Determine date range
 	var startDate, endDate time.Time
-	
+
 	if burndownDateFrom != "" && burndownDateTo != "" {
 		startDate, err = time.Parse("2006-01-02", burndownDateFrom)
 		if err != nil {
@@ -114,8 +114,8 @@ func displayBurndown(data *services.BurndownData) {
 	fmt.Printf("==============\n\n")
 
 	fmt.Printf("Project: %s\n", data.ProjectName)
-	fmt.Printf("Period: %s to %s\n", 
-		data.StartDate.Format("2006-01-02"), 
+	fmt.Printf("Period: %s to %s\n",
+		data.StartDate.Format("2006-01-02"),
 		data.EndDate.Format("2006-01-02"))
 	fmt.Printf("Total Estimated: %.1f hours\n", data.TotalEstimated)
 	fmt.Printf("Total Completed: %.1f hours\n", data.TotalCompleted)
@@ -125,9 +125,9 @@ func displayBurndown(data *services.BurndownData) {
 	if data.ProjectedEndDate != nil {
 		fmt.Printf("Projected End Date: %s\n", data.ProjectedEndDate.Format("2006-01-02"))
 		if data.IsOnTrack {
-			printSuccess("✓ Project is on track")
+			printSuccess("Project is on track")
 		} else {
-			printWarning("⚠ Project may be delayed")
+			printWarning("Project may be delayed")
 		}
 	}
 
@@ -138,7 +138,7 @@ func displayBurndown(data *services.BurndownData) {
 
 	fmt.Printf("\nDaily Progress:\n")
 	fmt.Printf("%-12s %-12s %-12s %-12s\n", "Date", "Completed", "Remaining", "Ideal Rem.")
-	fmt.Printf("%-12s %-12s %-12s %-12s\n", 
+	fmt.Printf("%-12s %-12s %-12s %-12s\n",
 		"------------", "------------", "------------", "------------")
 
 	// Show last 10 days or all if less than 10
@@ -161,7 +161,7 @@ func displayBurndown(data *services.BurndownData) {
 	// Show trend analysis
 	if len(data.DailyData) >= 7 {
 		fmt.Printf("\nTrend Analysis:\n")
-		
+
 		// Calculate recent daily average
 		recentDays := data.DailyData[len(data.DailyData)-7:]
 		var recentTotal float64
@@ -171,7 +171,7 @@ func displayBurndown(data *services.BurndownData) {
 		recentAvg := recentTotal / 7.0
 
 		fmt.Printf("• Recent daily average: %.1f hours\n", recentAvg)
-		
+
 		if data.TotalRemaining > 0 && recentAvg > 0 {
 			daysToComplete := data.TotalRemaining / recentAvg
 			fmt.Printf("• Days to completion at current rate: %.0f days\n", daysToComplete)
@@ -181,7 +181,7 @@ func displayBurndown(data *services.BurndownData) {
 		fmt.Printf("\nSimple Chart (R=Remaining, I=Ideal):\n")
 		maxHours := data.TotalEstimated
 		chartWidth := 50
-		
+
 		// Show every few days to fit in chart
 		step := len(data.DailyData) / chartWidth
 		if step < 1 {
@@ -192,7 +192,7 @@ func displayBurndown(data *services.BurndownData) {
 			day := data.DailyData[i]
 			remainingBar := int((day.RemainingHours / maxHours) * float64(chartWidth))
 			idealBar := int((day.IdealRemaining / maxHours) * float64(chartWidth))
-			
+
 			fmt.Printf("%s R:", day.Date.Format("01-02"))
 			for j := 0; j < chartWidth; j++ {
 				if j < remainingBar {
@@ -211,7 +211,7 @@ func displayBurndown(data *services.BurndownData) {
 			}
 			fmt.Printf("\n")
 		}
-		
+
 		fmt.Printf("0%%%s100%%\n", fmt.Sprintf("%*s", chartWidth-6, ""))
 	}
 }

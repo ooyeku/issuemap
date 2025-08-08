@@ -278,17 +278,17 @@ func runDependList(cmd *cobra.Command, issueID entities.IssueID) error {
 
 	if blockingInfo != nil {
 		if blockingInfo.IsBlocked {
-			printWarning(fmt.Sprintf("⚠️  Issue is BLOCKED by %d issues", len(blockingInfo.BlockedBy)))
+			printWarning(fmt.Sprintf("Issue is BLOCKED by %d issues", len(blockingInfo.BlockedBy)))
 		} else {
-			printSuccess("✓ Issue is not blocked")
+			printSuccess("Issue is not blocked")
 		}
 
 		if blockingInfo.BlockingCount > 0 {
-			fmt.Printf("🔒 Blocking %d issues\n", blockingInfo.BlockingCount)
+			fmt.Printf("Blocking %d issues\n", blockingInfo.BlockingCount)
 		}
 
 		if blockingInfo.CriticalPath {
-			printWarning("⚡ Issue is on the critical path")
+			printWarning("Issue is on the critical path")
 		}
 		fmt.Printf("\n")
 	}
@@ -309,13 +309,13 @@ func runDependList(cmd *cobra.Command, issueID entities.IssueID) error {
 	if len(activeDeps) > 0 {
 		fmt.Printf("Active Dependencies:\n")
 		fmt.Printf("-------------------\n")
-		
+
 		for depType, deps := range activeDeps {
 			fmt.Printf("\n%s:\n", strings.Title(string(depType)))
 			for _, dep := range deps {
 				var other entities.IssueID
 				var direction string
-				
+
 				if dep.SourceID == issueID {
 					other = dep.TargetID
 					if dep.Type == entities.DependencyTypeBlocks {
@@ -331,7 +331,7 @@ func runDependList(cmd *cobra.Command, issueID entities.IssueID) error {
 						direction = "required by"
 					}
 				}
-				
+
 				fmt.Printf("  • %s %s %s", issueID, direction, other)
 				if dep.Description != "" {
 					fmt.Printf(" - %s", dep.Description)
@@ -345,7 +345,7 @@ func runDependList(cmd *cobra.Command, issueID entities.IssueID) error {
 	if len(resolvedDeps) > 0 {
 		fmt.Printf("\nResolved Dependencies:\n")
 		fmt.Printf("---------------------\n")
-		
+
 		for depType, deps := range resolvedDeps {
 			fmt.Printf("\n%s:\n", strings.Title(string(depType)))
 			for _, dep := range deps {
@@ -355,7 +355,7 @@ func runDependList(cmd *cobra.Command, issueID entities.IssueID) error {
 				} else {
 					other = dep.SourceID
 				}
-				
+
 				fmt.Printf("  • %s ↔ %s", issueID, other)
 				if dep.Description != "" {
 					fmt.Printf(" - %s", dep.Description)

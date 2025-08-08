@@ -126,7 +126,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 	errorCount := 0
 
 	for _, branch := range branchesToSync {
-		fmt.Printf("\n📊 Syncing branch: %s\n", branch)
+		fmt.Printf("\nSyncing branch: %s\n", branch)
 
 		err := syncBranchWithIssues(ctx, branch, gitClient, issueService)
 		if err != nil {
@@ -140,7 +140,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 	}
 
 	// Summary
-	fmt.Printf("\n📈 Sync Summary:\n")
+	fmt.Printf("\nSync Summary:\n")
 	fmt.Printf("  Branches synced: %d\n", syncedCount)
 	if errorCount > 0 {
 		fmt.Printf("  Errors: %d\n", errorCount)
@@ -193,7 +193,7 @@ func runSyncStatus(cmd *cobra.Command, args []string) error {
 	printSectionHeader("Branch Synchronization Status")
 
 	for _, branch := range branchesToCheck {
-		fmt.Printf("\n🌟 Branch: %s\n", branch)
+		fmt.Printf("\nBranch: %s\n", branch)
 
 		// Get branch status
 		status, err := gitClient.GetBranchStatus(ctx, branch)
@@ -203,29 +203,29 @@ func runSyncStatus(cmd *cobra.Command, args []string) error {
 		}
 
 		if !status.Exists {
-			fmt.Printf("  ❌ Branch does not exist\n")
+			fmt.Printf("  Branch does not exist\n")
 			continue
 		}
 
 		// Branch tracking info
 		if status.IsTracked {
-			fmt.Printf("  📡 Tracked: Yes\n")
+			fmt.Printf("  Tracked: Yes\n")
 			if status.HasUnpushed {
-				fmt.Printf("  ⬆️  Ahead by: %d commits\n", status.AheadBy)
+				fmt.Printf("  Ahead by: %d commits\n", status.AheadBy)
 			}
 			if status.HasUnpulled {
-				fmt.Printf("  ⬇️  Behind by: %d commits\n", status.BehindBy)
+				fmt.Printf("  Behind by: %d commits\n", status.BehindBy)
 			}
 			if !status.HasUnpushed && !status.HasUnpulled {
-				fmt.Printf("  ✅ Up to date with origin\n")
+				fmt.Printf("  Up to date with origin\n")
 			}
 		} else {
-			fmt.Printf("  📡 Tracked: No (local branch only)\n")
+			fmt.Printf("  Tracked: No (local branch only)\n")
 		}
 
 		// Last commit info
 		if status.LastCommit != "" {
-			fmt.Printf("  📝 Last commit: %s - %s\n", status.LastCommit, status.LastCommitMsg)
+			fmt.Printf("  Last commit: %s - %s\n", status.LastCommit, status.LastCommitMsg)
 		}
 
 		// Associated issue info
@@ -233,18 +233,18 @@ func runSyncStatus(cmd *cobra.Command, args []string) error {
 		if issueID != "" {
 			issue, err := issueRepo.GetByID(ctx, entities.IssueID(issueID))
 			if err == nil {
-				fmt.Printf("  🎫 Associated issue: %s - %s (%s)\n",
+				fmt.Printf("  Associated issue: %s - %s (%s)\n",
 					issue.ID, issue.Title, issue.Status)
 
 				// Check for sync issues
 				if branch != "main" && branch != "master" && issue.Status == entities.StatusClosed {
-					fmt.Printf("  ⚠️  Warning: Issue is closed but branch still exists\n")
+					fmt.Printf("  Warning: Issue is closed but branch still exists\n")
 				}
 			} else {
-				fmt.Printf("  🎫 Associated issue: %s (not found)\n", issueID)
+				fmt.Printf("  Associated issue: %s (not found)\n", issueID)
 			}
 		} else {
-			fmt.Printf("  🎫 Associated issue: None detected\n")
+			fmt.Printf("  Associated issue: None detected\n")
 		}
 	}
 
@@ -269,7 +269,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 		if err != nil {
 			printWarning(fmt.Sprintf("Failed to pull changes: %v", err))
 		} else {
-			fmt.Printf("  ✅ Pull completed\n")
+			fmt.Printf("  Pull completed\n")
 		}
 	}
 
@@ -278,7 +278,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 	if issueID != "" {
 		issue, err := issueService.GetIssue(ctx, entities.IssueID(issueID))
 		if err == nil {
-			fmt.Printf("  🎫 Found associated issue: %s - %s\n", issue.ID, issue.Title)
+			fmt.Printf("  Found associated issue: %s - %s\n", issue.ID, issue.Title)
 
 			// Auto-update issue status if requested
 			if syncAutoUpdate {
@@ -290,7 +290,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 
 			// Update issue branch reference
 			if issue.Branch != branch {
-				fmt.Printf("  📝 Updating issue branch reference to %s\n", branch)
+				fmt.Printf("  Updating issue branch reference to %s\n", branch)
 				updates := map[string]interface{}{
 					"branch": branch,
 				}
@@ -309,7 +309,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 		if err != nil {
 			printWarning(fmt.Sprintf("Failed to push changes: %v", err))
 		} else {
-			fmt.Printf("  ✅ Push completed\n")
+			fmt.Printf("  Push completed\n")
 		}
 	}
 
@@ -321,7 +321,7 @@ func autoUpdateIssueStatus(ctx context.Context, issue *entities.Issue, branchSta
 
 	// If branch has recent commits and issue is still open, mark as in progress
 	if issue.Status == entities.StatusOpen && branchStatus.LastCommit != "" {
-		fmt.Printf("  🔄 Auto-updating issue status to in-progress (has commits)\n")
+		fmt.Printf("  Auto-updating issue status to in-progress (has commits)\n")
 		updates := map[string]interface{}{
 			"status": string(entities.StatusInProgress),
 		}

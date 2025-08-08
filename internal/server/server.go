@@ -34,6 +34,7 @@ type Server struct {
 	syncService   *SyncService
 	pidFile       string
 	logFile       string
+	logFileHandle *os.File
 }
 
 // ServerConfig holds server configuration
@@ -149,6 +150,14 @@ func (s *Server) Stop() error {
 		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
 
+	// Close log file if open
+	if s.logFileHandle != nil {
+		if err := s.logFileHandle.Close(); err != nil {
+			log.Printf("Warning: failed to close log file: %v", err)
+		}
+		s.logFileHandle = nil
+	}
+
 	// Remove PID file
 	if err := os.Remove(s.pidFile); err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: failed to remove PID file: %v", err)
@@ -257,8 +266,9 @@ func (s *Server) loadIssuesIntoMemory() error {
 	s.memoryStorage.Clear()
 
 	// Add each issue to memory storage
-	for _, issue := range issueList.Issues {
-		s.memoryStorage.Add(&issue)
+	for i := range issueList.Issues {
+		issueCopy := issueList.Issues[i]
+		s.memoryStorage.Add(&issueCopy)
 	}
 
 	log.Printf("Loaded %d issues into memory from disk", len(issueList.Issues))
@@ -279,6 +289,7 @@ func (s *Server) setupLogging() {
 		return
 	}
 
+	s.logFileHandle = logFile
 	log.SetOutput(logFile)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }

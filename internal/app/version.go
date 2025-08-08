@@ -8,16 +8,16 @@ import (
 // Version information
 const (
 	// Version is the current version of IssueMap
-	Version = "0.1.1"
+	Version = "0.2.0"
 
 	// VersionMajor is the major version number
 	VersionMajor = 0
 
 	// VersionMinor is the minor version number
-	VersionMinor = 1
+	VersionMinor = 2
 
 	// VersionPatch is the patch version number
-	VersionPatch = 1
+	VersionPatch = 0
 
 	// VersionPrerelease is the prerelease version (empty for stable)
 	VersionPrerelease = ""
@@ -231,7 +231,7 @@ const (
 
 	// ServerPortRange defines the range for automatic port selection
 	ServerPortRangeStart = 4042
-	ServerPortRangeEnd   = 4043
+	ServerPortRangeEnd   = 4052
 
 	// ServerPIDFile is the filename for storing server PID
 	ServerPIDFile = "server.pid"

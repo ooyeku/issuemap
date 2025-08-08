@@ -108,8 +108,12 @@ func (suite *IntegrationTestSuite) TestGitWorkflowIntegration() {
 		// Merge the feature branch
 		suite.runGitCommand("merge", featureBranch, "--no-ff")
 
-		// Test the merge command functionality
-		suite.runCLICommand("merge", featureBranch)
+		// Test the merge command functionality (pass issue ID instead of branch name)
+		// Detect associated issue from current branch
+		issues := suite.getAllIssues()
+		require.NotEmpty(t, issues)
+		issueID := issues[0].ID
+		suite.runCLICommand("merge", issueID)
 	})
 }
 
@@ -118,17 +122,12 @@ func (suite *IntegrationTestSuite) TestBranchStatusIntegration() {
 	suite.T().Run("BranchStatusTracking", func(t *testing.T) {
 		// Create a new issue and branch
 		suite.runCLICommand("create", "Status Tracking Test", "--type", "task")
-		time.Sleep(100 * time.Millisecond)
+		// Allow fs sync to pick up the new file
+		time.Sleep(300 * time.Millisecond)
 
 		issues := suite.getAllIssues()
-		var newIssue IssueData
-		for _, issue := range issues {
-			if issue.Title == "Status Tracking Test" {
-				newIssue = issue
-				break
-			}
-		}
-		require.NotEmpty(t, newIssue.ID)
+		require.Len(t, issues, 1)
+		newIssue := issues[0]
 
 		// Create branch for the issue
 		suite.runCLICommand("branch", newIssue.ID)
@@ -150,6 +149,8 @@ func (suite *IntegrationTestSuite) TestBranchStatusIntegration() {
 
 		// Test sync with auto-update
 		suite.runCLICommand("sync", "--auto-update")
+		// Give the server a moment to reload from disk after sync
+		time.Sleep(300 * time.Millisecond)
 
 		// Verify issue status was updated
 		updatedIssue := suite.getIssueByID(newIssue.ID)
@@ -162,7 +163,7 @@ func (suite *IntegrationTestSuite) TestBranchStatusIntegration() {
 		// Create two issues
 		suite.runCLICommand("create", "First Issue", "--type", "bug")
 		suite.runCLICommand("create", "Second Issue", "--type", "bug")
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(300 * time.Millisecond)
 
 		issues := suite.getAllIssues()
 		require.GreaterOrEqual(t, len(issues), 2)
@@ -184,7 +185,7 @@ func (suite *IntegrationTestSuite) TestBranchStatusIntegration() {
 		// Manually update both issues to reference the same branch
 		suite.runCLICommand("edit", firstIssue.ID, "--branch", branchName)
 		suite.runCLICommand("edit", secondIssue.ID, "--branch", branchName)
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(300 * time.Millisecond)
 
 		// Run conflict detection
 		output := suite.runCLICommandWithOutput("resolve")

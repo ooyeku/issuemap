@@ -17,16 +17,17 @@ import (
 )
 
 var (
-	templateName        string
-	templateType        string
-	templateTitle       string
-	templateDescription string
-	templateLabels      []string
-	templatePriority    string
-	templateFields      []string
-	templateInteractive bool
-	templateFormat      string
-	templateOverwrite   bool
+	templateName         string
+	templateType         string
+	templateTitle        string
+	templateDescription  string
+	templateLabels       []string
+	templatePriority     string
+	templateFields       []string
+	templateInteractive  bool
+	templateFormat       string // used for list/show output only (table|json|yaml)
+	templateOverwrite    bool
+	templateExportFormat string // used only for export subcommand (yaml|json)
 )
 
 // templateCmd represents the template command
@@ -179,13 +180,13 @@ func init() {
 	templateCreateCmd.Flags().StringSliceVar(&templateFields, "fields", []string{}, "custom fields (key:type:description)")
 	templateCreateCmd.Flags().BoolVarP(&templateInteractive, "interactive", "i", false, "interactive template creation")
 
-	// Template export flags
-	templateExportCmd.Flags().StringVarP(&templateFormat, "format", "f", "yaml", "export format (yaml, json)")
+	// Template export flags: allow --format on subcommand; it will shadow parent if provided after subcommand
+	templateExportCmd.Flags().StringVarP(&templateExportFormat, "format", "F", "yaml", "export format (yaml, json)")
 
 	// Template import flags
 	templateImportCmd.Flags().BoolVar(&templateOverwrite, "overwrite", false, "overwrite existing template")
 
-	// Global template flags
+	// Display format flag (scoped to template command)
 	templateCmd.PersistentFlags().StringVarP(&templateFormat, "format", "f", "table", "output format (table, json, yaml)")
 }
 
@@ -225,9 +226,9 @@ func runTemplateList(cmd *cobra.Command, args []string) error {
 		}
 
 		fmt.Printf("%-15s %-10s %-10s %-30s\n",
-			colorValue(template.Name),
-			colorType(template.Type),
-			colorPriority(template.Priority),
+			template.Name,
+			template.Type,
+			template.Priority,
 			description)
 	}
 
@@ -263,12 +264,12 @@ func runTemplateShow(cmd *cobra.Command, args []string) error {
 	// Display template details
 	printSectionHeader(fmt.Sprintf("Template: %s", template.Name))
 
-	fmt.Printf("%-12s %s\n", "Name:", colorValue(template.Name))
-	fmt.Printf("%-12s %s\n", "Type:", colorType(template.Type))
-	fmt.Printf("%-12s %s\n", "Priority:", colorPriority(template.Priority))
+	fmt.Printf("Name: %s\n", template.Name)
+	fmt.Printf("Type: %s\n", template.Type)
+	fmt.Printf("Priority: %s\n", template.Priority)
 
 	if len(template.Labels) > 0 {
-		fmt.Printf("%-12s %s\n", "Labels:", strings.Join(template.Labels, ", "))
+		fmt.Printf("Labels: %s\n", strings.Join(template.Labels, ", "))
 	}
 
 	if template.Title != "" {
@@ -283,14 +284,25 @@ func runTemplateShow(cmd *cobra.Command, args []string) error {
 		fmt.Printf("%s\n", template.Description)
 	}
 
+	if len(template.Fields) > 0 {
+		fmt.Printf("\n")
+		printSectionHeader("Custom Fields")
+		for _, f := range template.Fields {
+			fmt.Printf("- %s (%s)\n", f.Name, f.Type)
+		}
+	}
+
 	return nil
 }
 
 func runTemplateCreate(cmd *cobra.Command, name string) error {
 	ctx := context.Background()
 
-	if templateInteractive || name == "" {
+	if templateInteractive {
 		return runInteractiveTemplateCreate(ctx)
+	}
+	if name == "" {
+		return fmt.Errorf("template name is required")
 	}
 
 	// Initialize repositories
@@ -470,8 +482,12 @@ func outputTemplateStructured(template *entities.Template, format string) error 
 }
 
 func outputJSON(data interface{}) error {
-	// Simple JSON output - in a real implementation you'd use proper JSON marshaling
-	fmt.Printf("JSON output not yet implemented\n")
+	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+	// Do not prepend any extra text; print pure JSON
+	fmt.Print(string(b))
 	return nil
 }
 
@@ -488,15 +504,22 @@ func runTemplateExport(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 	templateName := args[0]
 
+	// Determine effective export format (prefer explicit export flag, else use display format if json/yaml)
+	effFormat := templateExportFormat
+	if effFormat != "json" && effFormat != "yaml" {
+		if templateFormat == "json" || templateFormat == "yaml" {
+			effFormat = templateFormat
+		} else {
+			effFormat = "yaml"
+		}
+	}
+
 	// Determine output file
 	var outputFile string
 	if len(args) > 1 {
 		outputFile = args[1]
 	} else {
-		ext := "yaml"
-		if templateFormat == "json" {
-			ext = "json"
-		}
+		ext := effFormat
 		outputFile = fmt.Sprintf("%s.%s", templateName, ext)
 	}
 
@@ -529,13 +552,13 @@ func runTemplateExport(cmd *cobra.Command, args []string) error {
 
 	// Marshal to requested format
 	var data []byte
-	switch templateFormat {
+	switch effFormat {
 	case "json":
 		data, err = json.MarshalIndent(exportData, "", "  ")
 	case "yaml":
 		data, err = yaml.Marshal(exportData)
 	default:
-		return fmt.Errorf("unsupported export format: %s", templateFormat)
+		return fmt.Errorf("unsupported export format: %s", effFormat)
 	}
 
 	if err != nil {

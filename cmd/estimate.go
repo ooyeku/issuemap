@@ -104,13 +104,13 @@ func runEstimate(cmd *cobra.Command, issueID entities.IssueID, hours float64) er
 	// Display current status
 	fmt.Printf("\nIssue: %s - %s\n", issue.ID, issue.Title)
 	fmt.Printf("Estimated: %.1f hours\n", issue.GetEstimatedHours())
-	
+
 	if issue.GetActualHours() > 0 {
 		fmt.Printf("Actual: %.1f hours\n", issue.GetActualHours())
 		fmt.Printf("Remaining: %.1f hours\n", issue.GetRemainingHours())
-		
+
 		if issue.IsOverEstimate() {
-			printWarning("⚠️  Actual time exceeds estimate")
+			printWarning("Actual time exceeds estimate")
 		}
 	}
 

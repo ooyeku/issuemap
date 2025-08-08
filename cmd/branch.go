@@ -245,10 +245,11 @@ func runMerge(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Check if we're on main/master branch
-	if currentBranch == "main" || currentBranch == "master" {
-		printWarning("You're on the main branch. Consider switching to a feature branch first.")
-		return fmt.Errorf("cannot merge from main branch")
+	// Ensure .issuemap files are committed before switching branches/merging
+	if hasUncommittedIssuemapFiles(repoPath) {
+		if err := commitIssuemapFiles(repoPath, issueID); err != nil {
+			printWarning(fmt.Sprintf("Failed to commit .issuemap files before merge: %v", err))
+		}
 	}
 
 	// Get the main branch name
@@ -258,20 +259,31 @@ func runMerge(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printInfo(fmt.Sprintf("Merging branch '%s' into '%s' and closing issue %s", currentBranch, mainBranch, issueID))
+	// Determine source branch
+	sourceBranch := currentBranch
+	if currentBranch == mainBranch {
+		// If on main, try to merge the issue's branch into main
+		if issue.Branch == "" {
+			printError(fmt.Errorf("issue %s has no associated branch to merge", issueID))
+			return fmt.Errorf("no source branch")
+		}
+		sourceBranch = issue.Branch
+	}
+
+	printInfo(fmt.Sprintf("Merging branch '%s' into '%s' and closing issue %s", sourceBranch, mainBranch, issueID))
 
 	// Perform the actual Git merge
-	err = gitClient.MergeBranch(ctx, currentBranch, mainBranch)
+	err = gitClient.MergeBranch(ctx, sourceBranch, mainBranch)
 	if err != nil {
-		printError(fmt.Errorf("failed to merge branch '%s' into '%s': %w", currentBranch, mainBranch, err))
+		printError(fmt.Errorf("failed to merge branch '%s' into '%s': %w", sourceBranch, mainBranch, err))
 		printWarning("Merge failed. You may need to resolve conflicts manually.")
 		return err
 	}
 
-	printSuccess(fmt.Sprintf("Successfully merged branch '%s' into '%s'", currentBranch, mainBranch))
+	printSuccess(fmt.Sprintf("Successfully merged branch '%s' into '%s'", sourceBranch, mainBranch))
 
 	// Close the issue after successful merge
-	err = issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", currentBranch, mainBranch))
+	err = issueService.CloseIssue(ctx, issueID, fmt.Sprintf("Merged branch '%s' into %s", sourceBranch, mainBranch))
 	if err != nil {
 		printWarning(fmt.Sprintf("Merge completed, but failed to close issue: %v", err))
 	} else {
