@@ -500,6 +500,27 @@ func (g *GitClient) MergeBranch(ctx context.Context, sourceBranch, targetBranch 
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		// Attempt automatic resolution for IssueMap files if there are conflicts
+		if strings.Contains(string(output), "CONFLICT") {
+			// Prefer source branch ("theirs" in the context of merging into target) for IssueMap-managed files
+			// Resolve issues and history paths
+			resolve := exec.Command("git", "checkout", "--theirs", ".issuemap/issues", ".issuemap/history")
+			resolve.Dir = g.repoPath
+			_ = resolve.Run()
+
+			// Force add in case .issuemap is ignored
+			add := exec.Command("git", "add", "-f", ".issuemap")
+			add.Dir = g.repoPath
+			_ = add.Run()
+
+			// Commit the merge resolution
+			commit := exec.Command("git", "commit", "-m", fmt.Sprintf("Resolve IssueMap files from %s during merge into %s", sourceBranch, targetBranch))
+			commit.Dir = g.repoPath
+			if cerr := commit.Run(); cerr == nil {
+				// Successfully auto-resolved
+				return nil
+			}
+		}
 		return errors.Wrap(err, "GitClient.MergeBranch", "merge_failed: "+string(output))
 	}
 
