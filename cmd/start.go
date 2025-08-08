@@ -29,7 +29,8 @@ Examples:
   issuemap start ISSUE-002 --description "Working on authentication"`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		issueID := entities.IssueID(args[0])
+		// Accept both numeric (e.g., 001) and full (ISSUE-001) formats
+		issueID := normalizeIssueID(args[0])
 		return runStart(cmd, issueID)
 	},
 }
@@ -63,11 +64,11 @@ func runStart(cmd *cobra.Command, issueID entities.IssueID) error {
 	// Initialize time tracking repositories and service
 	timeEntryRepo := storage.NewFileTimeEntryRepository(issuemapPath)
 	activeTimerRepo := storage.NewFileActiveTimerRepository(issuemapPath)
-	
+
 	// Create history service for time tracking
 	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	
+
 	timeTrackingService := services.NewTimeTrackingService(
 		timeEntryRepo,
 		activeTimerRepo,
