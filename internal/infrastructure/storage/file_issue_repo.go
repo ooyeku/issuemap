@@ -31,6 +31,9 @@ func NewFileIssueRepository(basePath string) *FileIssueRepository {
 	}
 }
 
+// GetBasePath returns the repository base path for issue storage
+func (r *FileIssueRepository) GetBasePath() string { return r.basePath }
+
 // Create creates a new issue file
 func (r *FileIssueRepository) Create(ctx context.Context, issue *entities.Issue) error {
 	if err := issue.Validate(); err != nil {
@@ -439,9 +442,4 @@ func (r *FileIssueRepository) matchesSearchText(issue *entities.Issue, searchTex
 	}
 
 	return false
-}
-
-// GetBasePath returns the base path of the repository
-func (r *FileIssueRepository) GetBasePath() string {
-	return r.basePath
 }

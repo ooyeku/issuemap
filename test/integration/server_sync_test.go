@@ -102,6 +102,12 @@ func (suite *IntegrationTestSuite) TearDownSuite() {
 
 	// Clean up test directory
 	os.RemoveAll(suite.testDir)
+
+	// Ensure any accidental .issuemap under the integration package directory is removed
+	if wd, err := os.Getwd(); err == nil {
+		// Remove .issuemap created in the test package directory (if any)
+		_ = os.RemoveAll(filepath.Join(wd, app.ConfigDirName))
+	}
 }
 
 // SetupTest prepares each individual test

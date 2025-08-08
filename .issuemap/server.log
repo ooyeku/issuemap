@@ -22,3 +22,5 @@
 2025/08/08 17:49:46 server.go:274: Loaded 6 issues into memory from disk
 2025/08/08 17:49:47 server.go:274: Loaded 6 issues into memory from disk
 2025/08/08 17:50:24 server.go:274: Loaded 6 issues into memory from disk
+2025/08/08 18:00:52 server.go:316: GET /api/v1/issues/ISSUE-003 38.25µs
+2025/08/08 18:01:38 server.go:316: GET /api/v1/issues/ISSUE-003 23.708µs
