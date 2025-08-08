@@ -2,15 +2,20 @@ id: ISSUE-001
 title: Test complete golden workflow
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: high
 labels:
     - name: testing
       color: '#gray'
 branch: feature/ISSUE-001-test-complete-golden-workflow
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-07T20:15:13.551379-05:00
+      text: 'Issue closed: Merged branch ''feature/ISSUE-001-test-complete-golden-workflow'' into main'
 metadata: {}
 timestamps:
     created: 2025-08-07T20:10:17.643297-05:00
-    updated: 2025-08-07T20:14:43.926425-05:00
+    updated: 2025-08-07T20:15:13.551383-05:00
+    closed: 2025-08-07T20:15:13.551379-05:00
