@@ -1,0 +1,12 @@
+2025/08/08 16:43:10 server.go:120: IssueMap server starting on port 4042
+2025/08/08 16:43:10 server.go:121: API endpoints available at http://localhost:4042/api/v1
+2025/08/08 16:43:31 server.go:316: GET /api/v1/issues 609.75µs
+2025/08/08 16:44:53 server.go:274: Loaded 2 issues into memory from disk
+2025/08/08 16:45:17 server.go:274: Loaded 2 issues into memory from disk
+2025/08/08 16:45:26 server.go:316: GET /api/v1/issues 39.875µs
+2025/08/08 16:49:45 server.go:274: Loaded 3 issues into memory from disk
+2025/08/08 16:50:18 server.go:274: Loaded 4 issues into memory from disk
+2025/08/08 16:50:46 server.go:274: Loaded 5 issues into memory from disk
+2025/08/08 16:51:09 server.go:274: Loaded 6 issues into memory from disk
+2025/08/08 16:54:37 server.go:316: GET /api/v1/issues 68.916µs
+2025/08/08 16:54:39 server.go:316: GET /api/v1/issues 129.959µs

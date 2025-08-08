@@ -1,7 +1,7 @@
 issue_id: ISSUE-001
-current_version: 3
+current_version: 4
 created_at: 2025-08-07T20:10:17.693808-05:00
-updated_at: 2025-08-07T20:14:43.945669-05:00
+updated_at: 2025-08-08T16:45:17.895629-05:00
 entries:
     - id: hist_1754615417673545000
       issue_id: ISSUE-001
@@ -60,3 +60,16 @@ entries:
           new_value: in-progress
       metadata:
         git_branch: feature/ISSUE-001-test-complete-golden-workflow
+    - id: hist_1754689517895187000
+      issue_id: ISSUE-001
+      version: 4
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T16:45:17.895203-05:00
+      message: Updated assignee
+      changes:
+        - field: assignee
+          old_value: ""
+          new_value: olayeku
+      metadata:
+        git_branch: main

@@ -1,0 +1,35 @@
+issue_id: ISSUE-004
+current_version: 1
+created_at: 2025-08-08T16:50:18.282486-05:00
+updated_at: 2025-08-08T16:50:18.282492-05:00
+entries:
+    - id: hist_1754689818263322000
+      issue_id: ISSUE-004
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T16:50:18.263324-05:00
+      message: 'Issue created: Smart Notifications and Reminders'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Smart Notifications and Reminders
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: assignee
+          old_value: null
+          new_value: olayeku
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

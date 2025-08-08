@@ -60,7 +60,7 @@ func init() {
 	createCmd.Flags().BoolVarP(&createInteractive, "interactive", "i", false, "interactive mode")
 }
 
-func runCreate(cmd *cobra.Command, args []string) error {
+func runCreate(_ *cobra.Command, _ []string) error {
 	ctx := context.Background()
 
 	// Validate required fields

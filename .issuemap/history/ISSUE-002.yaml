@@ -1,0 +1,35 @@
+issue_id: ISSUE-002
+current_version: 1
+created_at: 2025-08-08T16:44:53.371679-05:00
+updated_at: 2025-08-08T16:44:53.371685-05:00
+entries:
+    - id: hist_1754689493356485000
+      issue_id: ISSUE-002
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T16:44:53.356485-05:00
+      message: 'Issue created: Review todo.md and implement missing items'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Review todo.md and implement missing items
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: assignee
+          old_value: null
+          new_value: olayeku
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

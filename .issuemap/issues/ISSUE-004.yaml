@@ -1,0 +1,17 @@
+id: ISSUE-004
+title: Smart Notifications and Reminders
+description: ""
+type: feature
+status: open
+priority: medium
+labels: []
+assignee:
+    username: olayeku
+    email: ""
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T16:50:18.238596-05:00
+    updated: 2025-08-08T16:50:18.238601-05:00

@@ -45,7 +45,7 @@ This document tracks the development progress of new features for the IssueMap p
 - [x] Add `issuemap report time` functionality
 - [x] Create velocity and burndown calculations
 - [x] Add time tracking export (CSV, JSON)
-- [x] Implement timer notifications and reminders
+- [ ] Implement timer notifications and reminders
 - [x] Write time tracking tests
 
 ### Issue Dependencies & Blocking
@@ -100,7 +100,7 @@ This document tracks the development progress of new features for the IssueMap p
 
 ### Web Dashboard
 - [ ] Set up web framework (React/Vue.js)
-- [ ] Create REST API endpoints
+- [x] Create REST API endpoints
 - [ ] Implement real-time WebSocket connections
 - [ ] Build issue list/grid views
 - [ ] Create Kanban board interface
@@ -112,7 +112,7 @@ This document tracks the development progress of new features for the IssueMap p
 
 ### API & Webhooks
 - [ ] Design RESTful API specification
-- [ ] Implement core API endpoints (CRUD operations)
+- [x] Implement core API endpoints (CRUD operations)
 - [ ] Add API authentication (API keys, JWT)
 - [ ] Create API rate limiting
 - [ ] Implement webhook system
@@ -120,7 +120,7 @@ This document tracks the development progress of new features for the IssueMap p
 - [ ] Create webhook delivery reliability
 - [ ] Add API documentation (OpenAPI/Swagger)
 - [ ] Implement API versioning
-- [ ] Write API tests
+- [x] Write API tests
 
 ## 📊 Phase 4: Analytics & Reporting
 
@@ -277,4 +277,4 @@ This document tracks the development progress of new features for the IssueMap p
 
 **Last Updated**: [DATE]  
 **Next Review**: [DATE]  
-**Current Phase**: Phase 1 - Quick Wins
+**Current Phase**: Phase 2 - Core Workflow Enhancement
