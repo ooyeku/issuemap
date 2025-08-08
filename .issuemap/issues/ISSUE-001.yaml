@@ -2,7 +2,7 @@ id: ISSUE-001
 title: Test complete golden workflow
 description: ""
 type: task
-status: open
+status: in-progress
 priority: high
 labels:
     - name: testing
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-07T20:10:17.643297-05:00
-    updated: 2025-08-07T20:13:10.098564-05:00
+    updated: 2025-08-07T20:14:43.926425-05:00
