@@ -1,7 +1,7 @@
 issue_id: ISSUE-001
-current_version: 47
+current_version: 49
 created_at: 2025-08-06T19:20:14.300018-05:00
-updated_at: 2025-08-07T19:40:25.064948-05:00
+updated_at: 2025-08-07T19:41:57.293098-05:00
 entries:
     - id: hist_1754526014300001000
       issue_id: ISSUE-001
@@ -1067,6 +1067,52 @@ entries:
       type: created
       author: system
       timestamp: 2025-08-07T19:40:25.063976-05:00
+      message: 'Issue created: Test Issue for Time Tracking'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Test Issue for Time Tracking
+        - field: description
+          old_value: null
+          new_value: Integration test issue
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+    - id: hist_1754613717277186000
+      issue_id: ISSUE-001
+      version: 48
+      type: created
+      author: system
+      timestamp: 2025-08-07T19:41:57.277187-05:00
+      message: 'Issue created: Backend API'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Backend API
+        - field: description
+          old_value: null
+          new_value: Create backend API
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+    - id: hist_1754613717292091000
+      issue_id: ISSUE-001
+      version: 49
+      type: created
+      author: system
+      timestamp: 2025-08-07T19:41:57.292091-05:00
       message: 'Issue created: Test Issue for Time Tracking'
       changes:
         - field: title
