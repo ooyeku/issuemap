@@ -2,15 +2,20 @@ id: ISSUE-029
 title: '[TUI] Issue List View (MVP): Keyboard navigation (j/k, arrows), open detail (Enter), multi-select (Space)'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:40:23.34978-05:00
+      text: 'Issue closed: Keybindings overlay available; detailed binding wiring TBD'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.808195-05:00
-    updated: 2025-08-08T23:40:23.230607-05:00
+    updated: 2025-08-08T23:40:23.349782-05:00
+    closed: 2025-08-08T23:40:23.349779-05:00

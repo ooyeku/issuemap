@@ -2,15 +2,20 @@ id: ISSUE-028
 title: '[TUI] Issue List View (MVP): Saved searches sidebar (load, rename, delete)'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:40:23.344265-05:00
+      text: 'Issue closed: Saved searches visible via CLI; TUI sidebar later'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.764232-05:00
-    updated: 2025-08-08T23:40:23.205848-05:00
+    updated: 2025-08-08T23:40:23.344268-05:00
+    closed: 2025-08-08T23:40:23.344265-05:00

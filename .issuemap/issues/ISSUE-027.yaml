@@ -2,15 +2,20 @@ id: ISSUE-027
 title: '[TUI] Issue List View (MVP): Filtering using query DSL (same as CLI); inline query bar'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:40:23.339195-05:00
+      text: 'Issue closed: Query DSL integrated via search service path'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.721465-05:00
-    updated: 2025-08-08T23:40:23.179644-05:00
+    updated: 2025-08-08T23:40:23.339201-05:00
+    closed: 2025-08-08T23:40:23.339195-05:00
