@@ -9,6 +9,15 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"context"
+
+	"github.com/ooyeku/issuemap/internal/app"
+	"github.com/ooyeku/issuemap/internal/app/services"
+	"github.com/ooyeku/issuemap/internal/domain/entities"
+	"github.com/ooyeku/issuemap/internal/domain/repositories"
+	"github.com/ooyeku/issuemap/internal/infrastructure/git"
+	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
 
 var (
@@ -19,6 +28,10 @@ var (
 	tuiHelpOverlay bool
 	tuiView        string
 	tuiPalette     bool
+	tuiStatus      string
+	tuiAssignee    string
+	tuiLabels      []string
+	tuiLimit       int
 )
 
 // tuiCmd provides a professional, keyboard-first terminal UI entry point.
@@ -46,6 +59,11 @@ func init() {
 	tuiCmd.Flags().BoolVar(&tuiHelpOverlay, "help-overlay", false, "print keyboard help overlay and exit")
 	tuiCmd.Flags().StringVar(&tuiView, "view", "list", "view to render (list, detail, board, search, graph, activity, settings)")
 	tuiCmd.Flags().BoolVar(&tuiPalette, "palette", false, "print command palette and exit")
+	// List view filters (basic)
+	tuiCmd.Flags().StringVar(&tuiStatus, "status", "", "filter by status for list view")
+	tuiCmd.Flags().StringVar(&tuiAssignee, "assignee", "", "filter by assignee for list view")
+	tuiCmd.Flags().StringSliceVar(&tuiLabels, "labels", []string{}, "filter by labels for list view")
+	tuiCmd.Flags().IntVar(&tuiLimit, "limit", app.DefaultListLimit, "limit results in list view")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -130,7 +148,7 @@ func runTUIOverlay() error {
 	// Persist basic UI state
 	_ = saveTUIState(repo, mode, tuiView, tuiReadOnly)
 
-	// Render selected view (stubbed)
+	// Render selected view
 	if err := renderView(tuiView); err != nil {
 		return err
 	}
@@ -252,8 +270,7 @@ func saveTUIState(repo, mode, view string, readOnly bool) error {
 func renderView(view string) error {
 	switch strings.ToLower(view) {
 	case "list":
-		// Minimal list banner (list details via `issuemap list`)
-		fmt.Println("\n[View] list - use `issuemap list` for full results")
+		return renderListView()
 	case "detail":
 		fmt.Println("\n[View] detail - open with: issuemap show ISSUE-XXX")
 	case "board":
@@ -268,6 +285,54 @@ func renderView(view string) error {
 		fmt.Println("\n[View] settings - theme, keys, columns (planned)")
 	default:
 		// no-op
+	}
+	return nil
+}
+
+// renderListView lists issues using the same services as the CLI list command and prints the table.
+func renderListView() error {
+	ctx := context.Background()
+	repoRoot, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	issuemapPath := filepath.Join(repoRoot, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(issuemapPath)
+	configRepo := storage.NewFileConfigRepository(issuemapPath)
+
+	var gitRepo *git.GitClient
+	if gitClient, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = gitClient
+	}
+
+	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
+
+	filter := repositories.IssueFilter{}
+	if tuiStatus != "" {
+		status := entities.Status(tuiStatus)
+		filter.Status = &status
+	}
+	if tuiAssignee != "" {
+		filter.Assignee = &tuiAssignee
+	}
+	if len(tuiLabels) > 0 {
+		filter.Labels = tuiLabels
+	}
+	if tuiLimit > 0 {
+		filter.Limit = &tuiLimit
+	}
+
+	list, err := issueService.ListIssues(ctx, filter)
+	if err != nil {
+		return fmt.Errorf("failed to list issues: %w", err)
+	}
+	if len(list.Issues) == 0 {
+		fmt.Println("No issues found for current filters.")
+		return nil
+	}
+	displayIssuesTable(list.Issues)
+	if list.Total > list.Count {
+		fmt.Printf("\nShowing %d of %d issues. Use --limit to see more.\n", list.Count, list.Total)
 	}
 	return nil
 }

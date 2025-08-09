@@ -2,7 +2,7 @@ id: ISSUE-026
 title: '[TUI] Issue List View (MVP): Sorting (Title/Status/Priority/Updated)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.678501-05:00
-    updated: 2025-08-08T23:13:23.678505-05:00
+    updated: 2025-08-08T23:39:12.208662-05:00
