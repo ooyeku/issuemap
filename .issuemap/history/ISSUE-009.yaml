@@ -1,7 +1,7 @@
 issue_id: ISSUE-009
-current_version: 3
+current_version: 4
 created_at: 2025-08-08T23:13:22.954015-05:00
-updated_at: 2025-08-08T23:24:49.721736-05:00
+updated_at: 2025-08-08T23:27:30.38746-05:00
 entries:
     - id: hist_1754712802936820000
       issue_id: ISSUE-009
@@ -59,5 +59,18 @@ entries:
         - field: status
           old_value: open
           new_value: in-progress
+      metadata:
+        git_branch: feature/ISSUE-009-tui-parity-core-flows
+    - id: hist_1754713650387104000
+      issue_id: ISSUE-009
+      version: 4
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:27:30.387117-05:00
+      message: Updated assignee
+      changes:
+        - field: assignee
+          old_value: ""
+          new_value: olayeku
       metadata:
         git_branch: feature/ISSUE-009-tui-parity-core-flows

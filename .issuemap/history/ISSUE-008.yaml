@@ -1,7 +1,7 @@
 issue_id: ISSUE-008
-current_version: 3
+current_version: 4
 created_at: 2025-08-08T23:13:22.906504-05:00
-updated_at: 2025-08-08T23:24:27.680405-05:00
+updated_at: 2025-08-08T23:27:25.656841-05:00
 entries:
     - id: hist_1754712802888248000
       issue_id: ISSUE-008
@@ -61,3 +61,16 @@ entries:
           new_value: in-progress
       metadata:
         git_branch: feature/ISSUE-008-tui-goals-keyboard-first-mouse-optional-discoverab
+    - id: hist_1754713645656375000
+      issue_id: ISSUE-008
+      version: 4
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:27:25.656385-05:00
+      message: Updated assignee
+      changes:
+        - field: assignee
+          old_value: ""
+          new_value: olayeku
+      metadata:
+        git_branch: feature/ISSUE-009-tui-parity-core-flows
