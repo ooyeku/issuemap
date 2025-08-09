@@ -2,7 +2,7 @@ id: ISSUE-070
 title: '[TUI] Performance & Reliability: Handle 10k+ issues: pagination/virtualization strategy validated'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.583215-05:00
-    updated: 2025-08-08T23:13:25.58322-05:00
+    updated: 2025-08-08T23:51:09.252875-05:00

@@ -33,12 +33,70 @@ var (
 	tuiAssignee    string
 	tuiLabels      []string
 	tuiLimit       int
+	tuiOffset      int
+	tuiPage        int
+	tuiPerPage     int
 	// Detail view options
 	tuiDetailChecklist bool
 	tuiDetailDeps      bool
 	tuiDetailHistory   bool
 	tuiDetailHistLimit int
+	// Settings & customization
+	tuiSetTheme       string
+	tuiSetColumns     string
+	tuiSetWidths      string
+	tuiSetKeys        []string
+	tuiToggleFeatures []string
+	tuiConfigOnly     bool
+	// Performance & reliability
+	tuiThrottleMs int
+	tuiRecentDays int
 )
+
+// TUIConfig persisted in .issuemap/tui_config.json
+type TUIConfig struct {
+	Theme           string            `json:"theme"`
+	ListColumns     []string          `json:"list_columns"`
+	ColumnWidths    map[string]int    `json:"column_widths"`
+	Keybindings     map[string]string `json:"keybindings"`
+	AdvancedFeature map[string]bool   `json:"advanced_feature"`
+}
+
+func loadTUIConfig(repoRoot string) (*TUIConfig, error) {
+	path := filepath.Join(repoRoot, app.ConfigDirName, "tui_config.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		// default config
+		return &TUIConfig{Theme: "light", ColumnWidths: map[string]int{}, Keybindings: map[string]string{}, AdvancedFeature: map[string]bool{}}, nil
+	}
+	var cfg TUIConfig
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return &TUIConfig{Theme: "light", ColumnWidths: map[string]int{}, Keybindings: map[string]string{}, AdvancedFeature: map[string]bool{}}, nil
+	}
+	if cfg.ColumnWidths == nil {
+		cfg.ColumnWidths = map[string]int{}
+	}
+	if cfg.Keybindings == nil {
+		cfg.Keybindings = map[string]string{}
+	}
+	if cfg.AdvancedFeature == nil {
+		cfg.AdvancedFeature = map[string]bool{}
+	}
+	return &cfg, nil
+}
+
+func saveTUIConfig(repoRoot string, cfg *TUIConfig) error {
+	dir := filepath.Join(repoRoot, app.ConfigDirName)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	path := filepath.Join(dir, "tui_config.json")
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
+}
 
 // tuiCmd provides a professional, keyboard-first terminal UI entry point.
 var tuiCmd = &cobra.Command{
@@ -70,11 +128,24 @@ func init() {
 	tuiCmd.Flags().StringVar(&tuiAssignee, "assignee", "", "filter by assignee for list view")
 	tuiCmd.Flags().StringSliceVar(&tuiLabels, "labels", []string{}, "filter by labels for list view")
 	tuiCmd.Flags().IntVar(&tuiLimit, "limit", app.DefaultListLimit, "limit results in list view")
+	tuiCmd.Flags().IntVar(&tuiOffset, "offset", 0, "offset for list view (advanced pagination)")
+	tuiCmd.Flags().IntVar(&tuiPage, "page", 0, "page number for list view (1-based)")
+	tuiCmd.Flags().IntVar(&tuiPerPage, "per-page", 0, "items per page for list view (overrides limit)")
 	// Detail view toggles
 	tuiCmd.Flags().BoolVar(&tuiDetailChecklist, "checklist", true, "show checklist parsed from description in detail view")
 	tuiCmd.Flags().BoolVar(&tuiDetailDeps, "deps", true, "show dependency info in detail view")
 	tuiCmd.Flags().BoolVar(&tuiDetailHistory, "history", true, "show recent history in detail view")
 	tuiCmd.Flags().IntVar(&tuiDetailHistLimit, "history-limit", 5, "limit history entries in detail view")
+	// Settings & customization flags
+	tuiCmd.Flags().StringVar(&tuiSetTheme, "set-theme", "", "set theme (light|dark|high-contrast)")
+	tuiCmd.Flags().StringVar(&tuiSetColumns, "set-columns", "", "set list columns (comma-separated, e.g. ID,Title,Status,Updated)")
+	tuiCmd.Flags().StringVar(&tuiSetWidths, "set-widths", "", "set column widths (comma-separated key=val, e.g. Title=30,ID=10)")
+	tuiCmd.Flags().StringSliceVar(&tuiSetKeys, "key", []string{}, "set keybinding (action=keys), may be repeated")
+	tuiCmd.Flags().StringSliceVar(&tuiToggleFeatures, "toggle-feature", []string{}, "toggle feature (name=on|off), may be repeated")
+	tuiCmd.Flags().BoolVar(&tuiConfigOnly, "config-only", false, "apply configuration and exit")
+	// Performance & reliability
+	tuiCmd.Flags().IntVar(&tuiThrottleMs, "throttle-ms", 0, "delay between row renders (ms) to reduce flicker on slow terminals")
+	tuiCmd.Flags().IntVar(&tuiRecentDays, "recent-days", 7, "days window for activity view")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -89,6 +160,83 @@ func runTUIOverlay() error {
 			repo = "(not a git repo)"
 		} else {
 			repo = root
+		}
+	}
+
+	// Load and optionally update persisted TUI config
+	cfg, _ := loadTUIConfig(repo)
+	cfgChanged := false
+	if tuiSetTheme != "" {
+		cfg.Theme = tuiSetTheme
+		cfgChanged = true
+	}
+	if tuiSetColumns != "" {
+		parts := strings.Split(tuiSetColumns, ",")
+		var cols []string
+		for _, p := range parts {
+			c := strings.TrimSpace(p)
+			if c != "" {
+				cols = append(cols, c)
+			}
+		}
+		if len(cols) > 0 {
+			cfg.ListColumns = cols
+			cfgChanged = true
+		}
+	}
+	if tuiSetWidths != "" {
+		if cfg.ColumnWidths == nil {
+			cfg.ColumnWidths = map[string]int{}
+		}
+		for _, kv := range strings.Split(tuiSetWidths, ",") {
+			kv = strings.TrimSpace(kv)
+			if kv == "" {
+				continue
+			}
+			parts := strings.SplitN(kv, "=", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			key := strings.TrimSpace(parts[0])
+			var width int
+			fmt.Sscanf(strings.TrimSpace(parts[1]), "%d", &width)
+			if width > 0 {
+				cfg.ColumnWidths[key] = width
+				cfgChanged = true
+			}
+		}
+	}
+	if len(tuiSetKeys) > 0 {
+		if cfg.Keybindings == nil {
+			cfg.Keybindings = map[string]string{}
+		}
+		for _, kv := range tuiSetKeys {
+			parts := strings.SplitN(kv, "=", 2)
+			if len(parts) == 2 {
+				cfg.Keybindings[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+				cfgChanged = true
+			}
+		}
+	}
+	if len(tuiToggleFeatures) > 0 {
+		if cfg.AdvancedFeature == nil {
+			cfg.AdvancedFeature = map[string]bool{}
+		}
+		for _, kv := range tuiToggleFeatures {
+			parts := strings.SplitN(kv, "=", 2)
+			if len(parts) == 2 {
+				name := strings.TrimSpace(parts[0])
+				val := strings.TrimSpace(strings.ToLower(parts[1]))
+				cfg.AdvancedFeature[name] = (val == "on" || val == "true" || val == "1")
+				cfgChanged = true
+			}
+		}
+	}
+	if cfgChanged {
+		_ = saveTUIConfig(repo, cfg)
+		if tuiConfigOnly {
+			fmt.Println("TUI configuration updated.")
+			return nil
 		}
 	}
 
@@ -279,6 +427,18 @@ func saveTUIState(repo, mode, view string, readOnly bool) error {
 }
 
 func renderView(view string) error {
+	// Honor disabled views
+	if root, err := findGitRoot(); err == nil {
+		if cfg, err := loadTUIConfig(root); err == nil && cfg != nil {
+			if cfg.AdvancedFeature != nil {
+				enabled, ok := cfg.AdvancedFeature[strings.ToLower(view)]
+				if ok && !enabled {
+					fmt.Printf("View '%s' disabled by configuration.\n", view)
+					return nil
+				}
+			}
+		}
+	}
 	switch strings.ToLower(view) {
 	case "list":
 		return renderListView()
@@ -329,12 +489,28 @@ func renderListView() error {
 	if len(tuiLabels) > 0 {
 		filter.Labels = tuiLabels
 	}
-	if tuiLimit > 0 {
-		if tuiLimit > app.MaxListLimit {
-			v := app.MaxListLimit
-			filter.Limit = &v
-		} else {
-			filter.Limit = &tuiLimit
+	// Pagination: per-page/page overrides limit/offset
+	if tuiPerPage > 0 {
+		v := tuiPerPage
+		if v > app.MaxListLimit {
+			v = app.MaxListLimit
+		}
+		filter.Limit = &v
+		if tuiPage > 1 {
+			off := (tuiPage - 1) * v
+			filter.Offset = &off
+		}
+	} else {
+		if tuiLimit > 0 {
+			if tuiLimit > app.MaxListLimit {
+				v := app.MaxListLimit
+				filter.Limit = &v
+			} else {
+				filter.Limit = &tuiLimit
+			}
+		}
+		if tuiOffset > 0 {
+			filter.Offset = &tuiOffset
 		}
 	}
 
@@ -346,11 +522,137 @@ func renderListView() error {
 		fmt.Println("No issues found for current filters.")
 		return nil
 	}
-	displayIssuesTable(list.Issues)
+	// Load TUI columns config and render accordingly
+	cfg, _ := loadTUIConfig(repoRoot)
+	if cfg != nil && len(cfg.ListColumns) > 0 {
+		renderIssuesTableWithColumns(list.Issues, cfg.ListColumns, cfg.ColumnWidths)
+	} else {
+		displayIssuesTable(list.Issues)
+	}
 	if list.Total > list.Count {
-		fmt.Printf("\nShowing %d of %d issues. Use --limit to see more.\n", list.Count, list.Total)
+		shownFrom := 1
+		if filter.Offset != nil {
+			shownFrom = *filter.Offset + 1
+		}
+		shownTo := shownFrom + list.Count - 1
+		fmt.Printf("\nShowing %d-%d of %d issues. Use --page/--per-page or --offset/--limit to see more.\n", shownFrom, shownTo, list.Total)
 	}
 	return nil
+}
+
+func renderIssuesTableWithColumns(issues []entities.Issue, columns []string, widths map[string]int) {
+	// Header
+	for i, col := range columns {
+		w := widths[col]
+		if w <= 0 {
+			w = defaultWidthFor(col)
+		}
+		if i == 0 {
+			fmt.Printf("%-*s", w, col)
+		} else {
+			fmt.Printf(" %-*s", w, col)
+		}
+	}
+	fmt.Println()
+	for i, col := range columns {
+		w := widths[col]
+		if w <= 0 {
+			w = defaultWidthFor(col)
+		}
+		dash := strings.Repeat("-", w)
+		if i == 0 {
+			fmt.Printf("%-*s", w, dash)
+		} else {
+			fmt.Printf(" %-*s", w, dash)
+		}
+	}
+	fmt.Println()
+	// Rows
+	for _, issue := range issues {
+		for i, col := range columns {
+			w := widths[col]
+			if w <= 0 {
+				w = defaultWidthFor(col)
+			}
+			val := valueForColumn(issue, col)
+			if len(val) > w {
+				if w > 3 {
+					val = val[:w-3] + "..."
+				} else {
+					val = val[:w]
+				}
+			}
+			if i == 0 {
+				fmt.Printf("%-*s", w, val)
+			} else {
+				fmt.Printf(" %-*s", w, val)
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func defaultWidthFor(col string) int {
+	switch strings.ToLower(col) {
+	case "id":
+		return 10
+	case "title":
+		return 30
+	case "type":
+		return 7
+	case "status":
+		return 10
+	case "priority":
+		return 8
+	case "assignee":
+		return 12
+	case "labels":
+		return 14
+	case "updated":
+		return 16
+	case "branch":
+		return 16
+	default:
+		return 12
+	}
+}
+
+func valueForColumn(issue entities.Issue, col string) string {
+	switch strings.ToLower(col) {
+	case "id":
+		return string(issue.ID)
+	case "title":
+		return issue.Title
+	case "type":
+		return string(issue.Type)
+	case "status":
+		return string(issue.Status)
+	case "priority":
+		return string(issue.Priority)
+	case "assignee":
+		if issue.Assignee != nil {
+			return issue.Assignee.Username
+		}
+		return "-"
+	case "labels":
+		if len(issue.Labels) == 0 {
+			return "-"
+		}
+		names := make([]string, 0, len(issue.Labels))
+		for _, l := range issue.Labels {
+			names = append(names, l.Name)
+		}
+		return strings.Join(names, ",")
+	case "updated":
+		return issue.Timestamps.Updated.Format("2006-01-02 15:04")
+	case "branch":
+		if issue.Branch == "" {
+			return "-"
+		}
+		return issue.Branch
+	default:
+		return ""
+	}
 }
 
 // renderDetailView shows details for a single issue. Use env ISSUE_ID or print hint.
@@ -497,9 +799,16 @@ func renderActivityView() error {
 		gitRepo = gitClient
 	}
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	// Recent 10 entries
+	// Recent entries
 	limit := 10
-	since := time.Now().AddDate(0, 0, -7)
+	if tuiDetailHistLimit > 0 {
+		limit = tuiDetailHistLimit
+	}
+	days := tuiRecentDays
+	if days <= 0 {
+		days = 7
+	}
+	since := time.Now().AddDate(0, 0, -days)
 	list, err := historyService.GetAllHistory(ctx, repositories.HistoryFilter{Since: &since, Limit: &limit})
 	if err != nil {
 		return fmt.Errorf("failed to load activity: %w", err)

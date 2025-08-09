@@ -2,7 +2,7 @@ id: ISSUE-067
 title: '[TUI] Performance & Reliability: Incremental rendering and throttled updates under load'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.457572-05:00
-    updated: 2025-08-08T23:13:25.457575-05:00
+    updated: 2025-08-08T23:51:09.172013-05:00

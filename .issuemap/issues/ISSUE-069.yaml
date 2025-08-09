@@ -2,7 +2,7 @@ id: ISSUE-069
 title: '[TUI] Performance & Reliability: Robust terminal size changes; minimal flicker on resize'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.542193-05:00
-    updated: 2025-08-08T23:13:25.542197-05:00
+    updated: 2025-08-08T23:51:09.226409-05:00

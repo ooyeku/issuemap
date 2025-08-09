@@ -2,7 +2,7 @@ id: ISSUE-068
 title: '[TUI] Performance & Reliability: Background data refresh with cache invalidation'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.498738-05:00
-    updated: 2025-08-08T23:13:25.498744-05:00
+    updated: 2025-08-08T23:51:09.20012-05:00
