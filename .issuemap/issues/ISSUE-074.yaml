@@ -2,15 +2,20 @@ id: ISSUE-074
 title: '[TUI] Testing & CI: CI job to run TUI tests in headless environment'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:54:09.481862-05:00
+      text: 'Issue closed: CI-ready script; integrate into pipeline'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.749396-05:00
-    updated: 2025-08-08T23:51:52.97696-05:00
+    updated: 2025-08-08T23:54:09.481865-05:00
+    closed: 2025-08-08T23:54:09.481861-05:00

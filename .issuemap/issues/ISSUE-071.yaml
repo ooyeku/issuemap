@@ -2,15 +2,20 @@ id: ISSUE-071
 title: '[TUI] Testing & CI: Unit tests for state reducers and view models'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:54:09.465105-05:00
+      text: 'Issue closed: Added unit tests for TUI helpers'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.624219-05:00
-    updated: 2025-08-08T23:51:52.905749-05:00
+    updated: 2025-08-08T23:54:09.465108-05:00
+    closed: 2025-08-08T23:54:09.465105-05:00

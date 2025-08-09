@@ -1,0 +1,3 @@
+IssueMap TUI (preview)
+Repo: /Users/olayeku/Code/issuemap
+Mode: server

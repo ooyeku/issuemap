@@ -1,0 +1,4 @@
+Keys:
+  j/k, arrows; enter; space; /; ctrl+p; ?
+Views:
+  list, detail, board, search, graph, activity, settings

@@ -1,0 +1,8 @@
+TUI Parity Check
+Repo: /Users/olayeku/Code/issuemap
+Core flows:
+  branch [OK]  create [OK]  list [OK]  merge [OK]  show [OK]  sync [OK]
+Supporting:
+  bulk [OK]  close [OK]  depend [OK]  deps [OK]  estimate [OK]  search [OK]  start [OK]  stop [OK]
+Next steps:
+  Wire TUI actions to CLI commands; keep CLI as source of truth

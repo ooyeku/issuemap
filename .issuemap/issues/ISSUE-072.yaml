@@ -2,15 +2,20 @@ id: ISSUE-072
 title: '[TUI] Testing & CI: Golden/snapshot tests for rendered views (TTY harness)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:54:09.471136-05:00
+      text: 'Issue closed: Snapshot script for TUI outputs'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.666042-05:00
-    updated: 2025-08-08T23:51:52.929414-05:00
+    updated: 2025-08-08T23:54:09.47114-05:00
+    closed: 2025-08-08T23:54:09.471136-05:00

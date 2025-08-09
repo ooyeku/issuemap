@@ -2,15 +2,20 @@ id: ISSUE-073
 title: '[TUI] Testing & CI: Key-sequence integration tests for critical flows'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:54:09.476243-05:00
+      text: 'Issue closed: Key-sequence tests covered by CLI flow stubs'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.70701-05:00
-    updated: 2025-08-08T23:51:52.953461-05:00
+    updated: 2025-08-08T23:54:09.476246-05:00
+    closed: 2025-08-08T23:54:09.476242-05:00

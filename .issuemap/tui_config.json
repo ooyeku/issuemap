@@ -9,7 +9,7 @@
   "column_widths": {
     "ID": 10,
     "Status": 10,
-    "Title": 40,
+    "Title": 20,
     "Updated": 16
   },
   "keybindings": {},
