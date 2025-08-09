@@ -1,6 +1,6 @@
 {
   "repo": "/Users/olayeku/Code/issuemap",
   "mode": "server",
-  "view": "activity",
+  "view": "detail",
   "read_only": false
 }

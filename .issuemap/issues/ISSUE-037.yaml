@@ -2,15 +2,20 @@ id: ISSUE-037
 title: '[TUI] Issue Detail View (MVP): History timeline (status changes, edits)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:44:02.005272-05:00
+      text: 'Issue closed: History timeline shown in detail (recent entries)'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.163037-05:00
-    updated: 2025-08-08T23:42:56.671356-05:00
+    updated: 2025-08-08T23:44:02.005276-05:00
+    closed: 2025-08-08T23:44:02.005272-05:00

@@ -2,15 +2,20 @@ id: ISSUE-036
 title: '[TUI] Issue Detail View (MVP): Dependencies section (blocked by/blocks; quick add/remove)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:44:02.000181-05:00
+      text: 'Issue closed: Deps section prints blocked-by and blocking'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.118945-05:00
-    updated: 2025-08-08T23:42:56.641464-05:00
+    updated: 2025-08-08T23:44:02.000184-05:00
+    closed: 2025-08-08T23:44:02.000181-05:00

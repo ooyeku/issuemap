@@ -1,7 +1,7 @@
 issue_id: ISSUE-035
-current_version: 2
+current_version: 3
 created_at: 2025-08-08T23:13:24.109514-05:00
-updated_at: 2025-08-08T23:42:56.635155-05:00
+updated_at: 2025-08-08T23:44:01.945073-05:00
 entries:
     - id: hist_1754712804092447000
       issue_id: ISSUE-035
@@ -45,5 +45,18 @@ entries:
         - field: status
           old_value: open
           new_value: in-progress
+      metadata:
+        git_branch: main
+    - id: hist_1754714641944853000
+      issue_id: ISSUE-035
+      version: 3
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:44:01.944862-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: in-progress
+          new_value: review
       metadata:
         git_branch: main
