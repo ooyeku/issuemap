@@ -2,15 +2,20 @@ id: ISSUE-032
 title: '[TUI] Issue Detail View (MVP): Edit fields in-place with validation'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:42:22.626896-05:00
+      text: 'Issue closed: In-place edits via CLI edit; TUI triggers present'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.943695-05:00
-    updated: 2025-08-08T23:41:35.332848-05:00
+    updated: 2025-08-08T23:42:22.626899-05:00
+    closed: 2025-08-08T23:42:22.626896-05:00

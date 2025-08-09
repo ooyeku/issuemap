@@ -2,15 +2,20 @@ id: ISSUE-031
 title: '[TUI] Issue Detail View (MVP): Overview: fields (title, type, status, priority, labels, assignee)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:42:22.621982-05:00
+      text: 'Issue closed: Overview fields rendered in detail view'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.898197-05:00
-    updated: 2025-08-08T23:41:35.31089-05:00
+    updated: 2025-08-08T23:42:22.621985-05:00
+    closed: 2025-08-08T23:42:22.621982-05:00

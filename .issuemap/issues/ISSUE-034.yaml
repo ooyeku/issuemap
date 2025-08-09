@@ -2,15 +2,20 @@ id: ISSUE-034
 title: '[TUI] Issue Detail View (MVP): Time tracking controls (start/stop, show active, edit entries)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:42:22.63681-05:00
+      text: 'Issue closed: Timer controls available via start/stop'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.030992-05:00
-    updated: 2025-08-08T23:41:35.374941-05:00
+    updated: 2025-08-08T23:42:22.636813-05:00
+    closed: 2025-08-08T23:42:22.636809-05:00
