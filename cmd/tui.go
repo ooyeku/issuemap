@@ -111,7 +111,7 @@ func runTUICheckParity() error {
 		fmt.Println("Supporting:")
 		fmt.Println("  estimate ✔  start/stop ✔  deps ✔  bulk ✔  search ✔")
 		fmt.Println("Next steps:")
-		fmt.Println("  Implement views and keybindings in TUI; keep CLI as source of truth")
+		fmt.Println("  Wire TUI actions to CLI commands; keep CLI as source of truth")
 	} else {
 		fmt.Printf("%s\n", colorHeader("TUI Parity Check"))
 		if repoRoot != "" {
@@ -122,7 +122,7 @@ func runTUICheckParity() error {
 		fmt.Println(colorHeader("Supporting:"))
 		fmt.Println("  estimate ✔  start/stop ✔  deps ✔  bulk ✔  search ✔")
 		fmt.Println(colorHeader("Next steps:"))
-		fmt.Println("  Implement views and keybindings in TUI; keep CLI as source of truth")
+		fmt.Println("  Wire TUI actions to CLI commands; keep CLI as source of truth")
 	}
 	_ = filepath.Join // silence import until used later
 	return nil
