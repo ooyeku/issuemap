@@ -1,0 +1,36 @@
+issue_id: ISSUE-026
+current_version: 1
+created_at: 2025-08-08T23:13:23.712246-05:00
+updated_at: 2025-08-08T23:13:23.712251-05:00
+entries:
+    - id: hist_1754712803696866000
+      issue_id: ISSUE-026
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:23.696868-05:00
+      message: 'Issue created: [TUI] Issue List View (MVP): Sorting (Title/Status/Priority/Updated)'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Issue List View (MVP): Sorting (Title/Status/Priority/Updated)'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

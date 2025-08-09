@@ -1,0 +1,16 @@
+id: ISSUE-066
+title: '[TUI] Settings & Customization: Toggle advanced features (board, graph) on low-power terminals'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.41621-05:00
+    updated: 2025-08-08T23:13:25.416213-05:00

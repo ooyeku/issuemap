@@ -1,0 +1,16 @@
+id: ISSUE-036
+title: '[TUI] Issue Detail View (MVP): Dependencies section (blocked by/blocks; quick add/remove)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.118945-05:00
+    updated: 2025-08-08T23:13:24.118951-05:00

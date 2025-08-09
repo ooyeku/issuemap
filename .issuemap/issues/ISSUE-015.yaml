@@ -1,0 +1,16 @@
+id: ISSUE-015
+title: '[TUI] Framework & Architecture: Keybinding map and conventions (Vim-like navigation, Emacs alternates)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.183763-05:00
+    updated: 2025-08-08T23:13:23.183766-05:00

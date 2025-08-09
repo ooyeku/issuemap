@@ -1,0 +1,36 @@
+issue_id: ISSUE-050
+current_version: 1
+created_at: 2025-08-08T23:13:24.758552-05:00
+updated_at: 2025-08-08T23:13:24.758558-05:00
+entries:
+    - id: hist_1754712804742896000
+      issue_id: ISSUE-050
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:24.742897-05:00
+      message: 'Issue created: [TUI] Search & Filters: Full query DSL support with syntax highlighting'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Search & Filters: Full query DSL support with syntax highlighting'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

@@ -1,0 +1,18 @@
+id: ISSUE-081
+title: '[TUI] Backlog (Power Features): Offline change queue visualizer with conflict resolver'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: backlog
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.048309-05:00
+    updated: 2025-08-08T23:15:01.45644-05:00

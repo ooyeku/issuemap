@@ -1,0 +1,16 @@
+id: ISSUE-030
+title: '[TUI] Issue List View (MVP): Inline quick actions: assign, label, status change, estimate'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.852045-05:00
+    updated: 2025-08-08T23:13:23.85205-05:00

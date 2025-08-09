@@ -1,0 +1,49 @@
+issue_id: ISSUE-089
+current_version: 2
+created_at: 2025-08-08T23:13:26.415985-05:00
+updated_at: 2025-08-08T23:15:01.623342-05:00
+entries:
+    - id: hist_1754712806400061000
+      issue_id: ISSUE-089
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:26.400062-05:00
+      message: 'Issue created: [TUI] Packaging & Docs: Bulk operations with preview and progress reporting'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Packaging & Docs: Bulk operations with preview and progress reporting'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com
+    - id: hist_1754712901623099000
+      issue_id: ISSUE-089
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:15:01.623107-05:00
+      message: Updated title
+      changes:
+        - field: title
+          old_value: '[TUI] Packaging & Docs: Bulk operations with preview and progress reporting'
+          new_value: '[TUI] Acceptance Criteria: Bulk operations with preview and progress reporting'
+      metadata:
+        git_branch: main

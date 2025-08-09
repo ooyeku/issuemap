@@ -1,0 +1,16 @@
+id: ISSUE-020
+title: '[TUI] Command Entry Point: Global help: `?` opens keybindings and command palette'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.417065-05:00
+    updated: 2025-08-08T23:14:32.966622-05:00

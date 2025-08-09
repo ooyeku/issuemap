@@ -1,0 +1,18 @@
+id: ISSUE-083
+title: '[TUI] Backlog (Power Features): Calendar panel (due dates, estimates) with ICS export shortcut'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: backlog
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.132556-05:00
+    updated: 2025-08-08T23:15:01.508393-05:00

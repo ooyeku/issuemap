@@ -1,0 +1,49 @@
+issue_id: ISSUE-088
+current_version: 2
+created_at: 2025-08-08T23:13:26.37301-05:00
+updated_at: 2025-08-08T23:15:01.601479-05:00
+entries:
+    - id: hist_1754712806357008000
+      issue_id: ISSUE-088
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:26.357009-05:00
+      message: 'Issue created: [TUI] Packaging & Docs: Query DSL parity with CLI, including saved searches'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Packaging & Docs: Query DSL parity with CLI, including saved searches'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com
+    - id: hist_1754712901601234000
+      issue_id: ISSUE-088
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:15:01.601242-05:00
+      message: Updated title
+      changes:
+        - field: title
+          old_value: '[TUI] Packaging & Docs: Query DSL parity with CLI, including saved searches'
+          new_value: '[TUI] Acceptance Criteria: Query DSL parity with CLI, including saved searches'
+      metadata:
+        git_branch: main

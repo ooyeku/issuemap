@@ -1,0 +1,49 @@
+issue_id: ISSUE-087
+current_version: 2
+created_at: 2025-08-08T23:13:26.331891-05:00
+updated_at: 2025-08-08T23:15:01.579609-05:00
+entries:
+    - id: hist_1754712806314814000
+      issue_id: ISSUE-087
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:26.314816-05:00
+      message: 'Issue created: [TUI] Packaging & Docs: Board usable with keyboard-only DnD and WIP signals'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Packaging & Docs: Board usable with keyboard-only DnD and WIP signals'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com
+    - id: hist_1754712901579096000
+      issue_id: ISSUE-087
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:15:01.579116-05:00
+      message: Updated title
+      changes:
+        - field: title
+          old_value: '[TUI] Packaging & Docs: Board usable with keyboard-only DnD and WIP signals'
+          new_value: '[TUI] Acceptance Criteria: Board usable with keyboard-only DnD and WIP signals'
+      metadata:
+        git_branch: main

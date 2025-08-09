@@ -1,0 +1,16 @@
+id: ISSUE-038
+title: '[TUI] Parity Group A (everyday flows): Create issue (form + template selection)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.205858-05:00
+    updated: 2025-08-08T23:13:24.205861-05:00

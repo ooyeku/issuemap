@@ -1,0 +1,16 @@
+id: ISSUE-089
+title: '[TUI] Acceptance Criteria: Bulk operations with preview and progress reporting'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.382236-05:00
+    updated: 2025-08-08T23:15:01.60607-05:00

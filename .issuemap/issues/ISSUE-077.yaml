@@ -1,0 +1,16 @@
+id: ISSUE-077
+title: '[TUI] Packaging & Docs: Man page/help updates for `issuemap tui`'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.878056-05:00
+    updated: 2025-08-08T23:14:32.992346-05:00

@@ -1,0 +1,36 @@
+issue_id: ISSUE-066
+current_version: 1
+created_at: 2025-08-08T23:13:25.448173-05:00
+updated_at: 2025-08-08T23:13:25.44818-05:00
+entries:
+    - id: hist_1754712805432860000
+      issue_id: ISSUE-066
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:25.432862-05:00
+      message: 'Issue created: [TUI] Settings & Customization: Toggle advanced features (board, graph) on low-power terminals'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Settings & Customization: Toggle advanced features (board, graph) on low-power terminals'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

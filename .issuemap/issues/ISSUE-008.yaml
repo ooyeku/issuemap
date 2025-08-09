@@ -1,0 +1,18 @@
+id: ISSUE-008
+title: '[TUI] Goals: Keyboard-first, mouse-optional; discoverable help overlay'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: goal
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:22.868768-05:00
+    updated: 2025-08-08T23:13:22.868773-05:00

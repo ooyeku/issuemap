@@ -1,0 +1,16 @@
+id: ISSUE-088
+title: '[TUI] Acceptance Criteria: Query DSL parity with CLI, including saved searches'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.340613-05:00
+    updated: 2025-08-08T23:15:01.584363-05:00

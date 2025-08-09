@@ -1,0 +1,49 @@
+issue_id: ISSUE-020
+current_version: 2
+created_at: 2025-08-08T23:13:23.451206-05:00
+updated_at: 2025-08-08T23:14:32.986924-05:00
+entries:
+    - id: hist_1754712803435156000
+      issue_id: ISSUE-020
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:23.435157-05:00
+      message: 'Issue created: [TUI] Command Entry Point: Global help:  opens keybindings and command palette'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Command Entry Point: Global help:  opens keybindings and command palette'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com
+    - id: hist_1754712872986748000
+      issue_id: ISSUE-020
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:14:32.986755-05:00
+      message: Updated title
+      changes:
+        - field: title
+          old_value: '[TUI] Command Entry Point: Global help:  opens keybindings and command palette'
+          new_value: '[TUI] Command Entry Point: Global help: `?` opens keybindings and command palette'
+      metadata:
+        git_branch: main

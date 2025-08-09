@@ -1,0 +1,16 @@
+id: ISSUE-034
+title: '[TUI] Issue Detail View (MVP): Time tracking controls (start/stop, show active, edit entries)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.030992-05:00
+    updated: 2025-08-08T23:13:24.030996-05:00

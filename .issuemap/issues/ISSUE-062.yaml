@@ -1,0 +1,16 @@
+id: ISSUE-062
+title: '[TUI] Activity & Notifications: Mention/assignee pings via configured notifiers (future-friendly hook)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.244148-05:00
+    updated: 2025-08-08T23:13:25.244152-05:00

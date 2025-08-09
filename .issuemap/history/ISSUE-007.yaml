@@ -1,0 +1,50 @@
+issue_id: ISSUE-007
+current_version: 2
+created_at: 2025-08-08T23:13:22.859272-05:00
+updated_at: 2025-08-08T23:22:03.568835-05:00
+entries:
+    - id: hist_1754712802838151000
+      issue_id: ISSUE-007
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:22.838154-05:00
+      message: 'Issue created: [TUI] Goals: Professional look and feel; consistent with existing CLI colors and formatting'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Goals: Professional look and feel; consistent with existing CLI colors and formatting'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+            - goal
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com
+    - id: hist_1754713323568398000
+      issue_id: ISSUE-007
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:22:03.568409-05:00
+      message: Updated branch
+      changes:
+        - field: branch
+          old_value: main
+          new_value: feature/ISSUE-007-tui-goals-professional-look-and-feel-consistent-wi
+      metadata:
+        git_branch: main

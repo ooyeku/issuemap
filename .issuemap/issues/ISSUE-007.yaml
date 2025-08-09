@@ -1,0 +1,18 @@
+id: ISSUE-007
+title: '[TUI] Goals: Professional look and feel; consistent with existing CLI colors and formatting'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: goal
+      color: '#gray'
+branch: feature/ISSUE-007-tui-goals-professional-look-and-feel-consistent-wi
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:22.788805-05:00
+    updated: 2025-08-08T23:22:03.546456-05:00

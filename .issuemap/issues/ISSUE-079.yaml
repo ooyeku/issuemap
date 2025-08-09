@@ -1,0 +1,18 @@
+id: ISSUE-079
+title: '[TUI] Backlog (Power Features): Command macros/recipes inside TUI (chain actions on selection)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: backlog
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.963982-05:00
+    updated: 2025-08-08T23:15:01.406705-05:00

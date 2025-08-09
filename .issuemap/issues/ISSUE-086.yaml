@@ -1,0 +1,16 @@
+id: ISSUE-086
+title: '[TUI] Acceptance Criteria: Core views (List, Detail) complete and round-trip editable'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.256501-05:00
+    updated: 2025-08-08T23:15:01.535361-05:00
