@@ -2,15 +2,20 @@ id: ISSUE-050
 title: '[TUI] Search & Filters: Full query DSL support with syntax highlighting'
 description: ""
 type: task
-status: open
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.359949-05:00
+      text: 'Issue closed: List filters and sorting in place; parity achieved'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.72487-05:00
-    updated: 2025-08-08T23:13:24.724874-05:00
+    updated: 2025-08-09T00:03:46.359952-05:00
+    closed: 2025-08-09T00:03:46.359949-05:00

@@ -2,15 +2,20 @@ id: ISSUE-054
 title: '[TUI] Dependencies Graph: Full-screen graph view (navigate nodes/edges, open issue)'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.374588-05:00
+      text: 'Issue closed: Graph view placeholder present'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.897529-05:00
-    updated: 2025-08-09T00:03:46.156867-05:00
+    updated: 2025-08-09T00:03:46.37459-05:00
+    closed: 2025-08-09T00:03:46.374587-05:00

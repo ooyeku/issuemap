@@ -2,15 +2,20 @@ id: ISSUE-058
 title: '[TUI] Bulk Operations: Bulk preview and confirmation dialog'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.39503-05:00
+      text: 'Issue closed: Bulk preview & confirmation (preview) present'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.073294-05:00
-    updated: 2025-08-09T00:03:46.24588-05:00
+    updated: 2025-08-09T00:03:46.395032-05:00
+    closed: 2025-08-09T00:03:46.395029-05:00

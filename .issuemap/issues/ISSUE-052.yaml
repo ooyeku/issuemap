@@ -2,15 +2,20 @@ id: ISSUE-052
 title: '[TUI] Search & Filters: Search results view with same capabilities as Issue List'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.355069-05:00
+      text: 'Issue closed: Search view runs query and prints results'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.81241-05:00
-    updated: 2025-08-09T00:03:46.10381-05:00
+    updated: 2025-08-09T00:03:46.355073-05:00
+    closed: 2025-08-09T00:03:46.355069-05:00

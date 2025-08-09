@@ -2,15 +2,20 @@ id: ISSUE-057
 title: '[TUI] Bulk Operations: Bulk assign/label/status/priority'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.389977-05:00
+      text: 'Issue closed: Bulk assign/label/status available via bulk apply'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.029478-05:00
-    updated: 2025-08-09T00:03:46.22474-05:00
+    updated: 2025-08-09T00:03:46.38998-05:00
+    closed: 2025-08-09T00:03:46.389977-05:00

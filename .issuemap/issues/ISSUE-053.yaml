@@ -2,15 +2,20 @@ id: ISSUE-053
 title: '[TUI] Dependencies Graph: Inline mini-graph in Issue Detail'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.369656-05:00
+      text: 'Issue closed: Mini graph/Deps info printed in detail'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.854211-05:00
-    updated: 2025-08-09T00:03:46.133045-05:00
+    updated: 2025-08-09T00:03:46.369658-05:00
+    closed: 2025-08-09T00:03:46.369655-05:00

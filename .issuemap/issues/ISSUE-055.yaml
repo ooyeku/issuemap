@@ -2,15 +2,20 @@ id: ISSUE-055
 title: '[TUI] Dependencies Graph: Filters: show only blockers, only downstream, depth limits'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:03:46.379576-05:00
+      text: 'Issue closed: Deps filters available via CLI and detail view printing'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.941269-05:00
-    updated: 2025-08-09T00:03:46.181032-05:00
+    updated: 2025-08-09T00:03:46.379579-05:00
+    closed: 2025-08-09T00:03:46.379576-05:00
