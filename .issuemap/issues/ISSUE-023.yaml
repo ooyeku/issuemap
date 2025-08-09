@@ -2,7 +2,7 @@ id: ISSUE-023
 title: '[TUI] Core Shell & Navigation: Command palette (Ctrl+P) for quick actions and navigation'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.546917-05:00
-    updated: 2025-08-08T23:13:23.546921-05:00
+    updated: 2025-08-08T23:35:35.981913-05:00

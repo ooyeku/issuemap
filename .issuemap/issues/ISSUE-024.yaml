@@ -2,7 +2,7 @@ id: ISSUE-024
 title: '[TUI] Core Shell & Navigation: Persist UI state across sessions (last view, filters, columns)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.592621-05:00
-    updated: 2025-08-08T23:13:23.592625-05:00
+    updated: 2025-08-08T23:35:36.006082-05:00

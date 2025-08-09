@@ -2,7 +2,7 @@ id: ISSUE-019
 title: '[TUI] Command Entry Point: Detect server and show connection status; auto-fallback to file mode'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.371211-05:00
-    updated: 2025-08-08T23:13:23.371217-05:00
+    updated: 2025-08-08T23:35:35.887719-05:00

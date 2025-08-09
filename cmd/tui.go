@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,6 +17,8 @@ var (
 	tuiRepoPath    string
 	tuiCheckParity bool
 	tuiHelpOverlay bool
+	tuiView        string
+	tuiPalette     bool
 )
 
 // tuiCmd provides a professional, keyboard-first terminal UI entry point.
@@ -41,6 +44,8 @@ func init() {
 	tuiCmd.Flags().StringVar(&tuiRepoPath, "repo", "", "repo path (defaults to git root)")
 	tuiCmd.Flags().BoolVar(&tuiCheckParity, "check-parity", false, "check CLI parity readiness for TUI")
 	tuiCmd.Flags().BoolVar(&tuiHelpOverlay, "help-overlay", false, "print keyboard help overlay and exit")
+	tuiCmd.Flags().StringVar(&tuiView, "view", "list", "view to render (list, detail, board, search, graph, activity, settings)")
+	tuiCmd.Flags().BoolVar(&tuiPalette, "palette", false, "print command palette and exit")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -58,10 +63,28 @@ func runTUIOverlay() error {
 		}
 	}
 
-	// Connection mode
+	// Connection mode (detect when possible)
 	mode := "file"
+	port := 0
+	if root, err := findGitRoot(); err == nil {
+		issuemapPath := filepath.Join(root, ".issuemap")
+		pidPath := filepath.Join(issuemapPath, "server.pid")
+		logPath := filepath.Join(issuemapPath, "server.log")
+		if fileExists(pidPath) {
+			if p := findPortInLog(logPath); p > 0 && pingHealth(p) {
+				port = p
+				mode = "server"
+			}
+		}
+	}
+	// Force server mode if explicitly requested
 	if tuiServerMode {
 		mode = "server"
+	}
+
+	// Optional: palette output
+	if tuiPalette {
+		return runTUIPalette()
 	}
 	if noColor {
 		fmt.Printf("IssueMap TUI (preview)\n")
@@ -76,6 +99,9 @@ func runTUIOverlay() error {
 		fmt.Println()
 		fmt.Println("Views (planned)")
 		fmt.Println("  list, detail, board, search, graph, activity, settings")
+		if port > 0 {
+			fmt.Printf("\nConnected to server on port %d\n", port)
+		}
 	} else {
 		fmt.Printf("%s\n", colorHeader("IssueMap TUI (preview)"))
 		fmt.Printf("%s %s\n", colorLabel("Repo:"), colorValue(repo))
@@ -91,11 +117,22 @@ func runTUIOverlay() error {
 		fmt.Println()
 		fmt.Println(colorHeader("Views (planned)"))
 		fmt.Println("  list, detail, board, search, graph, activity, settings")
+		if port > 0 {
+			fmt.Printf("%s %s %d\n", colorLabel("Connected:"), colorValue("port"), port)
+		}
 	}
 
 	// Exit non-zero if terminal not suitable (very small width/height)
 	if w, h := os.Stdout.Stat(); w != nil && h != nil {
 		// no-op: placeholder for future TTY checks
+	}
+
+	// Persist basic UI state
+	_ = saveTUIState(repo, mode, tuiView, tuiReadOnly)
+
+	// Render selected view (stubbed)
+	if err := renderView(tuiView); err != nil {
+		return err
 	}
 	return nil
 }
@@ -167,5 +204,70 @@ func runTUIHelpOverlay() error {
 	fmt.Println("  j/k, arrows; enter; space; /; ctrl+p; ?")
 	fmt.Println(colorHeader("Views:"))
 	fmt.Println("  list, detail, board, search, graph, activity, settings")
+	return nil
+}
+
+// runTUIPalette prints a simple command palette of common actions.
+func runTUIPalette() error {
+	lines := []string{
+		"create <title> --type <t> --labels a,b",
+		"list --status open",
+		"show ISSUE-123",
+		"branch ISSUE-123",
+		"start ISSUE-123 | stop ISSUE-123",
+		"edit ISSUE-123 --status review --assignee me",
+		"bulk --query \"status:open AND label:frontend\" --set status=review",
+		"deps ISSUE-123 --graph",
+		"search \"type:bug AND updated:<7d\"",
+	}
+	for _, l := range lines {
+		fmt.Println("  ", l)
+	}
+	return nil
+}
+
+// View rendering (stubs) and state persistence
+type tuiState struct {
+	Repo     string `json:"repo"`
+	Mode     string `json:"mode"`
+	View     string `json:"view"`
+	ReadOnly bool   `json:"read_only"`
+}
+
+func saveTUIState(repo, mode, view string, readOnly bool) error {
+	root, err := findGitRoot()
+	if err != nil {
+		return nil
+	}
+	dir := filepath.Join(root, ".issuemap")
+	path := filepath.Join(dir, "tui_state.json")
+	st := tuiState{Repo: repo, Mode: mode, View: view, ReadOnly: readOnly}
+	data, err := json.MarshalIndent(&st, "", "  ")
+	if err != nil {
+		return nil
+	}
+	return os.WriteFile(path, data, 0644)
+}
+
+func renderView(view string) error {
+	switch strings.ToLower(view) {
+	case "list":
+		// Minimal list banner (list details via `issuemap list`)
+		fmt.Println("\n[View] list - use `issuemap list` for full results")
+	case "detail":
+		fmt.Println("\n[View] detail - open with: issuemap show ISSUE-XXX")
+	case "board":
+		fmt.Println("\n[View] board - statuses as columns (planned)")
+	case "search":
+		fmt.Println("\n[View] search - use --query (planned)")
+	case "graph":
+		fmt.Println("\n[View] graph - dependency graph (planned)")
+	case "activity":
+		fmt.Println("\n[View] activity - recent changes (planned)")
+	case "settings":
+		fmt.Println("\n[View] settings - theme, keys, columns (planned)")
+	default:
+		// no-op
+	}
 	return nil
 }
