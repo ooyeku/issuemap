@@ -1,34 +1,35 @@
-issue_id: ISSUE-004
+issue_id: ISSUE-012
 current_version: 1
-created_at: 2025-08-08T16:50:18.282486-05:00
-updated_at: 2025-08-08T16:50:18.282492-05:00
+created_at: 2025-08-08T23:13:23.084076-05:00
+updated_at: 2025-08-08T23:13:23.084078-05:00
 entries:
-    - id: hist_1754689818263322000
-      issue_id: ISSUE-004
+    - id: hist_1754712803068130000
+      issue_id: ISSUE-012
       version: 1
       type: created
       author: Test User
-      timestamp: 2025-08-08T16:50:18.263324-05:00
-      message: 'Issue created: Smart Notifications and Reminders'
+      timestamp: 2025-08-08T23:13:23.068131-05:00
+      message: 'Issue created: [TUI] Framework & Architecture: Evaluate TUI frameworks and select one (Bubble Tea vs tview)'
       changes:
         - field: title
           old_value: null
-          new_value: Smart Notifications and Reminders
+          new_value: '[TUI] Framework & Architecture: Evaluate TUI frameworks and select one (Bubble Tea vs tview)'
         - field: description
           old_value: null
           new_value: ""
         - field: type
           old_value: null
-          new_value: feature
+          new_value: task
         - field: status
           old_value: null
           new_value: open
         - field: priority
           old_value: null
           new_value: medium
-        - field: assignee
+        - field: labels
           old_value: null
-          new_value: olayeku
+          new_value:
+            - tui
       metadata:
         git_author: Test User
         git_branch: main

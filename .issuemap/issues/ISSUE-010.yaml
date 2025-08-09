@@ -1,0 +1,18 @@
+id: ISSUE-010
+title: '[TUI] Goals: Works connected to `issuemap server` and in offline/file mode'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: goal
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:22.966731-05:00
+    updated: 2025-08-08T23:14:32.914767-05:00

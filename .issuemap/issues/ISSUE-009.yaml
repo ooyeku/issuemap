@@ -1,0 +1,18 @@
+id: ISSUE-009
+title: '[TUI] Goals: Parity with core CLI flows (create → branch → commit → sync → merge → close)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+    - name: goal
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:22.91604-05:00
+    updated: 2025-08-08T23:13:22.916046-05:00

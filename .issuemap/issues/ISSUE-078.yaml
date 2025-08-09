@@ -1,0 +1,16 @@
+id: ISSUE-078
+title: '[TUI] Packaging & Docs: User guide: TUI quickstart, keybindings, and tips'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.922147-05:00
+    updated: 2025-08-08T23:13:25.922151-05:00

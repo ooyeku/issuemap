@@ -1,0 +1,16 @@
+id: ISSUE-042
+title: '[TUI] Parity Group A (everyday flows): Estimate/update estimate'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.37646-05:00
+    updated: 2025-08-08T23:13:24.376463-05:00

@@ -1,0 +1,16 @@
+id: ISSUE-028
+title: '[TUI] Issue List View (MVP): Saved searches sidebar (load, rename, delete)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.764232-05:00
+    updated: 2025-08-08T23:13:23.764235-05:00

@@ -1,0 +1,36 @@
+issue_id: ISSUE-025
+current_version: 1
+created_at: 2025-08-08T23:13:23.669199-05:00
+updated_at: 2025-08-08T23:13:23.669203-05:00
+entries:
+    - id: hist_1754712803653511000
+      issue_id: ISSUE-025
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:23.653512-05:00
+      message: 'Issue created: [TUI] Issue List View (MVP): Virtualized table with columns: ID, Title, Type, Status, Assignee, Priority, Labels, Updated'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Issue List View (MVP): Virtualized table with columns: ID, Title, Type, Status, Assignee, Priority, Labels, Updated'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

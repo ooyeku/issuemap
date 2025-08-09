@@ -1,0 +1,16 @@
+id: ISSUE-045
+title: '[TUI] Board (Kanban) View: Columns from configured statuses; column order configurable'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.50662-05:00
+    updated: 2025-08-08T23:13:24.506626-05:00

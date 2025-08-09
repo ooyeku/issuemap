@@ -1,0 +1,16 @@
+id: ISSUE-073
+title: '[TUI] Testing & CI: Key-sequence integration tests for critical flows'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.70701-05:00
+    updated: 2025-08-08T23:13:25.707013-05:00

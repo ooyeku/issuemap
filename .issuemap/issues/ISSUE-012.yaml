@@ -1,0 +1,16 @@
+id: ISSUE-012
+title: '[TUI] Framework & Architecture: Evaluate TUI frameworks and select one (Bubble Tea vs tview)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.049364-05:00
+    updated: 2025-08-08T23:13:23.049368-05:00

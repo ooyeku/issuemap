@@ -1,0 +1,16 @@
+id: ISSUE-057
+title: '[TUI] Bulk Operations: Bulk assign/label/status/priority'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:25.029478-05:00
+    updated: 2025-08-08T23:13:25.029483-05:00

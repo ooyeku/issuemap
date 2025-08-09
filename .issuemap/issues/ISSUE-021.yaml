@@ -1,0 +1,16 @@
+id: ISSUE-021
+title: '[TUI] Core Shell & Navigation: Root layout: header (context), left nav, main content, status bar'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.459701-05:00
+    updated: 2025-08-08T23:13:23.459705-05:00

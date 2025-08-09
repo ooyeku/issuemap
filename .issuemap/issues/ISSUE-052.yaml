@@ -1,0 +1,16 @@
+id: ISSUE-052
+title: '[TUI] Search & Filters: Search results view with same capabilities as Issue List'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.81241-05:00
+    updated: 2025-08-08T23:13:24.812414-05:00

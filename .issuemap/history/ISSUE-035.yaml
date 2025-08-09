@@ -1,0 +1,36 @@
+issue_id: ISSUE-035
+current_version: 1
+created_at: 2025-08-08T23:13:24.109514-05:00
+updated_at: 2025-08-08T23:13:24.109517-05:00
+entries:
+    - id: hist_1754712804092447000
+      issue_id: ISSUE-035
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:24.092448-05:00
+      message: 'Issue created: [TUI] Issue Detail View (MVP): Checklist (add, check/uncheck, reorder)'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Issue Detail View (MVP): Checklist (add, check/uncheck, reorder)'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

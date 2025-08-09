@@ -1,0 +1,16 @@
+id: ISSUE-090
+title: '[TUI] Acceptance Criteria: Smooth on 10k issues; no visual tearing; <150ms typical interactions'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:26.425277-05:00
+    updated: 2025-08-08T23:15:01.628353-05:00

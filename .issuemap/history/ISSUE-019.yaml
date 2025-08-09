@@ -1,0 +1,36 @@
+issue_id: ISSUE-019
+current_version: 1
+created_at: 2025-08-08T23:13:23.406718-05:00
+updated_at: 2025-08-08T23:13:23.40672-05:00
+entries:
+    - id: hist_1754712803388797000
+      issue_id: ISSUE-019
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-08T23:13:23.388798-05:00
+      message: 'Issue created: [TUI] Command Entry Point: Detect server and show connection status; auto-fallback to file mode'
+      changes:
+        - field: title
+          old_value: null
+          new_value: '[TUI] Command Entry Point: Detect server and show connection status; auto-fallback to file mode'
+        - field: description
+          old_value: null
+          new_value: ""
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

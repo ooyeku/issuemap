@@ -1,0 +1,16 @@
+id: ISSUE-022
+title: '[TUI] Core Shell & Navigation: Router: switch between List, Detail, Board, Search, Graph, Activity, Settings'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:23.503085-05:00
+    updated: 2025-08-08T23:13:23.503089-05:00

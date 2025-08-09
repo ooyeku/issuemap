@@ -1,0 +1,16 @@
+id: ISSUE-054
+title: '[TUI] Dependencies Graph: Full-screen graph view (navigate nodes/edges, open issue)'
+description: ""
+type: task
+status: open
+priority: medium
+labels:
+    - name: tui
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+metadata: {}
+timestamps:
+    created: 2025-08-08T23:13:24.897529-05:00
+    updated: 2025-08-08T23:13:24.897533-05:00
