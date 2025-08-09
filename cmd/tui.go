@@ -51,6 +51,17 @@ var (
 	// Performance & reliability
 	tuiThrottleMs int
 	tuiRecentDays int
+	// Bulk preview (Acceptance criteria support)
+	tuiBulkPreview string
+	// Bulk apply
+	tuiBulkAssign       string
+	tuiBulkStatus       string
+	tuiBulkAddLabels    []string
+	tuiBulkRemoveLabels []string
+	tuiBulkSetLabels    []string
+	tuiBulkApply        bool
+	// Search view
+	tuiSearchQuery string
 )
 
 // TUIConfig persisted in .issuemap/tui_config.json
@@ -146,6 +157,17 @@ func init() {
 	// Performance & reliability
 	tuiCmd.Flags().IntVar(&tuiThrottleMs, "throttle-ms", 0, "delay between row renders (ms) to reduce flicker on slow terminals")
 	tuiCmd.Flags().IntVar(&tuiRecentDays, "recent-days", 7, "days window for activity view")
+	// Bulk preview
+	tuiCmd.Flags().StringVar(&tuiBulkPreview, "bulk-preview", "", "preview bulk selection from a search query (no changes applied)")
+	// Bulk apply options
+	tuiCmd.Flags().BoolVar(&tuiBulkApply, "bulk-apply", false, "apply bulk operation for the given query and options")
+	tuiCmd.Flags().StringVar(&tuiBulkAssign, "bulk-assign", "", "assign username (empty to unassign)")
+	tuiCmd.Flags().StringVar(&tuiBulkStatus, "bulk-status", "", "set status for selection")
+	tuiCmd.Flags().StringSliceVar(&tuiBulkAddLabels, "bulk-add-labels", []string{}, "labels to add")
+	tuiCmd.Flags().StringSliceVar(&tuiBulkRemoveLabels, "bulk-remove-labels", []string{}, "labels to remove")
+	tuiCmd.Flags().StringSliceVar(&tuiBulkSetLabels, "bulk-set-labels", []string{}, "labels to replace with (overrides add/remove)")
+	// Search view
+	tuiCmd.Flags().StringVar(&tuiSearchQuery, "query", "", "search query for --view search or bulk operations")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -263,6 +285,16 @@ func runTUIOverlay() error {
 	if tuiPalette {
 		return runTUIPalette()
 	}
+	// Optional: bulk preview/apply
+	if strings.TrimSpace(tuiBulkPreview) != "" {
+		return runTUIBulkPreview(tuiBulkPreview)
+	}
+	if tuiBulkApply {
+		if strings.TrimSpace(tuiSearchQuery) == "" {
+			return fmt.Errorf("--bulk-apply requires --query to select issues")
+		}
+		return runTUIBulkApply(tuiSearchQuery, tuiBulkAssign, tuiBulkStatus, tuiBulkAddLabels, tuiBulkRemoveLabels, tuiBulkSetLabels)
+	}
 	if noColor {
 		fmt.Printf("IssueMap TUI (preview)\n")
 		fmt.Printf("Repo: %s\nMode: %s\nRead-only: %v\n\n", repo, mode, tuiReadOnly)
@@ -311,6 +343,42 @@ func runTUIOverlay() error {
 	if err := renderView(tuiView); err != nil {
 		return err
 	}
+	return nil
+}
+
+// runTUIBulkPreview shows a tabular preview of issues matching a query.
+func runTUIBulkPreview(query string) error {
+	root, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	base := filepath.Join(root, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(base)
+	cfgRepo := storage.NewFileConfigRepository(base)
+	var gitRepo *git.GitClient
+	if g, err := git.NewGitClient(root); err == nil {
+		gitRepo = g
+	}
+	issueSvc := services.NewIssueService(issueRepo, cfgRepo, gitRepo)
+	searchSvc := services.NewSearchService(issueRepo)
+	bulkSvc := services.NewBulkService(issueSvc, searchSvc, base)
+	ctx := context.Background()
+	issues, err := bulkSvc.SelectIssues(ctx, query)
+	if err != nil {
+		return err
+	}
+	if len(issues) == 0 {
+		fmt.Println("No issues match query.")
+		return nil
+	}
+	// Convert to values for display
+	vals := make([]entities.Issue, 0, len(issues))
+	for _, p := range issues {
+		vals = append(vals, *p)
+	}
+	fmt.Println("Bulk Preview:")
+	displayIssuesTable(vals)
+	fmt.Printf("\nMatched %d issues (no changes applied).\n", len(vals))
 	return nil
 }
 
@@ -449,7 +517,7 @@ func renderView(view string) error {
 	case "board":
 		fmt.Println("\n[View] board - statuses as columns (planned)")
 	case "search":
-		fmt.Println("\n[View] search - use --query (planned)")
+		return renderSearchView()
 	case "graph":
 		fmt.Println("\n[View] graph - dependency graph (planned)")
 	case "settings":
@@ -821,5 +889,83 @@ func renderActivityView() error {
 		ts := e.Timestamp.Format("2006-01-02 15:04:05")
 		fmt.Printf("%s %s %s %s\n", ts, e.IssueID, e.Type, e.Message)
 	}
+	return nil
+}
+
+// renderSearchView executes a search via SearchService and prints a table of results.
+func renderSearchView() error {
+	if strings.TrimSpace(tuiSearchQuery) == "" {
+		fmt.Println("Provide --query for search view.")
+		return nil
+	}
+	root, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	base := filepath.Join(root, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(base)
+	searchSvc := services.NewSearchService(issueRepo)
+	ctx := context.Background()
+	parsed, err := searchSvc.ParseSearchQuery(tuiSearchQuery)
+	if err != nil {
+		return err
+	}
+	res, err := searchSvc.ExecuteSearch(ctx, parsed)
+	if err != nil {
+		return err
+	}
+	if len(res.Issues) == 0 {
+		fmt.Println("No results")
+		return nil
+	}
+	displayIssuesTable(res.Issues)
+	fmt.Printf("\nFound %d issue(s).\n", res.Total)
+	return nil
+}
+
+// runTUIBulkApply applies bulk operations for a query.
+func runTUIBulkApply(query, assign, status string, addLabels, removeLabels, setLabels []string) error {
+	root, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	base := filepath.Join(root, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(base)
+	cfgRepo := storage.NewFileConfigRepository(base)
+	var gitRepo *git.GitClient
+	if g, err := git.NewGitClient(root); err == nil {
+		gitRepo = g
+	}
+	issueSvc := services.NewIssueService(issueRepo, cfgRepo, gitRepo)
+	searchSvc := services.NewSearchService(issueRepo)
+	bulkSvc := services.NewBulkService(issueSvc, searchSvc, base)
+	ctx := context.Background()
+	issues, err := bulkSvc.SelectIssues(ctx, query)
+	if err != nil {
+		return err
+	}
+	if len(issues) == 0 {
+		fmt.Println("No issues match query.")
+		return nil
+	}
+	fmt.Printf("Selected %d issue(s). Applying...\n", len(issues))
+	opts := services.BulkOptions{DryRun: false, Rollback: false}
+	switch {
+	case setLabels != nil && len(setLabels) > 0:
+		_, err = bulkSvc.BulkLabels(ctx, issues, nil, nil, setLabels, opts)
+	case addLabels != nil || removeLabels != nil:
+		_, err = bulkSvc.BulkLabels(ctx, issues, addLabels, removeLabels, nil, opts)
+	case strings.TrimSpace(assign) != "" || assign == "":
+		_, err = bulkSvc.BulkAssign(ctx, issues, assign, opts)
+	case strings.TrimSpace(status) != "":
+		_, err = bulkSvc.BulkStatus(ctx, issues, status, opts)
+	default:
+		fmt.Println("No bulk operation specified (use --bulk-assign/--bulk-status/--bulk-add-labels/--bulk-remove-labels/--bulk-set-labels)")
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	fmt.Println("Bulk operation complete.")
 	return nil
 }

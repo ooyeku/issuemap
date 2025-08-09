@@ -2,7 +2,7 @@ id: ISSUE-056
 title: '[TUI] Bulk Operations: Multi-select across List and Search results'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.984886-05:00
-    updated: 2025-08-08T23:13:24.984889-05:00
+    updated: 2025-08-09T00:03:46.202672-05:00

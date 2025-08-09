@@ -2,7 +2,7 @@ id: ISSUE-053
 title: '[TUI] Dependencies Graph: Inline mini-graph in Issue Detail'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.854211-05:00
-    updated: 2025-08-08T23:13:24.854215-05:00
+    updated: 2025-08-09T00:03:46.133045-05:00

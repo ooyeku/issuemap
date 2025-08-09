@@ -2,7 +2,7 @@ id: ISSUE-059
 title: '[TUI] Bulk Operations: Progress bar and per-item result reporting'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.117151-05:00
-    updated: 2025-08-08T23:13:25.117154-05:00
+    updated: 2025-08-09T00:03:46.266918-05:00

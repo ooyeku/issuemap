@@ -2,7 +2,7 @@ id: ISSUE-055
 title: '[TUI] Dependencies Graph: Filters: show only blockers, only downstream, depth limits'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.941269-05:00
-    updated: 2025-08-08T23:13:24.941274-05:00
+    updated: 2025-08-09T00:03:46.181032-05:00
