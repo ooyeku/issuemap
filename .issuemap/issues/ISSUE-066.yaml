@@ -2,15 +2,20 @@ id: ISSUE-066
 title: '[TUI] Settings & Customization: Toggle advanced features (board, graph) on low-power terminals'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:49:31.836814-05:00
+      text: 'Issue closed: Feature toggles persisted; views can be disabled'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.41621-05:00
-    updated: 2025-08-08T23:45:29.877604-05:00
+    updated: 2025-08-08T23:49:31.836817-05:00
+    closed: 2025-08-08T23:49:31.836814-05:00

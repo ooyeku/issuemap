@@ -1,0 +1,17 @@
+{
+  "theme": "dark",
+  "list_columns": [
+    "ID",
+    "Title",
+    "Status",
+    "Updated"
+  ],
+  "column_widths": {
+    "ID": 10,
+    "Status": 10,
+    "Title": 40,
+    "Updated": 16
+  },
+  "keybindings": {},
+  "advanced_feature": {}
+}

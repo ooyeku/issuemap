@@ -2,15 +2,20 @@ id: ISSUE-065
 title: '[TUI] Settings & Customization: Configure keybindings with defaults and overrides'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:49:31.831576-05:00
+      text: 'Issue closed: Keybinding config path added (set via --key)'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.374778-05:00
-    updated: 2025-08-08T23:45:29.851793-05:00
+    updated: 2025-08-08T23:49:31.831579-05:00
+    closed: 2025-08-08T23:49:31.831576-05:00

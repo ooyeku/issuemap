@@ -2,15 +2,20 @@ id: ISSUE-064
 title: '[TUI] Settings & Customization: Configure columns and column widths per view'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:49:31.826812-05:00
+      text: 'Issue closed: List columns respected in rendering'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.33328-05:00
-    updated: 2025-08-08T23:45:29.826611-05:00
+    updated: 2025-08-08T23:49:31.826815-05:00
+    closed: 2025-08-08T23:49:31.826811-05:00
