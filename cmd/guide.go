@@ -262,6 +262,17 @@ func showGuide() {
 	fmt.Println()
 
 	// Step 19: Issue Dependencies & Blocking
+	// TUI Quickstart
+	printSection("TUI Quickstart")
+	printDivider()
+	printCommand("issuemap tui                 # preview overlay and routing")
+	printCommand("issuemap tui --help-overlay  # compact keybindings")
+	printCommand("issuemap tui --check-parity  # CLI parity check")
+	printCommand("issuemap tui --view list --status open --limit 20")
+	printCommand("ISSUE_ID=ISSUE-001 issuemap tui --view detail --history --deps --checklist")
+	fmt.Println("\nSee docs/tui.md for full reference.")
+	fmt.Println()
+
 	printStep("19", "Issue Dependencies & Blocking")
 	fmt.Println("Model complex relationships between issues:")
 	fmt.Println()
