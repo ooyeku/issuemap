@@ -2,7 +2,7 @@ id: ISSUE-071
 title: '[TUI] Testing & CI: Unit tests for state reducers and view models'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.624219-05:00
-    updated: 2025-08-08T23:13:25.624222-05:00
+    updated: 2025-08-08T23:51:52.905749-05:00

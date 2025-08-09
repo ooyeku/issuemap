@@ -2,7 +2,7 @@ id: ISSUE-073
 title: '[TUI] Testing & CI: Key-sequence integration tests for critical flows'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.70701-05:00
-    updated: 2025-08-08T23:13:25.707013-05:00
+    updated: 2025-08-08T23:51:52.953461-05:00

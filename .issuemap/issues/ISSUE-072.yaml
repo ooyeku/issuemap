@@ -2,7 +2,7 @@ id: ISSUE-072
 title: '[TUI] Testing & CI: Golden/snapshot tests for rendered views (TTY harness)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.666042-05:00
-    updated: 2025-08-08T23:13:25.666045-05:00
+    updated: 2025-08-08T23:51:52.929414-05:00
