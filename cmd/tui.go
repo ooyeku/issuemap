@@ -13,6 +13,7 @@ var (
 	tuiServerMode  bool
 	tuiRepoPath    string
 	tuiCheckParity bool
+	tuiHelpOverlay bool
 )
 
 // tuiCmd provides a professional, keyboard-first terminal UI entry point.
@@ -24,6 +25,9 @@ var tuiCmd = &cobra.Command{
 		if tuiCheckParity {
 			return runTUICheckParity()
 		}
+		if tuiHelpOverlay {
+			return runTUIHelpOverlay()
+		}
 		return runTUIOverlay()
 	},
 }
@@ -34,6 +38,7 @@ func init() {
 	tuiCmd.Flags().BoolVar(&tuiServerMode, "server", false, "prefer server mode if available")
 	tuiCmd.Flags().StringVar(&tuiRepoPath, "repo", "", "repo path (defaults to git root)")
 	tuiCmd.Flags().BoolVar(&tuiCheckParity, "check-parity", false, "check CLI parity readiness for TUI")
+	tuiCmd.Flags().BoolVar(&tuiHelpOverlay, "help-overlay", false, "print keyboard help overlay and exit")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -120,5 +125,19 @@ func runTUICheckParity() error {
 		fmt.Println("  Implement views and keybindings in TUI; keep CLI as source of truth")
 	}
 	_ = filepath.Join // silence import until used later
+	return nil
+}
+
+// runTUIHelpOverlay prints just the keyboard overlay in a compact, script-friendly form.
+func runTUIHelpOverlay() error {
+	if noColor {
+		fmt.Println("Keys:\n  j/k, arrows; enter; space; /; ctrl+p; ?")
+		fmt.Println("Views:\n  list, detail, board, search, graph, activity, settings")
+		return nil
+	}
+	fmt.Println(colorHeader("Keys:"))
+	fmt.Println("  j/k, arrows; enter; space; /; ctrl+p; ?")
+	fmt.Println(colorHeader("Views:"))
+	fmt.Println("  list, detail, board, search, graph, activity, settings")
 	return nil
 }
