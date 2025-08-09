@@ -9,10 +9,10 @@ labels:
       color: '#gray'
     - name: goal
       color: '#gray'
-branch: main
+branch: feature/ISSUE-008-tui-goals-keyboard-first-mouse-optional-discoverab
 commits: []
 comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:22.868768-05:00
-    updated: 2025-08-08T23:13:22.868773-05:00
+    updated: 2025-08-08T23:23:37.998344-05:00
