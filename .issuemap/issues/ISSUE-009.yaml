@@ -9,10 +9,10 @@ labels:
       color: '#gray'
     - name: goal
       color: '#gray'
-branch: main
+branch: feature/ISSUE-009-tui-goals-parity-with-core-cli-flows-create-branch
 commits: []
 comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:22.91604-05:00
-    updated: 2025-08-08T23:13:22.916046-05:00
+    updated: 2025-08-08T23:24:35.076809-05:00

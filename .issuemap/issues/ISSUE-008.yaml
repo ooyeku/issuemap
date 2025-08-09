@@ -2,7 +2,7 @@ id: ISSUE-008
 title: '[TUI] Goals: Keyboard-first, mouse-optional; discoverable help overlay'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -15,4 +15,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:22.868768-05:00
-    updated: 2025-08-08T23:23:37.998344-05:00
+    updated: 2025-08-08T23:24:27.660442-05:00
