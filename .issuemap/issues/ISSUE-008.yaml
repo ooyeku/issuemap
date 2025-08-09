@@ -2,7 +2,7 @@ id: ISSUE-008
 title: '[TUI] Goals: Keyboard-first, mouse-optional; discoverable help overlay'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -14,8 +14,13 @@ assignee:
     email: ""
 branch: feature/ISSUE-008-tui-goals-keyboard-first-mouse-optional-discoverab
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:28:47.004853-05:00
+      text: 'Issue closed: Completed; merged to main'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:22.868768-05:00
-    updated: 2025-08-08T23:27:25.634822-05:00
+    updated: 2025-08-08T23:28:47.004857-05:00
+    closed: 2025-08-08T23:28:47.004853-05:00
