@@ -75,6 +75,15 @@ var (
 	tuiOutput     string
 	tuiCommitDiff int
 	tuiExportICS  string
+	tuiDiffLatest bool
+	// Board view options
+	tuiBoardSwimlane string
+	tuiBoardAssignee string
+	tuiBoardFilter   string
+	tuiBoardWIP      int
+	tuiBoardPerCol   int
+	tuiMoveIssue     string
+	tuiMoveToStatus  string
 )
 
 // TUIConfig persisted in .issuemap/tui_config.json
@@ -191,6 +200,15 @@ func init() {
 	tuiCmd.Flags().StringVar(&tuiOutput, "output", "", "output file path for export")
 	tuiCmd.Flags().IntVar(&tuiCommitDiff, "commit-diff", 0, "show N recent commit summaries in detail view")
 	tuiCmd.Flags().StringVar(&tuiExportICS, "export-ics", "", "export calendar ICS with milestones due dates to file")
+	tuiCmd.Flags().BoolVar(&tuiDiffLatest, "diff-latest", false, "show full diff for the latest commit in detail view")
+	// Board
+	tuiCmd.Flags().StringVar(&tuiBoardSwimlane, "board-swimlane", "", "group rows by 'assignee' or 'label'")
+	tuiCmd.Flags().StringVar(&tuiBoardAssignee, "board-assignee", "", "filter board to assignee")
+	tuiCmd.Flags().StringVar(&tuiBoardFilter, "board-filter", "", "additional query filter for board (query DSL)")
+	tuiCmd.Flags().IntVar(&tuiBoardWIP, "board-wip", 0, "WIP limit per column (0 = unlimited)")
+	tuiCmd.Flags().IntVar(&tuiBoardPerCol, "board-limit", 20, "max cards to show per column")
+	tuiCmd.Flags().StringVar(&tuiMoveIssue, "move", "", "move an issue id (e.g., ISSUE-001) to a new status via --to")
+	tuiCmd.Flags().StringVar(&tuiMoveToStatus, "to", "", "target status for --move")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -538,7 +556,7 @@ func renderView(view string) error {
 	case "activity":
 		return renderActivityView()
 	case "board":
-		fmt.Println("\n[View] board - statuses as columns (planned)")
+		return renderBoardView()
 	case "search":
 		return renderSearchView()
 	case "graph":
@@ -799,6 +817,17 @@ func renderDetailView() error {
 				fmt.Printf("  %s %s %s\n", c.Date.Format("2006-01-02"), c.Hash[:7], truncate(c.Message, 80))
 			}
 		}
+		if tuiDiffLatest {
+			latest := issue.Commits[len(issue.Commits)-1]
+			fmt.Printf("\nLatest commit diff (%s):\n", latest.Hash[:7])
+			// Best-effort: shell out to git show --stat
+			if root, err := findGitRoot(); err == nil {
+				cmd := exec.Command("/bin/sh", "-lc", fmt.Sprintf("cd %s && git --no-pager show --stat %s | sed -n '1,80p'", root, latest.Hash))
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				_ = cmd.Run()
+			}
+		}
 	}
 	fmt.Printf("Updated: %s\n", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
 	// Checklist (parse from description lines starting with - [ ] / - [x])
@@ -1031,6 +1060,156 @@ func runTUIBulkApply(query, assign, status string, addLabels, removeLabels, setL
 	}
 	fmt.Println("Bulk operation complete.")
 	return nil
+}
+
+// renderBoardView prints a Kanban-style board with statuses as columns, swimlanes, and WIP.
+func renderBoardView() error {
+	ctx := context.Background()
+	repoRoot, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	base := filepath.Join(repoRoot, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(base)
+	cfgRepo := storage.NewFileConfigRepository(base)
+	var gitRepo *git.GitClient
+	if g, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = g
+	}
+	issueSvc := services.NewIssueService(issueRepo, cfgRepo, gitRepo)
+
+	// Optional move action first
+	if strings.TrimSpace(tuiMoveIssue) != "" && strings.TrimSpace(tuiMoveToStatus) != "" {
+		id := entities.IssueID(strings.TrimSpace(tuiMoveIssue))
+		newStatus := strings.TrimSpace(tuiMoveToStatus)
+		if _, err := issueSvc.UpdateIssue(ctx, id, map[string]interface{}{"status": newStatus}); err != nil {
+			return fmt.Errorf("move failed: %w", err)
+		}
+		fmt.Printf("Moved %s to %s\n\n", id, newStatus)
+	}
+
+	// Load all issues, then filter
+	list, err := issueSvc.ListIssues(ctx, repositories.IssueFilter{})
+	if err != nil {
+		return err
+	}
+	issues := list.Issues
+
+	// Quick filters
+	if tuiBoardAssignee != "" {
+		filtered := make([]entities.Issue, 0, len(issues))
+		for _, is := range issues {
+			if is.Assignee != nil && is.Assignee.Username == tuiBoardAssignee {
+				filtered = append(filtered, is)
+			}
+		}
+		issues = filtered
+	}
+	if strings.TrimSpace(tuiBoardFilter) != "" {
+		searchSvc := services.NewSearchService(issueRepo)
+		parsed, err := searchSvc.ParseSearchQuery(tuiBoardFilter)
+		if err == nil {
+			res, err := searchSvc.ExecuteSearch(ctx, parsed)
+			if err == nil {
+				issues = res.Issues
+			}
+		}
+	}
+
+	// Group by status columns using config order
+	cfg, _ := cfgRepo.Load(ctx)
+	statuses := []entities.Status{entities.StatusOpen, entities.StatusInProgress, entities.StatusReview, entities.StatusDone, entities.StatusClosed}
+	if cfg != nil && len(cfg.Workflow.Statuses) > 0 {
+		statuses = cfg.Workflow.Statuses
+	}
+	columns := make(map[entities.Status][]entities.Issue)
+	for _, st := range statuses {
+		columns[st] = []entities.Issue{}
+	}
+	for _, is := range issues {
+		columns[is.Status] = append(columns[is.Status], is)
+	}
+	// Sort each column by Updated desc and cap per column
+	for st := range columns {
+		sort.Slice(columns[st], func(i, j int) bool { return columns[st][i].Timestamps.Updated.After(columns[st][j].Timestamps.Updated) })
+		if tuiBoardPerCol > 0 && len(columns[st]) > tuiBoardPerCol {
+			columns[st] = columns[st][:tuiBoardPerCol]
+		}
+	}
+
+	// Swimlanes (assignee or label)
+	if strings.ToLower(tuiBoardSwimlane) == "assignee" {
+		for _, st := range statuses {
+			fmt.Printf("\n%s\n", strings.ToUpper(string(st)))
+			lanes := map[string][]entities.Issue{}
+			for _, is := range columns[st] {
+				name := "unassigned"
+				if is.Assignee != nil {
+					name = is.Assignee.Username
+				}
+				lanes[name] = append(lanes[name], is)
+			}
+			names := make([]string, 0, len(lanes))
+			for k := range lanes {
+				names = append(names, k)
+			}
+			sort.Strings(names)
+			for _, name := range names {
+				fmt.Printf("  @%s\n", name)
+				printBoardCards(lanes[name], tuiBoardWIP)
+			}
+		}
+	} else if strings.ToLower(tuiBoardSwimlane) == "label" {
+		for _, st := range statuses {
+			fmt.Printf("\n%s\n", strings.ToUpper(string(st)))
+			lanes := map[string][]entities.Issue{}
+			for _, is := range columns[st] {
+				if len(is.Labels) == 0 {
+					lanes["(none)"] = append(lanes["(none)"], is)
+					continue
+				}
+				for _, l := range is.Labels {
+					lanes[l.Name] = append(lanes[l.Name], is)
+				}
+			}
+			names := make([]string, 0, len(lanes))
+			for k := range lanes {
+				names = append(names, k)
+			}
+			sort.Strings(names)
+			for _, name := range names {
+				fmt.Printf("  #%s\n", name)
+				printBoardCards(lanes[name], tuiBoardWIP)
+			}
+		}
+	} else {
+		// Simple columns
+		for _, st := range statuses {
+			fmt.Printf("\n%s\n", strings.ToUpper(string(st)))
+			printBoardCards(columns[st], tuiBoardWIP)
+		}
+	}
+	fmt.Println("\nHint: move with --view board --move ISSUE-XYZ --to in-progress")
+	return nil
+}
+
+func printBoardCards(cards []entities.Issue, wip int) {
+	count := len(cards)
+	capped := count
+	if wip > 0 && count > wip {
+		capped = wip
+		fmt.Printf("  WIP %d/%d (showing %d)\n", wip, count, wip)
+	} else {
+		fmt.Printf("  %d item(s)\n", count)
+	}
+	for i := 0; i < capped; i++ {
+		is := cards[i]
+		assignee := "-"
+		if is.Assignee != nil {
+			assignee = is.Assignee.Username
+		}
+		fmt.Printf("    %-10s %-30s @%-12s %s\n", is.ID, truncate(is.Title, 30), assignee, is.Timestamps.Updated.Format("01-02 15:04"))
+	}
 }
 
 // exportIssues writes selected issues to csv|json|yaml|ics

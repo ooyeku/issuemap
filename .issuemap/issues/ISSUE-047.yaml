@@ -2,7 +2,7 @@ id: ISSUE-047
 title: '[TUI] Board (Kanban) View: Swimlanes by assignee or label'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.593198-05:00
-    updated: 2025-08-08T23:13:24.593202-05:00
+    updated: 2025-08-09T00:19:17.968165-05:00

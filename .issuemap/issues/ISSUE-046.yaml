@@ -2,7 +2,7 @@ id: ISSUE-046
 title: '[TUI] Board (Kanban) View: Keyboard drag-and-drop (move between columns, reorder within column)'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.550261-05:00
-    updated: 2025-08-08T23:13:24.550265-05:00
+    updated: 2025-08-09T00:19:17.945175-05:00

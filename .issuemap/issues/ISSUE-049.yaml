@@ -2,7 +2,7 @@ id: ISSUE-049
 title: '[TUI] Board (Kanban) View: Column-level quick filters'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.681686-05:00
-    updated: 2025-08-08T23:13:24.681691-05:00
+    updated: 2025-08-09T00:19:18.017033-05:00
