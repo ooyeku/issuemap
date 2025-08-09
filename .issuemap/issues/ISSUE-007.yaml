@@ -2,7 +2,7 @@ id: ISSUE-007
 title: '[TUI] Goals: Professional look and feel; consistent with existing CLI colors and formatting'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -14,9 +14,14 @@ assignee:
     email: ""
 branch: feature/ISSUE-007-tui-goals-professional-look-and-feel-consistent-wi
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:28:46.956546-05:00
+      text: 'Issue closed: Completed; merged to main'
 metadata:
     actual_hours: 0.09829004444444445
 timestamps:
     created: 2025-08-08T23:13:22.788805-05:00
-    updated: 2025-08-08T23:27:57.618431-05:00
+    updated: 2025-08-08T23:28:46.956549-05:00
+    closed: 2025-08-08T23:28:46.956546-05:00
