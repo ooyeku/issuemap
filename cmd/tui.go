@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -101,28 +103,54 @@ func runTUIOverlay() error {
 // runTUICheckParity prints the readiness checklist for TUI parity with CLI.
 func runTUICheckParity() error {
 	repoRoot, _ := findGitRoot()
+	// Define core and supporting commands we expect in CLI
+	core := []string{"create", "branch", "sync", "show", "list", "merge"}
+	support := []string{"estimate", "start", "stop", "depend", "deps", "bulk", "search", "close"}
+
+	// Build availability maps
+	available := map[string]bool{}
+	for _, c := range rootCmd.Commands() {
+		available[c.Name()] = true
+		for _, a := range c.Aliases {
+			available[a] = true
+		}
+	}
+
+	// Format lines
+	formatLine := func(names []string) string {
+		parts := make([]string, 0, len(names))
+		for _, n := range names {
+			status := "[MISSING]"
+			if available[n] {
+				status = "[OK]"
+			}
+			parts = append(parts, fmt.Sprintf("%s %s", n, status))
+		}
+		sort.Strings(parts)
+		return "  " + strings.Join(parts, "  ")
+	}
 	if noColor {
 		fmt.Printf("TUI Parity Check\n")
 		if repoRoot != "" {
 			fmt.Printf("Repo: %s\n", repoRoot)
 		}
-		fmt.Println("Core flows available:")
-		fmt.Println("  create ✔  branch ✔  sync ✔  merge ✔  show ✔  list ✔")
+		fmt.Println("Core flows:")
+		fmt.Println(formatLine(core))
 		fmt.Println("Supporting:")
-		fmt.Println("  estimate ✔  start/stop ✔  deps ✔  bulk ✔  search ✔")
+		fmt.Println(formatLine(support))
 		fmt.Println("Next steps:")
-		fmt.Println("  Implement views and keybindings in TUI; keep CLI as source of truth")
+		fmt.Println("  Wire TUI actions to CLI commands; keep CLI as source of truth")
 	} else {
 		fmt.Printf("%s\n", colorHeader("TUI Parity Check"))
 		if repoRoot != "" {
 			fmt.Printf("%s %s\n", colorLabel("Repo:"), colorValue(repoRoot))
 		}
-		fmt.Println(colorHeader("Core flows available:"))
-		fmt.Println("  create ✔  branch ✔  sync ✔  merge ✔  show ✔  list ✔")
+		fmt.Println(colorHeader("Core flows:"))
+		fmt.Println(formatLine(core))
 		fmt.Println(colorHeader("Supporting:"))
-		fmt.Println("  estimate ✔  start/stop ✔  deps ✔  bulk ✔  search ✔")
+		fmt.Println(formatLine(support))
 		fmt.Println(colorHeader("Next steps:"))
-		fmt.Println("  Implement views and keybindings in TUI; keep CLI as source of truth")
+		fmt.Println("  Wire TUI actions to CLI commands; keep CLI as source of truth")
 	}
 	_ = filepath.Join // silence import until used later
 	return nil

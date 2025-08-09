@@ -1,7 +1,7 @@
 issue_id: ISSUE-009
-current_version: 2
+current_version: 4
 created_at: 2025-08-08T23:13:22.954015-05:00
-updated_at: 2025-08-08T23:24:35.097776-05:00
+updated_at: 2025-08-08T23:27:30.38746-05:00
 entries:
     - id: hist_1754712802936820000
       issue_id: ISSUE-009
@@ -48,3 +48,29 @@ entries:
           new_value: feature/ISSUE-009-tui-goals-parity-with-core-cli-flows-create-branch
       metadata:
         git_branch: feature/ISSUE-008-tui-goals-keyboard-first-mouse-optional-discoverab
+    - id: hist_1754713489721490000
+      issue_id: ISSUE-009
+      version: 3
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:24:49.7215-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: feature/ISSUE-009-tui-parity-core-flows
+    - id: hist_1754713650387104000
+      issue_id: ISSUE-009
+      version: 4
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:27:30.387117-05:00
+      message: Updated assignee
+      changes:
+        - field: assignee
+          old_value: ""
+          new_value: olayeku
+      metadata:
+        git_branch: feature/ISSUE-009-tui-parity-core-flows
