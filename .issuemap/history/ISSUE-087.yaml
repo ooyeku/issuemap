@@ -1,7 +1,7 @@
 issue_id: ISSUE-087
-current_version: 2
+current_version: 3
 created_at: 2025-08-08T23:13:26.331891-05:00
-updated_at: 2025-08-08T23:15:01.579609-05:00
+updated_at: 2025-08-09T00:01:42.112108-05:00
 entries:
     - id: hist_1754712806314814000
       issue_id: ISSUE-087
@@ -45,5 +45,18 @@ entries:
         - field: title
           old_value: '[TUI] Packaging & Docs: Board usable with keyboard-only DnD and WIP signals'
           new_value: '[TUI] Acceptance Criteria: Board usable with keyboard-only DnD and WIP signals'
+      metadata:
+        git_branch: main
+    - id: hist_1754715702111566000
+      issue_id: ISSUE-087
+      version: 3
+      type: updated
+      author: Test User
+      timestamp: 2025-08-09T00:01:42.111582-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: review
       metadata:
         git_branch: main

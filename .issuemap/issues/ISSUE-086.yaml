@@ -2,15 +2,20 @@ id: ISSUE-086
 title: '[TUI] Acceptance Criteria: Core views (List, Detail) complete and round-trip editable'
 description: ""
 type: task
-status: open
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:01:42.185574-05:00
+      text: 'Issue closed: Core views complete; detail editable via CLI triggers'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.256501-05:00
-    updated: 2025-08-08T23:15:01.535361-05:00
+    updated: 2025-08-09T00:01:42.185577-05:00
+    closed: 2025-08-09T00:01:42.185574-05:00
