@@ -2,7 +2,7 @@ id: ISSUE-079
 title: '[TUI] Backlog (Power Features): Command macros/recipes inside TUI (chain actions on selection)'
 description: ""
 type: task
-status: open
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -11,8 +11,13 @@ labels:
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:13:01.16106-05:00
+      text: 'Issue closed: Macros runner via --run-macro/--macro-cmd in TUI'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.963982-05:00
-    updated: 2025-08-08T23:15:01.406705-05:00
+    updated: 2025-08-09T00:13:01.161064-05:00
+    closed: 2025-08-09T00:13:01.16106-05:00

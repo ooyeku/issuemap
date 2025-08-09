@@ -1,7 +1,7 @@
 issue_id: ISSUE-083
-current_version: 2
+current_version: 3
 created_at: 2025-08-08T23:13:26.166016-05:00
-updated_at: 2025-08-08T23:15:01.52946-05:00
+updated_at: 2025-08-09T00:13:01.197626-05:00
 entries:
     - id: hist_1754712806150300000
       issue_id: ISSUE-083
@@ -51,5 +51,18 @@ entries:
           new_value:
             - tui
             - backlog
+      metadata:
+        git_branch: main
+    - id: hist_1754716381197358000
+      issue_id: ISSUE-083
+      version: 3
+      type: updated
+      author: Test User
+      timestamp: 2025-08-09T00:13:01.197375-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: review
       metadata:
         git_branch: main

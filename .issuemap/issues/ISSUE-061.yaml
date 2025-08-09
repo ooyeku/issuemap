@@ -2,7 +2,7 @@ id: ISSUE-061
 title: '[TUI] Activity & Notifications: Non-blocking status notifications and error surfacing'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.202167-05:00
-    updated: 2025-08-08T23:13:25.20217-05:00
+    updated: 2025-08-09T00:13:01.230267-05:00

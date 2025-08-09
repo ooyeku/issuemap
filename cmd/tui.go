@@ -1,15 +1,18 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
 	"context"
 
@@ -62,6 +65,16 @@ var (
 	tuiBulkApply        bool
 	// Search view
 	tuiSearchQuery string
+	// Activity & notifications
+	tuiWatchActivity bool
+	tuiPollSeconds   int
+	// Power features
+	tuiRunMacro   string
+	tuiMacroCmd   string
+	tuiExport     string
+	tuiOutput     string
+	tuiCommitDiff int
+	tuiExportICS  string
 )
 
 // TUIConfig persisted in .issuemap/tui_config.json
@@ -168,6 +181,16 @@ func init() {
 	tuiCmd.Flags().StringSliceVar(&tuiBulkSetLabels, "bulk-set-labels", []string{}, "labels to replace with (overrides add/remove)")
 	// Search view
 	tuiCmd.Flags().StringVar(&tuiSearchQuery, "query", "", "search query for --view search or bulk operations")
+	// Activity & notifications
+	tuiCmd.Flags().BoolVar(&tuiWatchActivity, "watch-activity", false, "continuously poll and print recent activity")
+	tuiCmd.Flags().IntVar(&tuiPollSeconds, "poll-seconds", 5, "poll interval in seconds for activity watch")
+	// Power features
+	tuiCmd.Flags().StringVar(&tuiRunMacro, "run-macro", "", "run a named macro from .issuemap/tui_macros.yaml")
+	tuiCmd.Flags().StringVar(&tuiMacroCmd, "macro-cmd", "", "run ad-hoc macro: semicolon-separated issuemap commands")
+	tuiCmd.Flags().StringVar(&tuiExport, "export", "", "export results (csv|json|yaml|ics)")
+	tuiCmd.Flags().StringVar(&tuiOutput, "output", "", "output file path for export")
+	tuiCmd.Flags().IntVar(&tuiCommitDiff, "commit-diff", 0, "show N recent commit summaries in detail view")
+	tuiCmd.Flags().StringVar(&tuiExportICS, "export-ics", "", "export calendar ICS with milestones due dates to file")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -765,6 +788,17 @@ func renderDetailView() error {
 	}
 	if len(issue.Commits) > 0 {
 		fmt.Printf("Commits: %d (latest: %s)\n", len(issue.Commits), issue.Commits[len(issue.Commits)-1].Message)
+		if tuiCommitDiff > 0 {
+			n := tuiCommitDiff
+			if n > len(issue.Commits) {
+				n = len(issue.Commits)
+			}
+			fmt.Println("Recent commits:")
+			for i := len(issue.Commits) - n; i < len(issue.Commits); i++ {
+				c := issue.Commits[i]
+				fmt.Printf("  %s %s %s\n", c.Date.Format("2006-01-02"), c.Hash[:7], truncate(c.Message, 80))
+			}
+		}
 	}
 	fmt.Printf("Updated: %s\n", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
 	// Checklist (parse from description lines starting with - [ ] / - [x])
@@ -885,11 +919,35 @@ func renderActivityView() error {
 		fmt.Println("No recent activity")
 		return nil
 	}
+	printActivityEntries(list)
+	if tuiWatchActivity {
+		interval := time.Duration(tuiPollSeconds) * time.Second
+		if interval <= 0 {
+			interval = 5 * time.Second
+		}
+		fmt.Printf("\nWatching activity every %s... (Ctrl+C to stop)\n", interval)
+		since := time.Now().Add(-time.Duration(tuiRecentDays) * 24 * time.Hour)
+		for {
+			time.Sleep(interval)
+			list, err := historyService.GetAllHistory(ctx, repositories.HistoryFilter{Since: &since, Limit: &limit})
+			if err != nil {
+				fmt.Printf("watch error: %v\n", err)
+				continue
+			}
+			if len(list.Entries) > 0 {
+				printActivityEntries(list)
+				since = time.Now()
+			}
+		}
+	}
+	return nil
+}
+
+func printActivityEntries(list *repositories.HistoryList) {
 	for _, e := range list.Entries {
 		ts := e.Timestamp.Format("2006-01-02 15:04:05")
 		fmt.Printf("%s %s %s %s\n", ts, e.IssueID, e.Type, e.Message)
 	}
-	return nil
 }
 
 // renderSearchView executes a search via SearchService and prints a table of results.
@@ -920,6 +978,11 @@ func renderSearchView() error {
 	}
 	displayIssuesTable(res.Issues)
 	fmt.Printf("\nFound %d issue(s).\n", res.Total)
+	if tuiExport != "" {
+		if err := exportIssues(res.Issues, tuiExport, tuiOutput); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -968,4 +1031,132 @@ func runTUIBulkApply(query, assign, status string, addLabels, removeLabels, setL
 	}
 	fmt.Println("Bulk operation complete.")
 	return nil
+}
+
+// exportIssues writes selected issues to csv|json|yaml|ics
+func exportIssues(issues []entities.Issue, format, outPath string) error {
+	format = strings.ToLower(format)
+	if outPath == "" {
+		outPath = filepath.Join(".", fmt.Sprintf("tui_export_%d.%s", time.Now().Unix(), format))
+	}
+	switch format {
+	case "json":
+		data, err := json.MarshalIndent(issues, "", "  ")
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(outPath, data, 0644)
+	case "yaml", "yml":
+		data, err := yaml.Marshal(issues)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(outPath, data, 0644)
+	case "csv":
+		f, err := os.Create(outPath)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		w := csv.NewWriter(f)
+		defer w.Flush()
+		_ = w.Write([]string{"ID", "Title", "Type", "Status", "Priority", "Assignee", "Labels", "Updated"})
+		for _, is := range issues {
+			assignee := "-"
+			if is.Assignee != nil {
+				assignee = is.Assignee.Username
+			}
+			labels := make([]string, 0, len(is.Labels))
+			for _, l := range is.Labels {
+				labels = append(labels, l.Name)
+			}
+			_ = w.Write([]string{
+				string(is.ID), is.Title, string(is.Type), string(is.Status), string(is.Priority), assignee, strings.Join(labels, ","), is.Timestamps.Updated.Format("2006-01-02 15:04:05"),
+			})
+		}
+		return nil
+	case "ics":
+		// Minimal ICS: export milestones/due dates if present
+		var b strings.Builder
+		b.WriteString("BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//issuemap//tui//EN\n")
+		for _, is := range issues {
+			if is.Milestone != nil && is.Milestone.DueDate != nil {
+				dt := is.Milestone.DueDate.UTC().Format("20060102T150405Z")
+				b.WriteString("BEGIN:VEVENT\n")
+				b.WriteString(fmt.Sprintf("UID:%s@issuemap\n", is.ID))
+				b.WriteString(fmt.Sprintf("DTSTAMP:%s\n", time.Now().UTC().Format("20060102T150405Z")))
+				b.WriteString(fmt.Sprintf("DTSTART:%s\n", dt))
+				b.WriteString(fmt.Sprintf("SUMMARY:%s %s\n", is.ID, sanitizeICS(is.Title)))
+				b.WriteString("END:VEVENT\n")
+			}
+		}
+		b.WriteString("END:VCALENDAR\n")
+		return os.WriteFile(outPath, []byte(b.String()), 0644)
+	default:
+		return fmt.Errorf("unsupported export format: %s", format)
+	}
+}
+
+func sanitizeICS(s string) string {
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, ",", " ")
+	return s
+}
+
+// runMacro executes either a named macro from .issuemap/tui_macros.yaml or an ad-hoc macro
+func runMacro(repoRoot string, name, adHoc string) error {
+	if strings.TrimSpace(adHoc) == "" && strings.TrimSpace(name) == "" {
+		return nil
+	}
+	if strings.TrimSpace(adHoc) != "" {
+		return executeMacroCommands(strings.Split(adHoc, ";"))
+	}
+	// Load YAML macros
+	path := filepath.Join(repoRoot, app.ConfigDirName, "tui_macros.yaml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	var m map[string][]string
+	if err := yaml.Unmarshal(data, &m); err != nil {
+		return err
+	}
+	cmds, ok := m[name]
+	if !ok {
+		return fmt.Errorf("macro not found: %s", name)
+	}
+	return executeMacroCommands(cmds)
+}
+
+func executeMacroCommands(cmds []string) error {
+	for _, raw := range cmds {
+		c := strings.TrimSpace(raw)
+		if c == "" {
+			continue
+		}
+		// Prefix with ./bin/issuemap if looks like issuemap subcommand
+		if strings.HasPrefix(c, "issuemap ") {
+			parts := strings.SplitN(c, " ", 2)
+			if len(parts) == 2 {
+				c = fmt.Sprintf("./bin/issuemap %s", parts[1])
+			}
+		}
+		cmd := exec.Command("/bin/sh", "-lc", c)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	if n <= 3 {
+		return s[:n]
+	}
+	return s[:n-3] + "..."
 }

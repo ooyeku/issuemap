@@ -2,7 +2,7 @@ id: ISSUE-080
 title: '[TUI] Backlog (Power Features): Inline diff/review panel for recent commits linked to issue'
 description: ""
 type: task
-status: open
+status: review
 priority: medium
 labels:
     - name: tui
@@ -15,4 +15,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.006361-05:00
-    updated: 2025-08-08T23:15:01.431269-05:00
+    updated: 2025-08-09T00:13:01.254922-05:00
