@@ -2,15 +2,20 @@ id: ISSUE-060
 title: '[TUI] Activity & Notifications: Live activity feed (server mode), periodic polling (file mode)'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:14:37.117431-05:00
+      text: 'Issue closed: Activity watch/polling added'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.159993-05:00
-    updated: 2025-08-09T00:13:01.203557-05:00
+    updated: 2025-08-09T00:14:37.117434-05:00
+    closed: 2025-08-09T00:14:37.11743-05:00

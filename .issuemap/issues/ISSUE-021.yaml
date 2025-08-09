@@ -2,15 +2,20 @@ id: ISSUE-021
 title: '[TUI] Core Shell & Navigation: Root layout: header (context), left nav, main content, status bar'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:16:17.402864-05:00
+      text: 'Issue closed: Core shell & navigation: view switching, palette, help overlay, state persistence'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.459701-05:00
-    updated: 2025-08-08T23:56:45.464387-05:00
+    updated: 2025-08-09T00:16:17.402867-05:00
+    closed: 2025-08-09T00:16:17.402863-05:00

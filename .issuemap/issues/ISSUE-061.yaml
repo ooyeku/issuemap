@@ -2,15 +2,20 @@ id: ISSUE-061
 title: '[TUI] Activity & Notifications: Non-blocking status notifications and error surfacing'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:16:17.397403-05:00
+      text: 'Issue closed: Non-blocking status notifications via activity watch and bulk progress; inline error surfacing across TUI actions'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.202167-05:00
-    updated: 2025-08-09T00:13:01.230267-05:00
+    updated: 2025-08-09T00:16:17.397408-05:00
+    closed: 2025-08-09T00:16:17.397403-05:00

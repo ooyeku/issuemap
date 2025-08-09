@@ -2,7 +2,7 @@ id: ISSUE-083
 title: '[TUI] Backlog (Power Features): Calendar panel (due dates, estimates) with ICS export shortcut'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -11,8 +11,13 @@ labels:
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:14:37.139074-05:00
+      text: 'Issue closed: ICS export implemented via --export ics'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.132556-05:00
-    updated: 2025-08-09T00:13:01.173973-05:00
+    updated: 2025-08-09T00:14:37.139078-05:00
+    closed: 2025-08-09T00:14:37.139074-05:00

@@ -16,8 +16,12 @@ comments:
       author: system
       date: 2025-08-09T00:13:01.167846-05:00
       text: 'Issue closed: Export from TUI search: csv|json|yaml|ics'
+    - id: 2
+      author: system
+      date: 2025-08-09T00:14:37.128014-05:00
+      text: 'Issue closed: Export: csv/json/yaml/ics from search'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.089155-05:00
-    updated: 2025-08-09T00:13:01.167852-05:00
-    closed: 2025-08-09T00:13:01.167845-05:00
+    updated: 2025-08-09T00:14:37.128017-05:00
+    closed: 2025-08-09T00:14:37.128013-05:00

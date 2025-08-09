@@ -2,7 +2,7 @@ id: ISSUE-080
 title: '[TUI] Backlog (Power Features): Inline diff/review panel for recent commits linked to issue'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -11,8 +11,13 @@ labels:
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:14:37.134144-05:00
+      text: 'Issue closed: Inline diff panel (latest commit) and commit summaries'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.006361-05:00
-    updated: 2025-08-09T00:13:01.254922-05:00
+    updated: 2025-08-09T00:14:37.134147-05:00
+    closed: 2025-08-09T00:14:37.134144-05:00
