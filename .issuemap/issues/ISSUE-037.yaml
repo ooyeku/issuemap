@@ -2,7 +2,7 @@ id: ISSUE-037
 title: '[TUI] Issue Detail View (MVP): History timeline (status changes, edits)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.163037-05:00
-    updated: 2025-08-08T23:13:24.16304-05:00
+    updated: 2025-08-08T23:42:56.671356-05:00

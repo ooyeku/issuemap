@@ -2,7 +2,7 @@ id: ISSUE-035
 title: '[TUI] Issue Detail View (MVP): Checklist (add, check/uncheck, reorder)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.074883-05:00
-    updated: 2025-08-08T23:13:24.074886-05:00
+    updated: 2025-08-08T23:42:56.614698-05:00

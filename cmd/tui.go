@@ -276,16 +276,12 @@ func renderView(view string) error {
 		return renderDetailView()
 	case "activity":
 		return renderActivityView()
-	case "detail":
-		fmt.Println("\n[View] detail - open with: issuemap show ISSUE-XXX")
 	case "board":
 		fmt.Println("\n[View] board - statuses as columns (planned)")
 	case "search":
 		fmt.Println("\n[View] search - use --query (planned)")
 	case "graph":
 		fmt.Println("\n[View] graph - dependency graph (planned)")
-	case "activity":
-		fmt.Println("\n[View] activity - recent changes (planned)")
 	case "settings":
 		fmt.Println("\n[View] settings - theme, keys, columns (planned)")
 	default:
