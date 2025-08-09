@@ -33,6 +33,11 @@ var (
 	tuiAssignee    string
 	tuiLabels      []string
 	tuiLimit       int
+	// Detail view options
+	tuiDetailChecklist bool
+	tuiDetailDeps      bool
+	tuiDetailHistory   bool
+	tuiDetailHistLimit int
 )
 
 // tuiCmd provides a professional, keyboard-first terminal UI entry point.
@@ -65,6 +70,11 @@ func init() {
 	tuiCmd.Flags().StringVar(&tuiAssignee, "assignee", "", "filter by assignee for list view")
 	tuiCmd.Flags().StringSliceVar(&tuiLabels, "labels", []string{}, "filter by labels for list view")
 	tuiCmd.Flags().IntVar(&tuiLimit, "limit", app.DefaultListLimit, "limit results in list view")
+	// Detail view toggles
+	tuiCmd.Flags().BoolVar(&tuiDetailChecklist, "checklist", true, "show checklist parsed from description in detail view")
+	tuiCmd.Flags().BoolVar(&tuiDetailDeps, "deps", true, "show dependency info in detail view")
+	tuiCmd.Flags().BoolVar(&tuiDetailHistory, "history", true, "show recent history in detail view")
+	tuiCmd.Flags().IntVar(&tuiDetailHistLimit, "history-limit", 5, "limit history entries in detail view")
 }
 
 // runTUIOverlay shows a concise help overlay for keyboard-first usage.
@@ -320,7 +330,12 @@ func renderListView() error {
 		filter.Labels = tuiLabels
 	}
 	if tuiLimit > 0 {
-		filter.Limit = &tuiLimit
+		if tuiLimit > app.MaxListLimit {
+			v := app.MaxListLimit
+			filter.Limit = &v
+		} else {
+			filter.Limit = &tuiLimit
+		}
 	}
 
 	list, err := issueService.ListIssues(ctx, filter)
@@ -382,6 +397,89 @@ func renderDetailView() error {
 		fmt.Printf("Commits: %d (latest: %s)\n", len(issue.Commits), issue.Commits[len(issue.Commits)-1].Message)
 	}
 	fmt.Printf("Updated: %s\n", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
+	// Checklist (parse from description lines starting with - [ ] / - [x])
+	if tuiDetailChecklist && strings.TrimSpace(issue.Description) != "" {
+		lines := strings.Split(issue.Description, "\n")
+		has := false
+		for _, ln := range lines {
+			t := strings.TrimSpace(ln)
+			if strings.HasPrefix(t, "- [ ]") || strings.HasPrefix(t, "- [x]") || strings.HasPrefix(t, "- [X]") {
+				if !has {
+					fmt.Println("Checklist:")
+					has = true
+				}
+				fmt.Printf("  %s\n", t)
+			}
+		}
+	}
+	// Dependencies
+	if tuiDetailDeps {
+		if err := renderDepsForIssue(ctx, repoRoot, issue.ID); err == nil {
+			// printed inline
+		}
+	}
+	// Recent history
+	if tuiDetailHistory {
+		if err := renderIssueHistory(ctx, repoRoot, issue.ID, tuiDetailHistLimit); err == nil {
+			// printed inline
+		}
+	}
+	return nil
+}
+
+func renderDepsForIssue(ctx context.Context, repoRoot string, id entities.IssueID) error {
+	base := filepath.Join(repoRoot, app.ConfigDirName)
+	depRepo := storage.NewFileDependencyRepository(base)
+	issueRepo := storage.NewFileIssueRepository(base)
+	cfgRepo := storage.NewFileConfigRepository(base)
+	var gitRepo *git.GitClient
+	if g, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = g
+	}
+	issSvc := services.NewIssueService(issueRepo, cfgRepo, gitRepo)
+	histSvc := services.NewHistoryService(storage.NewFileHistoryRepository(base), gitRepo)
+	depSvc := services.NewDependencyService(depRepo, issSvc, histSvc)
+	info, err := depSvc.GetBlockingInfo(ctx, id)
+	if err != nil {
+		return err
+	}
+	if info.IsBlocked || len(info.Blocking) > 0 {
+		fmt.Println("Dependencies:")
+		if info.IsBlocked {
+			fmt.Printf("  Blocked by: %v\n", info.BlockedBy)
+		}
+		if len(info.Blocking) > 0 {
+			fmt.Printf("  Blocking: %v\n", info.Blocking)
+		}
+	}
+	return nil
+}
+
+func renderIssueHistory(ctx context.Context, repoRoot string, id entities.IssueID, limit int) error {
+	base := filepath.Join(repoRoot, app.ConfigDirName)
+	histRepo := storage.NewFileHistoryRepository(base)
+	var gitRepo *git.GitClient
+	if g, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = g
+	}
+	histSvc := services.NewHistoryService(histRepo, gitRepo)
+	list, err := histSvc.GetIssueHistory(ctx, id)
+	if err != nil {
+		return err
+	}
+	if len(list.Entries) == 0 {
+		return nil
+	}
+	fmt.Println("History:")
+	end := len(list.Entries)
+	start := end - limit
+	if start < 0 {
+		start = 0
+	}
+	for _, e := range list.Entries[start:end] {
+		ts := e.Timestamp.Format("2006-01-02 15:04:05")
+		fmt.Printf("  %s %s %s\n", ts, e.Type, e.Message)
+	}
 	return nil
 }
 

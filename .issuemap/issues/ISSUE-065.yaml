@@ -2,7 +2,7 @@ id: ISSUE-065
 title: '[TUI] Settings & Customization: Configure keybindings with defaults and overrides'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.374778-05:00
-    updated: 2025-08-08T23:13:25.374781-05:00
+    updated: 2025-08-08T23:45:29.851793-05:00

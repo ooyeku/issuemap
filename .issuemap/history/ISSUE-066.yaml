@@ -1,7 +1,7 @@
 issue_id: ISSUE-066
-current_version: 1
+current_version: 2
 created_at: 2025-08-08T23:13:25.448173-05:00
-updated_at: 2025-08-08T23:13:25.44818-05:00
+updated_at: 2025-08-08T23:45:29.897494-05:00
 entries:
     - id: hist_1754712805432860000
       issue_id: ISSUE-066
@@ -34,3 +34,16 @@ entries:
         git_author: Test User
         git_branch: main
         git_email: test@example.com
+    - id: hist_1754714729897159000
+      issue_id: ISSUE-066
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:45:29.897174-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: main

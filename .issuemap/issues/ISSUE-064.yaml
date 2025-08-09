@@ -2,7 +2,7 @@ id: ISSUE-064
 title: '[TUI] Settings & Customization: Configure columns and column widths per view'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.33328-05:00
-    updated: 2025-08-08T23:13:25.333284-05:00
+    updated: 2025-08-08T23:45:29.826611-05:00
