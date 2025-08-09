@@ -7,10 +7,10 @@ priority: medium
 labels:
     - name: tui
       color: '#gray'
-branch: main
+branch: feature/ISSUE-018-tui-command-entry-point-add-issuemap-tui-command-w
 commits: []
 comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.326226-05:00
-    updated: 2025-08-08T23:14:32.942566-05:00
+    updated: 2025-08-08T23:33:42.688755-05:00
