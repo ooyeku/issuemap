@@ -2,15 +2,20 @@ id: ISSUE-047
 title: '[TUI] Board (Kanban) View: Swimlanes by assignee or label'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:19:18.105413-05:00
+      text: 'Issue closed: Swimlanes by assignee/label flags'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.593198-05:00
-    updated: 2025-08-09T00:19:17.968165-05:00
+    updated: 2025-08-09T00:19:18.105416-05:00
+    closed: 2025-08-09T00:19:18.105413-05:00

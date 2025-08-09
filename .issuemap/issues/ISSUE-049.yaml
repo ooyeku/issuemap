@@ -2,15 +2,20 @@ id: ISSUE-049
 title: '[TUI] Board (Kanban) View: Column-level quick filters'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:19:18.116411-05:00
+      text: 'Issue closed: Column quick filters via --board-filter/assignee'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.681686-05:00
-    updated: 2025-08-09T00:19:18.017033-05:00
+    updated: 2025-08-09T00:19:18.116415-05:00
+    closed: 2025-08-09T00:19:18.116411-05:00

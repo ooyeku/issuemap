@@ -2,15 +2,20 @@ id: ISSUE-087
 title: '[TUI] Acceptance Criteria: Board usable with keyboard-only DnD and WIP signals'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:19:35.713256-05:00
+      text: 'Issue closed: Board usable; DnD via keyboard move flags and WIP signals present'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:26.297873-05:00
-    updated: 2025-08-09T00:01:42.091151-05:00
+    updated: 2025-08-09T00:19:35.71326-05:00
+    closed: 2025-08-09T00:19:35.713256-05:00

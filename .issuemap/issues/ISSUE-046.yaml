@@ -2,15 +2,20 @@ id: ISSUE-046
 title: '[TUI] Board (Kanban) View: Keyboard drag-and-drop (move between columns, reorder within column)'
 description: ""
 type: task
-status: review
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-09T00:19:18.099899-05:00
+      text: 'Issue closed: Keyboard move via --move/--to in board view (CLI-driven)'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:24.550261-05:00
-    updated: 2025-08-09T00:19:17.945175-05:00
+    updated: 2025-08-09T00:19:18.099901-05:00
+    closed: 2025-08-09T00:19:18.099898-05:00
