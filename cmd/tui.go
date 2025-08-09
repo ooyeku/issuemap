@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -272,6 +273,10 @@ func renderView(view string) error {
 	case "list":
 		return renderListView()
 	case "detail":
+		return renderDetailView()
+	case "activity":
+		return renderActivityView()
+	case "detail":
 		fmt.Println("\n[View] detail - open with: issuemap show ISSUE-XXX")
 	case "board":
 		fmt.Println("\n[View] board - statuses as columns (planned)")
@@ -333,6 +338,85 @@ func renderListView() error {
 	displayIssuesTable(list.Issues)
 	if list.Total > list.Count {
 		fmt.Printf("\nShowing %d of %d issues. Use --limit to see more.\n", list.Count, list.Total)
+	}
+	return nil
+}
+
+// renderDetailView shows details for a single issue. Use env ISSUE_ID or print hint.
+func renderDetailView() error {
+	id := os.Getenv("ISSUE_ID")
+	if strings.TrimSpace(id) == "" {
+		fmt.Println("Provide ISSUE_ID env, e.g.: ISSUE_ID=ISSUE-001 issuemap tui --view detail")
+		return nil
+	}
+	ctx := context.Background()
+	repoRoot, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	issuemapPath := filepath.Join(repoRoot, app.ConfigDirName)
+	issueRepo := storage.NewFileIssueRepository(issuemapPath)
+	configRepo := storage.NewFileConfigRepository(issuemapPath)
+	var gitRepo *git.GitClient
+	if gitClient, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = gitClient
+	}
+	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
+	issue, err := issueService.GetIssue(ctx, entities.IssueID(id))
+	if err != nil {
+		return fmt.Errorf("failed to get issue: %w", err)
+	}
+	// Reuse show-like formatting
+	fmt.Printf("\nID: %s\nTitle: %s\nType: %s\nStatus: %s\nPriority: %s\n",
+		issue.ID, issue.Title, issue.Type, issue.Status, issue.Priority)
+	if issue.Assignee != nil {
+		fmt.Printf("Assignee: %s\n", issue.Assignee.Username)
+	}
+	if len(issue.Labels) > 0 {
+		names := make([]string, 0, len(issue.Labels))
+		for _, l := range issue.Labels {
+			names = append(names, l.Name)
+		}
+		fmt.Printf("Labels: %s\n", strings.Join(names, ", "))
+	}
+	if issue.Branch != "" {
+		fmt.Printf("Branch: %s\n", issue.Branch)
+	}
+	if len(issue.Commits) > 0 {
+		fmt.Printf("Commits: %d (latest: %s)\n", len(issue.Commits), issue.Commits[len(issue.Commits)-1].Message)
+	}
+	fmt.Printf("Updated: %s\n", issue.Timestamps.Updated.Format("2006-01-02 15:04:05"))
+	return nil
+}
+
+// renderActivityView shows recent history entries using HistoryService
+func renderActivityView() error {
+	ctx := context.Background()
+	repoRoot, err := findGitRoot()
+	if err != nil {
+		return fmt.Errorf("not in a git repository: %v", err)
+	}
+	issuemapPath := filepath.Join(repoRoot, app.ConfigDirName)
+	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
+	var gitRepo *git.GitClient
+	if gitClient, err := git.NewGitClient(repoRoot); err == nil {
+		gitRepo = gitClient
+	}
+	historyService := services.NewHistoryService(historyRepo, gitRepo)
+	// Recent 10 entries
+	limit := 10
+	since := time.Now().AddDate(0, 0, -7)
+	list, err := historyService.GetAllHistory(ctx, repositories.HistoryFilter{Since: &since, Limit: &limit})
+	if err != nil {
+		return fmt.Errorf("failed to load activity: %w", err)
+	}
+	if len(list.Entries) == 0 {
+		fmt.Println("No recent activity")
+		return nil
+	}
+	for _, e := range list.Entries {
+		ts := e.Timestamp.Format("2006-01-02 15:04:05")
+		fmt.Printf("%s %s %s %s\n", ts, e.IssueID, e.Type, e.Message)
 	}
 	return nil
 }

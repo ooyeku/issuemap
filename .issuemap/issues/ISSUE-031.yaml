@@ -2,7 +2,7 @@ id: ISSUE-031
 title: '[TUI] Issue Detail View (MVP): Overview: fields (title, type, status, priority, labels, assignee)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.898197-05:00
-    updated: 2025-08-08T23:13:23.898201-05:00
+    updated: 2025-08-08T23:41:35.31089-05:00

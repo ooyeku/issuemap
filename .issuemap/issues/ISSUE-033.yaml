@@ -2,7 +2,7 @@ id: ISSUE-033
 title: '[TUI] Issue Detail View (MVP): Branch and commit section (show linked branch, recent commits)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.98684-05:00
-    updated: 2025-08-08T23:13:23.986844-05:00
+    updated: 2025-08-08T23:41:35.353204-05:00

@@ -2,7 +2,7 @@ id: ISSUE-032
 title: '[TUI] Issue Detail View (MVP): Edit fields in-place with validation'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.943695-05:00
-    updated: 2025-08-08T23:13:23.943699-05:00
+    updated: 2025-08-08T23:41:35.332848-05:00
