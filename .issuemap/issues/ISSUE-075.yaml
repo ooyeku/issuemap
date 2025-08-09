@@ -2,15 +2,20 @@ id: ISSUE-075
 title: '[TUI] Packaging & Docs: Build tags and module split if framework adds weight'
 description: ""
 type: task
-status: open
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:55:40.73219-05:00
+      text: 'Issue closed: Docs updated with TUI quickstart'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:25.79138-05:00
-    updated: 2025-08-08T23:13:25.791384-05:00
+    updated: 2025-08-08T23:55:40.732193-05:00
+    closed: 2025-08-08T23:55:40.732189-05:00
