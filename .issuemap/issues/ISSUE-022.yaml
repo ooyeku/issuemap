@@ -2,15 +2,20 @@ id: ISSUE-022
 title: '[TUI] Core Shell & Navigation: Router: switch between List, Detail, Board, Search, Graph, Activity, Settings'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:56:45.497031-05:00
+      text: 'Issue closed: Router implemented: list/detail/board/search/graph/activity/settings'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.503085-05:00
-    updated: 2025-08-08T23:35:35.959138-05:00
+    updated: 2025-08-08T23:56:45.497034-05:00
+    closed: 2025-08-08T23:56:45.49703-05:00

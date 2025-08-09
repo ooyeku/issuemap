@@ -2,15 +2,20 @@ id: ISSUE-019
 title: '[TUI] Command Entry Point: Detect server and show connection status; auto-fallback to file mode'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:56:45.491731-05:00
+      text: 'Issue closed: TUI detects server and shows connection status; file-mode fallback works'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.371211-05:00
-    updated: 2025-08-08T23:35:35.887719-05:00
+    updated: 2025-08-08T23:56:45.491736-05:00
+    closed: 2025-08-08T23:56:45.49173-05:00

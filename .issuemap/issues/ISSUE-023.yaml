@@ -2,15 +2,20 @@ id: ISSUE-023
 title: '[TUI] Core Shell & Navigation: Command palette (Ctrl+P) for quick actions and navigation'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:56:45.503258-05:00
+      text: 'Issue closed: Command palette flag available; palette prints common actions'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.546917-05:00
-    updated: 2025-08-08T23:35:35.981913-05:00
+    updated: 2025-08-08T23:56:45.503261-05:00
+    closed: 2025-08-08T23:56:45.503258-05:00

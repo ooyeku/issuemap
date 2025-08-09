@@ -2,15 +2,20 @@ id: ISSUE-024
 title: '[TUI] Core Shell & Navigation: Persist UI state across sessions (last view, filters, columns)'
 description: ""
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: tui
       color: '#gray'
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: system
+      date: 2025-08-08T23:56:45.508421-05:00
+      text: 'Issue closed: UI state persisted in .issuemap/tui_state.json'
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.592621-05:00
-    updated: 2025-08-08T23:35:36.006082-05:00
+    updated: 2025-08-08T23:56:45.508424-05:00
+    closed: 2025-08-08T23:56:45.50842-05:00
