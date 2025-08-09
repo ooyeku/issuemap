@@ -1,9 +1,15 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -46,8 +52,7 @@ var serverStopCmd = &cobra.Command{
 	Short: "Stop the running IssueMap server",
 	Long:  `Stop the currently running IssueMap HTTP server.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		printInfo("Server stop functionality not yet implemented")
-		return nil
+		return runServerStop(cmd, args)
 	},
 }
 
@@ -56,8 +61,7 @@ var serverStatusCmd = &cobra.Command{
 	Short: "Show server status",
 	Long:  `Display the current status of the IssueMap HTTP server.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		printInfo("Server status functionality not yet implemented")
-		return nil
+		return runServerStatus(cmd, args)
 	},
 }
 
@@ -107,4 +111,107 @@ func runServerStart(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// runServerStatus reports whether the server is running and on which port.
+func runServerStatus(cmd *cobra.Command, args []string) error {
+	repoPath, err := findGitRoot()
+	if err != nil {
+		printError(fmt.Errorf(app.ErrNotGitRepo))
+		return err
+	}
+	issuemapPath := filepath.Join(repoPath, app.ConfigDirName)
+	pidPath := filepath.Join(issuemapPath, app.ServerPIDFile)
+	logPath := filepath.Join(issuemapPath, app.ServerLogFile)
+
+	running := fileExists(pidPath)
+	port := findPortInLog(logPath)
+	healthy := false
+	if running && port > 0 {
+		healthy = pingHealth(port)
+	}
+	if noColor {
+		fmt.Printf("Running: %v\n", running)
+		if port > 0 {
+			fmt.Printf("Port: %d\n", port)
+		}
+		fmt.Printf("Healthy: %v\n", healthy)
+	} else {
+		fmt.Printf("%s %v\n", colorLabel("Running:"), running)
+		if port > 0 {
+			fmt.Printf("%s %d\n", colorLabel("Port:"), port)
+		}
+		fmt.Printf("%s %v\n", colorLabel("Healthy:"), healthy)
+	}
+	return nil
+}
+
+// runServerStop stops the server by killing the PID from the pid file.
+func runServerStop(cmd *cobra.Command, args []string) error {
+	repoPath, err := findGitRoot()
+	if err != nil {
+		printError(fmt.Errorf(app.ErrNotGitRepo))
+		return err
+	}
+	issuemapPath := filepath.Join(repoPath, app.ConfigDirName)
+	pidPath := filepath.Join(issuemapPath, app.ServerPIDFile)
+	if !fileExists(pidPath) {
+		printWarning("Server is not running")
+		return nil
+	}
+	// Use pkill-like behavior: read PID and send SIGTERM
+	pidBytes, err := os.ReadFile(pidPath)
+	if err != nil {
+		printError(fmt.Errorf("failed to read PID file: %v", err))
+		return err
+	}
+	pid := strings.TrimSpace(string(pidBytes))
+	// Try to terminate
+	cmdKill := exec.Command("kill", pid)
+	if err := cmdKill.Run(); err != nil {
+		printWarning(fmt.Sprintf("Failed to send SIGTERM to %s: %v", pid, err))
+	}
+	// Wait briefly and confirm
+	time.Sleep(500 * time.Millisecond)
+	if fileExists(pidPath) {
+		_ = os.Remove(pidPath)
+	}
+	printSuccess("Server stop requested")
+	return nil
+}
+
+// Helpers
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func findPortInLog(logPath string) int {
+	f, err := os.Open(logPath)
+	if err != nil {
+		return 0
+	}
+	defer f.Close()
+	// Scan lines, keep last match
+	re := regexp.MustCompile(`starting on port (\d+)`)
+	var port int
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		m := re.FindStringSubmatch(line)
+		if len(m) == 2 {
+			fmt.Sscanf(m[1], "%d", &port)
+		}
+	}
+	return port
+}
+
+func pingHealth(port int) bool {
+	client := &http.Client{Timeout: 500 * time.Millisecond}
+	resp, err := client.Get(fmt.Sprintf("http://localhost:%d%s/health", port, app.APIBasePath))
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode == 200
 }

@@ -2,7 +2,7 @@ id: ISSUE-018
 title: '[TUI] Command Entry Point: Add `issuemap tui` command (with `--read-only`, `--server`, `--repo` flags)'
 description: ""
 type: task
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.326226-05:00
-    updated: 2025-08-08T23:33:42.688755-05:00
+    updated: 2025-08-08T23:33:59.244826-05:00
