@@ -2,7 +2,7 @@ id: ISSUE-027
 title: '[TUI] Issue List View (MVP): Filtering using query DSL (same as CLI); inline query bar'
 description: ""
 type: task
-status: in-progress
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.721465-05:00
-    updated: 2025-08-08T23:39:12.231738-05:00
+    updated: 2025-08-08T23:40:23.179644-05:00

@@ -2,7 +2,7 @@ id: ISSUE-025
 title: '[TUI] Issue List View (MVP): Virtualized table with columns: ID, Title, Type, Status, Assignee, Priority, Labels, Updated'
 description: ""
 type: task
-status: in-progress
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.635605-05:00
-    updated: 2025-08-08T23:39:12.177284-05:00
+    updated: 2025-08-08T23:40:23.131308-05:00

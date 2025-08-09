@@ -2,7 +2,7 @@ id: ISSUE-029
 title: '[TUI] Issue List View (MVP): Keyboard navigation (j/k, arrows), open detail (Enter), multi-select (Space)'
 description: ""
 type: task
-status: in-progress
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.808195-05:00
-    updated: 2025-08-08T23:39:12.27512-05:00
+    updated: 2025-08-08T23:40:23.230607-05:00

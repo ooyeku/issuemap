@@ -2,7 +2,7 @@ id: ISSUE-028
 title: '[TUI] Issue List View (MVP): Saved searches sidebar (load, rename, delete)'
 description: ""
 type: task
-status: in-progress
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.764232-05:00
-    updated: 2025-08-08T23:39:12.253634-05:00
+    updated: 2025-08-08T23:40:23.205848-05:00

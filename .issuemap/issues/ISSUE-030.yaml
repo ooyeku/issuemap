@@ -2,7 +2,7 @@ id: ISSUE-030
 title: '[TUI] Issue List View (MVP): Inline quick actions: assign, label, status change, estimate'
 description: ""
 type: task
-status: in-progress
+status: review
 priority: medium
 labels:
     - name: tui
@@ -13,4 +13,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T23:13:23.852045-05:00
-    updated: 2025-08-08T23:39:12.296897-05:00
+    updated: 2025-08-08T23:40:23.255391-05:00
