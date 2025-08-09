@@ -1,280 +1,148 @@
-# IssueMap Feature Development Roadmap
+# IssueMap TUI Roadmap
 
-This document tracks the development progress of new features for the IssueMap project. Check off items as they are completed.
+Professional, keyboard-first terminal UI that achieves feature parity with the CLI while remaining fast, accessible, and Git-native. No emojis.
 
-## Phase 1: Quick Wins (High Impact, Low Complexity)
+## Goals
 
-### Issue Templates & Automation
-- [x] Create template system architecture
-- [x] Implement `issuemap template create` command
-- [x] Add template field definitions (reproduction_steps, expected, actual, environment)
-- [x] Implement `issuemap create --template` functionality
-- [x] Add built-in templates (bug, feature, task, improvement)
-- [x] Create template validation system
-- [x] Add template sharing/export functionality
-- [x] Write comprehensive tests for template system
+- [ ] Professional look and feel; consistent with existing CLI colors and formatting
+- [ ] Keyboard-first, mouse-optional; discoverable help overlay
+- [ ] Parity with core CLI flows (create → branch → commit → sync → merge → close)
+- [ ] Works connected to `issuemap server` and in offline/file mode
+- [ ] Scales to large repos; smooth rendering and minimal flicker
 
-### Smart Branch Integration
-- [x] Implement `issuemap branch` command for auto-branch creation
-- [x] Add branch naming conventions configuration
-- [x] Create Git hook integration for commit-to-issue linking
-- [x] Implement automatic issue detection from branch names
-- [x] Add `issuemap merge` command for auto-closing issues
-- [x] Create branch status synchronization
-- [x] Add conflict resolution for branch-issue mismatches
-- [x] Write integration tests for Git workflow
+## Framework & Architecture
 
-### Advanced Search & Filtering
-- [x] Design query language syntax
-- [x] Implement query parser
-- [x] Add support for field-based queries (type:bug, priority:high)
-- [x] Implement date-based filtering (created:>2024-01-01, updated:<7d)
-- [x] Add boolean operators (AND, OR, NOT)
-- [x] Implement `issuemap search save` for saved searches
-- [x] Add `issuemap search run` for executing saved searches
-- [x] Create search result formatting options
+- [ ] Evaluate TUI frameworks and select one (Bubble Tea vs tview)
+- [ ] Architecture doc: app model, state store, actions, view routing
+- [ ] Theming and style guide (colors, spacing, tables) aligned with CLI
+- [ ] Keybinding map and conventions (Vim-like navigation, Emacs alternates)
+- [ ] Error/notification surface strategy (status bar and non-blocking banners)
+- [ ] Data layer: client that mirrors CLI services (server-first, file fallback)
 
-## ⚡ Phase 2: Core Workflow Enhancement
+## Command Entry Point
 
-### Time Tracking & Estimation
-- [x] Design time tracking data model
-- [x] Implement `issuemap estimate` command
-- [x] Add `issuemap start` and `issuemap stop` time tracking
-- [x] Create `issuemap log` for manual time entry
-- [x] Implement time tracking persistence
-- [x] Add `issuemap report time` functionality
-- [x] Create velocity and burndown calculations
-- [x] Add time tracking export (CSV, JSON)
-- [ ] Implement timer notifications and reminders
-- [x] Write time tracking tests
+- [ ] Add `issuemap tui` command (with `--read-only`, `--server`, `--repo` flags)
+- [ ] Detect server and show connection status; auto-fallback to file mode
+- [ ] Global help: `?` opens keybindings and command palette
 
-### Issue Dependencies & Blocking
-- [x] Design dependency data model
-- [x] Implement `issuemap depend` command
-- [x] Add support for blocks/requires relationships
-- [x] Create dependency validation (prevent circular dependencies)
-- [x] Implement `issuemap deps --graph` visualization
-- [x] Add `issuemap list --blocked` filtering
-- [x] Create dependency impact analysis
-- [x] Add dependency notifications
-- [x] Implement dependency resolution workflows
-- [x] Write dependency management tests
+## Core Shell & Navigation
 
-### Bulk Operations
-- [x] Design bulk operation framework
-- [x] Implement `issuemap bulk` command with query support
-- [x] Add bulk assignment functionality
-- [x] Create bulk status updates
-- [x] Implement bulk labeling operations
-- [x] Add CSV import/export functionality
-- [x] Create bulk validation and rollback
-- [x] Add progress indicators for bulk operations
-- [x] Implement bulk operation audit logging
-- [ ] Write bulk operation tests
+- [ ] Root layout: header (context), left nav, main content, status bar
+- [ ] Router: switch between List, Detail, Board, Search, Graph, Activity, Settings
+- [ ] Command palette (Ctrl+P) for quick actions and navigation
+- [ ] Persist UI state across sessions (last view, filters, columns)
 
-### Smart Notifications & Reminders
-- [ ] Design notification system architecture
-- [ ] Implement `issuemap notify setup` configuration
-- [ ] Add email notification integration
-- [ ] Create Slack notification integration
-- [ ] Implement notification rules engine
-- [ ] Add `issuemap remind` functionality
-- [ ] Create overdue issue detection
-- [ ] Implement notification preferences
-- [ ] Add notification delivery tracking
-- [ ] Write notification system tests
+## Issue List View (MVP)
 
-## 🔗 Phase 3: Integration & Scale
+- [ ] Virtualized table with columns: ID, Title, Type, Status, Assignee, Priority, Labels, Updated
+- [ ] Sorting (Title/Status/Priority/Updated)
+- [ ] Filtering using query DSL (same as CLI); inline query bar
+- [ ] Saved searches sidebar (load, rename, delete)
+- [ ] Keyboard navigation (j/k, arrows), open detail (Enter), multi-select (Space)
+- [ ] Inline quick actions: assign, label, status change, estimate
 
-### Third-Party Integrations
-- [ ] Design integration framework
-- [ ] Implement GitHub synchronization
-- [ ] Add GitLab integration
-- [ ] Create Slack integration
-- [ ] Implement JIRA migration tools
-- [ ] Add Trello import functionality
-- [ ] Create generic webhook system
-- [ ] Add Linear integration
-- [ ] Implement Azure DevOps sync
-- [ ] Write integration tests
+## Issue Detail View (MVP)
 
-### Web Dashboard
-- [ ] Set up web framework (React/Vue.js)
-- [x] Create REST API endpoints
-- [ ] Implement real-time WebSocket connections
-- [ ] Build issue list/grid views
-- [ ] Create Kanban board interface
-- [ ] Add drag-and-drop functionality
-- [ ] Implement issue creation/editing forms
-- [ ] Create dashboard analytics widgets
-- [ ] Add user authentication
-- [ ] Write web interface tests
+- [ ] Overview: fields (title, type, status, priority, labels, assignee)
+- [ ] Edit fields in-place with validation
+- [ ] Branch and commit section (show linked branch, recent commits)
+- [ ] Time tracking controls (start/stop, show active, edit entries)
+- [ ] Checklist (add, check/uncheck, reorder)
+- [ ] Dependencies section (blocked by/blocks; quick add/remove)
+- [ ] History timeline (status changes, edits)
 
-### API & Webhooks
-- [ ] Design RESTful API specification
-- [x] Implement core API endpoints (CRUD operations)
-- [ ] Add API authentication (API keys, JWT)
-- [ ] Create API rate limiting
-- [ ] Implement webhook system
-- [ ] Add webhook event types
-- [ ] Create webhook delivery reliability
-- [ ] Add API documentation (OpenAPI/Swagger)
-- [ ] Implement API versioning
-- [x] Write API tests
+## Parity Group A (everyday flows)
 
-## 📊 Phase 4: Analytics & Reporting
+- [ ] Create issue (form + template selection)
+- [ ] Assign/unassign
+- [ ] Change status (with project transitions if configured)
+- [ ] Update labels
+- [ ] Estimate/update estimate
+- [ ] Start/stop timer from list and detail
+- [ ] Close/reopen issue with reason
 
-### Advanced Reporting
-- [ ] Design reporting framework
-- [ ] Implement sprint reporting
-- [ ] Add burndown chart generation
-- [ ] Create velocity calculations
-- [ ] Implement team productivity metrics
-- [ ] Add custom report templates
-- [ ] Create PDF/Excel export functionality
-- [ ] Implement scheduled reports
-- [ ] Add report sharing capabilities
-- [ ] Write reporting tests
+## Board (Kanban) View
 
-### Issue Metrics & SLA Tracking
-- [ ] Design SLA framework
-- [ ] Implement `issuemap sla create` command
-- [ ] Add SLA violation detection
-- [ ] Create response time tracking
-- [ ] Implement resolution time metrics
-- [ ] Add cycle time calculations
-- [ ] Create lead time analytics
-- [ ] Implement SLA dashboard
-- [ ] Add escalation workflows
-- [ ] Write SLA tracking tests
+- [ ] Columns from configured statuses; column order configurable
+- [ ] Keyboard drag-and-drop (move between columns, reorder within column)
+- [ ] Swimlanes by assignee or label
+- [ ] WIP limit indicators per column/user
+- [ ] Column-level quick filters
 
-### Issue Linting & Validation
-- [ ] Design validation rule engine
-- [ ] Implement `issuemap lint setup` command
-- [ ] Add description requirement validation
-- [ ] Create label requirement checks
-- [ ] Implement duplicate title detection
-- [ ] Add custom validation rules
-- [ ] Create pre-commit hook integration
-- [ ] Implement validation reporting
-- [ ] Add validation exemptions
-- [ ] Write validation tests
+## Search & Filters
 
-## 🛠 Phase 5: Developer Experience
+- [ ] Full query DSL support with syntax highlighting
+- [ ] Saved searches management (create, update, delete)
+- [ ] Search results view with same capabilities as Issue List
 
-### Powerful CLI Enhancements
-- [ ] Implement interactive mode wizard
-- [ ] Add fuzzy finding functionality
-- [ ] Create context-aware shell completion
-- [ ] Implement command aliases
-- [ ] Add command history
-- [ ] Create CLI themes and customization
-- [ ] Implement command chaining
-- [ ] Add CLI help improvements
-- [ ] Create command suggestions
-- [ ] Write CLI enhancement tests
+## Dependencies Graph
 
-### Offline Mode & Sync
-- [ ] Design offline storage system
-- [ ] Implement `issuemap offline enable` command
-- [ ] Add offline operation queueing
-- [ ] Create conflict resolution strategies
-- [ ] Implement sync status tracking
-- [ ] Add merge conflict handling
-- [ ] Create offline indicator
-- [ ] Implement partial sync capabilities
-- [ ] Add sync progress reporting
-- [ ] Write offline mode tests
+- [ ] Inline mini-graph in Issue Detail
+- [ ] Full-screen graph view (navigate nodes/edges, open issue)
+- [ ] Filters: show only blockers, only downstream, depth limits
 
-## 🏢 Phase 6: Enterprise Features
+## Bulk Operations
 
-### Multi-Project & Portfolio Management
-- [ ] Design multi-project architecture
-- [ ] Implement `issuemap project` commands
-- [ ] Add project templates
-- [ ] Create project switching functionality
-- [ ] Implement cross-project dependencies
-- [ ] Add portfolio rollup metrics
-- [ ] Create project access controls
-- [ ] Implement project archiving
-- [ ] Add project configuration inheritance
-- [ ] Write multi-project tests
+- [ ] Multi-select across List and Search results
+- [ ] Bulk assign/label/status/priority
+- [ ] Bulk preview and confirmation dialog
+- [ ] Progress bar and per-item result reporting
 
-### Advanced Security & Permissions
-- [ ] Design role-based access control (RBAC)
-- [ ] Implement `issuemap rbac` commands
-- [ ] Add user role management
-- [ ] Create permission system
-- [ ] Implement issue visibility controls
-- [ ] Add audit logging
-- [ ] Create security policies
-- [ ] Implement data encryption
-- [ ] Add compliance reporting
-- [ ] Write security tests
+## Activity & Notifications
 
-## 🔧 Infrastructure & Quality
+- [ ] Live activity feed (server mode), periodic polling (file mode)
+- [ ] Non-blocking status notifications and error surfacing
+- [ ] Mention/assignee pings via configured notifiers (future-friendly hook)
 
-### Performance & Scalability
-- [ ] Implement database optimization
-- [ ] Add caching layer
-- [ ] Create indexing strategy
-- [ ] Implement pagination
-- [ ] Add request rate limiting
-- [ ] Create performance monitoring
-- [ ] Implement load testing
-- [ ] Add database migrations
-- [ ] Create backup/restore functionality
-- [ ] Write performance tests
+## Settings & Customization
 
-### Documentation & Guides
-- [ ] Create comprehensive user documentation
-- [ ] Write API documentation
-- [ ] Add integration guides
-- [ ] Create video tutorials
-- [ ] Write migration guides
-- [ ] Add troubleshooting documentation
-- [ ] Create developer documentation
-- [ ] Write best practices guide
-- [ ] Add FAQ section
-- [ ] Create changelog automation
+- [ ] Theme selector (light/dark/high-contrast); persist to config
+- [ ] Configure columns and column widths per view
+- [ ] Configure keybindings with defaults and overrides
+- [ ] Toggle advanced features (board, graph) on low-power terminals
 
-### Testing & Quality Assurance
-- [ ] Expand unit test coverage
-- [ ] Add integration test suite expansion
-- [ ] Create end-to-end test automation
-- [ ] Implement property-based testing
-- [ ] Add security testing
-- [ ] Create performance benchmarks
-- [ ] Implement mutation testing
-- [ ] Add accessibility testing
-- [ ] Create browser compatibility tests
-- [ ] Write mobile responsiveness tests
+## Performance & Reliability
 
-## 🎯 Implementation Notes
+- [ ] Incremental rendering and throttled updates under load
+- [ ] Background data refresh with cache invalidation
+- [ ] Robust terminal size changes; minimal flicker on resize
+- [ ] Handle 10k+ issues: pagination/virtualization strategy validated
 
-### Development Principles
-- ✅ CLI-first design (maintain current architecture)
-- ✅ Backward compatibility
-- ✅ Comprehensive testing (following established test patterns)
-- ✅ Incremental development
-- ✅ User feedback integration
+## Testing & CI
 
-### Technical Considerations
-- Use existing Cobra CLI framework
-- Maintain file-based storage with server sync
-- Follow established code patterns
-- Ensure cross-platform compatibility
-- Maintain performance standards
+- [ ] Unit tests for state reducers and view models
+- [ ] Golden/snapshot tests for rendered views (TTY harness)
+- [ ] Key-sequence integration tests for critical flows
+- [ ] CI job to run TUI tests in headless environment
 
-### Success Metrics
-- Feature adoption rates
-- User satisfaction scores
-- Performance benchmarks
-- Test coverage metrics
-- Documentation completeness
+## Packaging & Docs
+
+- [ ] Build tags and module split if framework adds weight
+- [ ] Cross-platform validation (macOS, Linux, Windows terminals)
+- [ ] Man page/help updates for `issuemap tui`
+- [ ] User guide: TUI quickstart, keybindings, and tips
 
 ---
 
-**Last Updated**: [DATE]  
-**Next Review**: [DATE]  
-**Current Phase**: Phase 2 - Core Workflow Enhancement
+### Backlog (Power Features)
+
+- [ ] Command macros/recipes inside TUI (chain actions on selection)
+- [ ] Inline diff/review panel for recent commits linked to issue
+- [ ] Offline change queue visualizer with conflict resolver
+- [ ] Export current view (CSV/JSON/Markdown)
+- [ ] Calendar panel (due dates, estimates) with ICS export shortcut
+
+### Non-Goals (for now)
+
+- [ ] Mouse-only workflows (keyboard-first remains primary)
+- [ ] Emoji indicators
+
+### Acceptance Criteria
+
+- [ ] Core views (List, Detail) complete and round-trip editable
+- [ ] Board usable with keyboard-only DnD and WIP signals
+- [ ] Query DSL parity with CLI, including saved searches
+- [ ] Bulk operations with preview and progress reporting
+- [ ] Smooth on 10k issues; no visual tearing; <150ms typical interactions
+
+Last Updated: TODO

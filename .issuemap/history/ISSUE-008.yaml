@@ -1,7 +1,7 @@
 issue_id: ISSUE-008
-current_version: 1
+current_version: 2
 created_at: 2025-08-08T23:13:22.906504-05:00
-updated_at: 2025-08-08T23:13:22.906506-05:00
+updated_at: 2025-08-08T23:23:38.017846-05:00
 entries:
     - id: hist_1754712802888248000
       issue_id: ISSUE-008
@@ -35,3 +35,16 @@ entries:
         git_author: Test User
         git_branch: main
         git_email: test@example.com
+    - id: hist_1754713418017490000
+      issue_id: ISSUE-008
+      version: 2
+      type: updated
+      author: Test User
+      timestamp: 2025-08-08T23:23:38.017498-05:00
+      message: Updated branch
+      changes:
+        - field: branch
+          old_value: main
+          new_value: feature/ISSUE-008-tui-goals-keyboard-first-mouse-optional-discoverab
+      metadata:
+        git_branch: feature/ISSUE-007-tui-goals-professional-look-and-feel-consistent-wi

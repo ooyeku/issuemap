@@ -25,6 +25,74 @@ func NewFileConfigRepository(basePath string) *FileConfigRepository {
 	}
 }
 
+// defaultAgentDoc contains concise guidance for AI agents to use IssueMap.
+// It is written to .issuemap/agent.md during initialization if not present.
+const defaultAgentDoc = "## IssueMap Agent Guide\n\n" +
+	"Audience: AI coding agents automating typical dev workflows in a Git repo.\n\n" +
+	"Key facts\n" +
+	"- IssueMap is Git-native. Issues are YAML files under .issuemap/issues.\n" +
+	"- Run all commands from the Git repo root. Ensure a clean worktree for merges.\n" +
+	"- Use non-interactive flags. Avoid prompts. Do not use emojis.\n\n" +
+	"Initialize (once per repo)\n\n" +
+	"    git init -b main    # if repo not initialized\n" +
+	"    issuemap init --name \"<Project Name>\"\n\n" +
+	"Daily golden path\n" +
+	"1) Create an issue\n\n" +
+	"    issuemap create \"<Title>\" --type feature --priority medium --labels a,b\n" +
+	"    issuemap list --status open\n\n" +
+	"2) Branch for the issue (one branch per issue)\n\n" +
+	"    issuemap branch ISSUE-XXX\n\n" +
+	"3) Commit work and reference the issue ID\n\n" +
+	"    git add -A\n" +
+	"    git commit -m \"ISSUE-XXX: short summary\"\n\n" +
+	"4) Optional time tracking\n\n" +
+	"    issuemap start ISSUE-XXX\n" +
+	"    # ...work...\n" +
+	"    issuemap stop ISSUE-XXX\n\n" +
+	"5) Keep in sync (derive status, links)\n\n" +
+	"    issuemap sync --auto-update\n" +
+	"    issuemap show ISSUE-XXX\n\n" +
+	"6) Merge and close\n\n" +
+	"    # From the feature branch\n" +
+	"    issuemap merge\n" +
+	"    # Or from main\n" +
+	"    issuemap merge ISSUE-XXX\n\n" +
+	"7) Housekeeping\n\n" +
+	"    git branch -d <feature/ISSUE-XXX-short-title>\n" +
+	"    issuemap list --status open\n\n" +
+	"Common operations (non-interactive)\n" +
+	"- Create with template:\n\n" +
+	"    issuemap create \"Hotfix: CSRF token mismatch\" --template hotfix\n\n" +
+	"- Edit fields:\n\n" +
+	"    issuemap edit ISSUE-XXX --status in-progress --assignee alice --labels auth,backend\n\n" +
+	"- Dependencies:\n\n" +
+	"    issuemap depend ISSUE-B --on ISSUE-A\n" +
+	"    issuemap deps ISSUE-B --graph\n\n" +
+	"- Search (query DSL):\n\n" +
+	"    issuemap search \"type:bug AND priority:high AND updated:<7d\"\n\n" +
+	"- Bulk update (query-driven):\n\n" +
+	"    issuemap bulk --query \"label:frontend AND status:open\" --set status=review\n\n" +
+	"Conventions\n" +
+	"- IDs: either ISSUE-003 or 003 (both accepted). Prefer the full form in commits.\n" +
+	"- Commits: prefix messages with the ID: ISSUE-003: message.\n" +
+	"- Branch names: created by the branch command and recorded on the issue.\n\n" +
+	"Server (optional)\n" +
+	"- A local server provides a REST API; not required for CLI flows.\n\n" +
+	"    issuemap server start\n" +
+	"    issuemap server status\n\n" +
+	"Safety & etiquette for agents\n" +
+	"- Always run from repo root; verify with: git rev-parse --show-toplevel\n" +
+	"- Prefer explicit flags; avoid interactive prompts.\n" +
+	"- After creation/edits, verify with: issuemap show ISSUE-XXX\n" +
+	"- Before merge, ensure no unstaged changes; commit .issuemap updates if needed:\n\n" +
+	"    git add .issuemap && git commit -m \"Update issues\"\n\n" +
+	"Quick reference\n\n" +
+	"    issuemap create \"Title\" --type feature --priority medium\n" +
+	"    issuemap branch ISSUE-123\n" +
+	"    git commit -m \"ISSUE-123: change\"\n" +
+	"    issuemap sync --auto-update\n" +
+	"    issuemap merge\n"
+
 // Load loads the project configuration
 func (r *FileConfigRepository) Load(ctx context.Context) (*entities.Config, error) {
 	configPath := filepath.Join(r.basePath, "config.yaml")
@@ -213,6 +281,14 @@ func (r *FileConfigRepository) Initialize(ctx context.Context, config *entities.
 	// Save the configuration
 	if err := r.Save(ctx, config); err != nil {
 		return errors.Wrap(err, "FileConfigRepository.Initialize", "save_config")
+	}
+
+	// Write default agent guide if not present
+	agentDocPath := filepath.Join(r.basePath, "agent.md")
+	if _, err := os.Stat(agentDocPath); os.IsNotExist(err) {
+		if writeErr := ioutil.WriteFile(agentDocPath, []byte(defaultAgentDoc), 0644); writeErr != nil {
+			// Non-fatal: keep initialization successful even if guide fails to write
+		}
 	}
 
 	return nil
