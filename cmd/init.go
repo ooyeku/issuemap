@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app"
+	"github.com/ooyeku/issuemap/internal/app/services"
 	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
@@ -94,6 +95,13 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	printSuccess(fmt.Sprintf(app.MsgProjectInitialized, repoPath))
 	printInfo("You can now create issues with: issuemap create")
+
+	// Register project globally
+	if err := registerProjectGlobally(ctx, repoPath, config.Project.Name); err != nil {
+		printWarning("Failed to register project globally (project will still work locally)")
+	} else {
+		printInfo("Project registered in global issuemap system")
+	}
 
 	return nil
 }
@@ -291,4 +299,11 @@ func formatFieldValue(label, value string) {
 	} else {
 		fmt.Printf("%s: %s\n", colorLabel(label), colorValue(value))
 	}
+}
+
+// registerProjectGlobally registers a project with the global issuemap system
+func registerProjectGlobally(ctx context.Context, projectPath, projectName string) error {
+	globalService := services.NewGlobalService()
+	_, err := globalService.RegisterCurrentProject(ctx)
+	return err
 }
