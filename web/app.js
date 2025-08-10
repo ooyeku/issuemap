@@ -37,6 +37,15 @@
     return l;
   }
 
+  function debounce(fn, delay){
+    let t;
+    const d = typeof delay === 'number' ? delay : 150;
+    return (...args) => {
+      if (t) clearTimeout(t);
+      t = setTimeout(() => fn.apply(null, args), d);
+    };
+  }
+
   function renderIssues(list){
     const tbody = $('#issuesTbody');
     if (!tbody) return;
@@ -51,6 +60,7 @@
       return;
     }
 
+    const frag = document.createDocumentFragment();
     list.forEach(iss => {
       const tr = document.createElement('tr');
       tr.dataset.id = String(iss.id);
@@ -87,9 +97,10 @@
       }
       actionsEl.appendChild(action);
 
-      tbody.appendChild(tr);
+      frag.appendChild(tr);
     });
 
+    tbody.appendChild(frag);
     setSelectedRow();
   }
 
@@ -373,7 +384,8 @@
     $('#refreshBtn').addEventListener('click', fetchIssues);
     $('#statusFilter').addEventListener('change', fetchIssues);
     $('#priorityFilter').addEventListener('change', fetchIssues);
-    $('#searchInput').addEventListener('input', applyFilters);
+    const searchEl = $('#searchInput');
+    if (searchEl) searchEl.addEventListener('input', debounce(applyFilters, 200));
     window.addEventListener('hashchange', restoreSelection);
 
     // Keyboard navigation for list

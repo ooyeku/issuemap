@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+	"compress/gzip"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -201,6 +203,56 @@ func (s *Server) IsRunning() bool {
 	return err == nil
 }
 
+// gzipResponseWriter wraps http.ResponseWriter to support gzip compression
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	writer *gzip.Writer
+}
+
+func (grw *gzipResponseWriter) WriteHeader(statusCode int) {
+	// Remove Content-Length when compressing
+	grw.ResponseWriter.Header().Del("Content-Length")
+	grw.ResponseWriter.Header().Set("Content-Encoding", "gzip")
+	grw.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (grw *gzipResponseWriter) Write(b []byte) (int, error) {
+	return grw.writer.Write(b)
+}
+
+func acceptsGzip(r *http.Request) bool {
+	enc := r.Header.Get("Accept-Encoding")
+	return strings.Contains(enc, "gzip")
+}
+
+func isCompressiblePath(path string) bool {
+	return strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".json") || strings.HasSuffix(path, ".txt") || path == "/"
+}
+
+// staticWithCachingAndGzip applies basic caching headers and gzip compression for static assets
+func staticWithCachingAndGzip(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := r.URL.Path
+		// Cache policy
+		if strings.HasSuffix(p, ".html") || p == "/" || p == "" {
+			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		} else if strings.HasSuffix(p, ".css") || strings.HasSuffix(p, ".js") {
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+		}
+		w.Header().Add("Vary", "Accept-Encoding")
+
+		// Gzip compression
+		if acceptsGzip(r) && isCompressiblePath(p) {
+			gz := gzip.NewWriter(w)
+			defer gz.Close()
+			grw := &gzipResponseWriter{ResponseWriter: w, writer: gz}
+			next.ServeHTTP(grw, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // setupRouter configures the HTTP router with all endpoints
 func (s *Server) setupRouter() http.Handler {
 	router := mux.NewRouter()
@@ -244,9 +296,9 @@ func (s *Server) setupRouter() http.Handler {
 	gitApi := api.PathPrefix("/git").Subrouter()
 	gitApi.HandleFunc("/commit/{hash}/diff", s.getCommitDiffHandler).Methods("GET")
 
-	// Static web UI (serve embedded assets at root)
+	// Static web UI (serve embedded assets at root) with caching and gzip
 	uiFS := http.FileServer(http.FS(web.Static))
-	router.PathPrefix("/").Handler(uiFS)
+	router.PathPrefix("/").Handler(staticWithCachingAndGzip(uiFS))
 
 	// Setup CORS
 	c := cors.New(cors.Options{
