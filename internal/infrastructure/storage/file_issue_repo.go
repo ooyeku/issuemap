@@ -233,30 +233,67 @@ func (r *FileIssueRepository) Search(ctx context.Context, query repositories.Sea
 }
 
 // GetNextID returns the next available issue ID
-func (r *FileIssueRepository) GetNextID(ctx context.Context) (entities.IssueID, error) {
+func (r *FileIssueRepository) GetNextID(ctx context.Context, projectName string) (entities.IssueID, error) {
 	issuesDir := filepath.Join(r.basePath, "issues")
 
-	files, err := ioutil.ReadDir(issuesDir)
+	files, err := os.ReadDir(issuesDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return entities.NewIssueID(1), nil
+			return entities.NewIssueID(projectName, 1), nil
 		}
 		return "", errors.Wrap(err, "FileIssueRepository.GetNextID", "read_dir")
 	}
 
-	maxID := 0
-	re := regexp.MustCompile(`ISSUE-(\d+)\.yaml`)
+	// Get the sanitized project prefix
+	sanitized := r.sanitizeProjectName(projectName)
 
-	for _, file := range files {
-		matches := re.FindStringSubmatch(file.Name())
-		if len(matches) == 2 {
-			if id, err := strconv.Atoi(matches[1]); err == nil && id > maxID {
-				maxID = id
+	maxID := 0
+	// Create regex pattern for both new project-specific and legacy ISSUE- format
+	patterns := []string{
+		fmt.Sprintf(`%s-(\d+)\.yaml`, regexp.QuoteMeta(sanitized)),
+		`ISSUE-(\d+)\.yaml`, // Legacy support
+	}
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		for _, file := range files {
+			matches := re.FindStringSubmatch(file.Name())
+			if len(matches) == 2 {
+				if id, err := strconv.Atoi(matches[1]); err == nil && id > maxID {
+					maxID = id
+				}
 			}
 		}
 	}
 
-	return entities.NewIssueID(maxID + 1), nil
+	return entities.NewIssueID(projectName, maxID+1), nil
+}
+
+// sanitizeProjectName converts a project name to a valid ID prefix
+// This is a duplicate of the function in entities/issue.go for internal use
+func (r *FileIssueRepository) sanitizeProjectName(name string) string {
+	if name == "" {
+		return "ISSUE"
+	}
+
+	// Convert to uppercase, replace spaces and special chars with underscores
+	sanitized := strings.ToUpper(name)
+	sanitized = regexp.MustCompile(`[^A-Z0-9]+`).ReplaceAllString(sanitized, "_")
+
+	// Ensure it starts with a letter
+	if len(sanitized) == 0 || !regexp.MustCompile(`^[A-Z]`).MatchString(sanitized) {
+		sanitized = "PROJ_" + sanitized
+	}
+
+	// Limit length to 8 characters max for readability
+	if len(sanitized) > 8 {
+		sanitized = sanitized[:8]
+	}
+
+	// Remove trailing underscores
+	sanitized = strings.TrimRight(sanitized, "_")
+
+	return sanitized
 }
 
 // Exists checks if an issue with the given ID exists

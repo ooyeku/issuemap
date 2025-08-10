@@ -372,8 +372,8 @@ func sanitizeForBranch(title string) string {
 
 // extractIssueFromBranch extracts issue ID from branch name
 func extractIssueFromBranch(branchName string) string {
-	// Look for ISSUE-XXX pattern in branch name
-	re := regexp.MustCompile(`ISSUE-\d+`)
+	// Look for PROJECT-XXX pattern in branch name (supports both ISSUE-XXX and new format)
+	re := regexp.MustCompile(`[A-Z]+[A-Z0-9]*-\d+`)
 	matches := re.FindStringSubmatch(branchName)
 	if len(matches) > 0 {
 		return matches[0]

@@ -3,7 +3,9 @@ package services
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -67,8 +69,30 @@ type CreateIssueRequest struct {
 
 // CreateIssue creates a new issue
 func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) (*entities.Issue, error) {
-	// Generate next issue ID
-	id, err := s.issueRepo.GetNextID(ctx)
+	// Get project name from config
+	config, err := s.configRepo.Load(ctx)
+	var projectName string
+	if err != nil {
+		// Fallback if config not found
+		if wd, err := os.Getwd(); err == nil {
+			projectName = filepath.Base(wd)
+		} else {
+			projectName = "ISSUEMAP"
+		}
+	} else {
+		projectName = config.Project.Name
+		if projectName == "" {
+			// Fallback to directory name if project name not set
+			if wd, err := os.Getwd(); err == nil {
+				projectName = filepath.Base(wd)
+			} else {
+				projectName = "ISSUEMAP"
+			}
+		}
+	}
+
+	// Generate next issue ID with project name
+	id, err := s.issueRepo.GetNextID(ctx, projectName)
 	if err != nil {
 		return nil, errors.Wrap(err, "IssueService.CreateIssue", "get_next_id")
 	}
@@ -120,10 +144,8 @@ func (s *IssueService) CreateIssue(ctx context.Context, req CreateIssueRequest) 
 	issue := entities.NewIssue(id, req.Title, req.Description, req.Type)
 	issue.Priority = req.Priority
 
-	// Load configuration for labels and assignees
-	config, err := s.configRepo.Load(ctx)
-	if err != nil {
-		// Use default config if not found
+	// Use default config if not loaded above
+	if config == nil {
 		config = entities.NewDefaultConfig()
 	}
 
@@ -572,7 +594,6 @@ func sanitizeBranchName(title string) string {
 
 	return title
 }
-
 
 // CommitDiffFile represents a single file diff within a commit
 type CommitDiffFile struct {

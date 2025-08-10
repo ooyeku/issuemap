@@ -65,7 +65,7 @@ type IssueRepository interface {
 	Search(ctx context.Context, query SearchQuery) (*SearchResult, error)
 
 	// GetNextID returns the next available issue ID
-	GetNextID(ctx context.Context) (entities.IssueID, error)
+	GetNextID(ctx context.Context, projectName string) (entities.IssueID, error)
 
 	// Exists checks if an issue with the given ID exists
 	Exists(ctx context.Context, id entities.IssueID) (bool, error)

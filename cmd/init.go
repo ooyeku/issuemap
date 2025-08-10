@@ -161,27 +161,31 @@ func findGitRoot() (string, error) {
 	return "", fmt.Errorf("not in a git repository")
 }
 
-// normalizeIssueID normalizes an issue ID to the standard ISSUE-XXX format
-// Accepts both "001" and "ISSUE-001" formats and returns "ISSUE-001"
+// normalizeIssueID normalizes an issue ID to the project-specific format
+// Accepts formats like "001", "PROJECT-001", or existing IDs and returns project-specific format
 func normalizeIssueID(input string) entities.IssueID {
 	input = strings.TrimSpace(input)
 
-	// If it already has the ISSUE- prefix, return as-is
-	if strings.HasPrefix(strings.ToUpper(input), "ISSUE-") {
-		return entities.IssueID(input)
+	// Get current project name for ID normalization
+	ctx := context.Background()
+	projectName := getCurrentProjectName(ctx)
+
+	// If it already has a project prefix, return as-is
+	if regexp.MustCompile(`^[A-Z]+[A-Z0-9]*-\d{3}$`).MatchString(strings.ToUpper(input)) {
+		return entities.IssueID(strings.ToUpper(input))
 	}
 
-	// If it's just a number (like "001"), add the ISSUE- prefix
+	// If it's just a number (like "001"), add the project prefix
 	if regexp.MustCompile(`^\d+$`).MatchString(input) {
 		// Parse as number and format with leading zeros
 		if num, err := strconv.Atoi(input); err == nil {
-			return entities.IssueID(fmt.Sprintf("ISSUE-%03d", num))
+			return entities.IssueID(fmt.Sprintf("%s-%03d", projectName, num))
 		}
 	}
 
-	// If it's already a 3-digit format (like "001"), add the prefix
+	// If it's already a 3-digit format (like "001"), add the project prefix
 	if regexp.MustCompile(`^\d{3}$`).MatchString(input) {
-		return entities.IssueID(fmt.Sprintf("ISSUE-%s", input))
+		return entities.IssueID(fmt.Sprintf("%s-%s", projectName, input))
 	}
 
 	// For any other format, return as-is (let validation handle it)
@@ -299,6 +303,27 @@ func formatFieldValue(label, value string) {
 	} else {
 		fmt.Printf("%s: %s\n", colorLabel(label), colorValue(value))
 	}
+}
+
+// getCurrentProjectName gets the current project name from config or fallback to directory name
+func getCurrentProjectName(ctx context.Context) string {
+	// Try to load config first
+	repoPath, err := findGitRoot()
+	if err != nil {
+		// Fallback to current directory name if not in git repo
+		if wd, err := os.Getwd(); err == nil {
+			return strings.ToUpper(filepath.Base(wd))
+		}
+		return "UNKNOWN"
+	}
+
+	configRepo := storage.NewFileConfigRepository(filepath.Join(repoPath, app.ConfigDirName))
+	if config, err := configRepo.Load(ctx); err == nil && config.Project.Name != "" {
+		return strings.ToUpper(config.Project.Name)
+	}
+
+	// Fallback to directory name
+	return strings.ToUpper(filepath.Base(repoPath))
 }
 
 // registerProjectGlobally registers a project with the global issuemap system
