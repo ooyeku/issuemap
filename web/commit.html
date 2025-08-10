@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commit Diff – IssueMap</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .commit-container { padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
+    .commit-meta { display: grid; gap: 8px; margin-bottom: 12px; }
+    .hash-pill { background: #0b1220; border:1px solid var(--border); border-radius:10px; padding:6px 10px; display:inline-flex; align-items:center; gap:8px; }
+    .copy-btn { color: var(--accent-2); cursor: pointer; text-decoration: none; font-weight: 600; font-size: 12px; }
+    .totals { color: #cfe1ff; font-size: 12px; }
+    .totals .add { color:#86efac; }
+    .totals .del { color:#fca5a5; }
+
+    .diff-layout { display:grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+    .files-panel, .diff-panel { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow: 0 10px 30px var(--shadow); }
+    .panel-header { padding: 12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap: 8px; flex-wrap: wrap; }
+
+    .files-toolbar { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .filter-input { background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:12px; min-width: 160px; }
+    .status-filter { display:flex; gap:6px; align-items:center; }
+    .chip { border:1px solid var(--border); border-radius:999px; padding:3px 8px; font-size:11px; cursor:pointer; user-select:none; color:#cfe1ff; background:#0b1220; }
+    .chip.active { background: rgba(77,163,255,0.15); border-color:#3b82f6; }
+
+    .files-list { max-height: 65vh; overflow:auto; padding: 8px; }
+    .file-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; }
+    .file-item:hover { background: rgba(77,163,255,0.08); }
+    .file-item.active { background: rgba(77,163,255,0.12); box-shadow: inset 2px 0 0 #4da3ff; }
+    .file-badge { font-size:11px; border:1px solid var(--border); border-radius:999px; padding:1px 6px; }
+    .add { color:#86efac; }
+    .del { color:#fca5a5; }
+    .status { font-size:11px; opacity:0.8; }
+
+    .diff-toolbar { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .btn-ghost { background:#0b1220; color:#cfe1ff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer; }
+    .btn-ghost:hover { background:#0c1422; }
+    .toggle { display:inline-flex; gap:6px; align-items:center; }
+
+    .diff-content { padding: 6px 0 12px 0; }
+    .file-section { border-bottom:1px solid var(--border); }
+    .file-header { display:flex; align-items:center; justify-content:space-between; padding: 10px 16px; cursor:pointer; }
+    .file-title { display:flex; gap:10px; align-items:center; }
+    .file-actions { display:flex; gap:10px; align-items:center; }
+    .file-actions .copy-btn { font-size: 11px; opacity: .9; }
+    .caret { transition: transform .15s ease; }
+    .collapsed .caret { transform: rotate(-90deg); }
+    pre.diff { margin:0; padding: 0 16px 12px 16px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; line-height: 1.45; }
+    .wrap pre.diff .line, .wrap .line { white-space: pre-wrap; word-break: break-word; }
+    .line { white-space: pre; display:block; padding: 0 8px; border-left: 3px solid transparent; }
+    .line.ctx { color: var(--muted); background: rgba(148,163,184,0.05); }
+    .line.add { background: rgba(16,185,129,0.10); color: #d1fae5; border-left-color: rgba(16,185,129,0.5); }
+    .line.del { background: rgba(239,68,68,0.10); color: #fecaca; border-left-color: rgba(239,68,68,0.5); }
+    .line.hdr { background: rgba(99,102,241,0.12); color: #c7d2fe; }
+    .muted-sm { color: var(--muted); font-size: 12px; }
+
+    .hidden { display:none !important; }
+
+    @media (max-width: 1100px){ .diff-layout { grid-template-columns: 1fr; } .files-list { max-height: initial; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">IM</div>
+      <div class="titles">
+        <h1>Commit Diff</h1>
+        <div class="subtitle">Review the changes in a single commit</div>
+      </div>
+    </div>
+    <div><a class="action-link" href="/">Back to UI</a></div>
+  </header>
+
+  <main class="commit-container">
+    <div id="meta" class="commit-meta">
+      <div class="hash-pill">Hash: <code id="hashCode"></code> <a id="copyHash" class="copy-btn" href="javascript:void(0)">Copy</a></div>
+      <div class="muted-sm">Message: <span id="msg"></span></div>
+      <div class="muted-sm">Author: <span id="author"></span> • <span id="date"></span></div>
+      <div class="totals">Totals: <span class="add">+<span id="addsTotal">0</span></span> <span class="del">-<span id="delsTotal">0</span></span> • <span id="filesTotal">0</span> files</div>
+    </div>
+
+    <div class="diff-layout">
+      <aside class="files-panel">
+        <div class="panel-header">
+          <strong>Files</strong>
+          <div class="files-toolbar">
+            <input id="fileFilter" class="filter-input" type="search" placeholder="Filter files…" />
+            <div class="status-filter" aria-label="Status filters">
+              <span id="filterM" class="chip active" data-status="modified" title="Modified (M)">M</span>
+              <span id="filterA" class="chip active" data-status="added" title="Added (A)">A</span>
+              <span id="filterD" class="chip active" data-status="deleted" title="Deleted (D)">D</span>
+              <span id="filterR" class="chip active" data-status="renamed" title="Renamed (R)">R</span>
+            </div>
+            <span id="fileCount" class="badge">0</span>
+          </div>
+        </div>
+        <div id="filesList" class="files-list"></div>
+      </aside>
+      <section class="diff-panel">
+        <div class="panel-header">
+          <strong>Diff</strong>
+          <div class="diff-toolbar">
+            <button id="expandAll" class="btn-ghost" type="button">Expand all</button>
+            <button id="collapseAll" class="btn-ghost" type="button">Collapse all</button>
+            <label class="toggle"><input id="wrapToggle" type="checkbox" /> Wrap lines</label>
+          </div>
+        </div>
+        <div id="diffContent" class="diff-content">
+          <div class="empty">Loading diff…</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer class="app-footer">
+    <div>Commit Diff</div>
+    <div>Powered by IssueMap</div>
+  </footer>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    function toast(msg){ const t = $('#toast'); if(!t) return; t.textContent = msg; t.classList.add('show'); setTimeout(()=> t.classList.remove('show'), 2000); }
+    function escapeHtml(str){ return String(str||'').replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[s])); }
+    function q(name){ const u = new URL(location.href); return u.searchParams.get(name); }
+
+    let state = {
+      files: [],
+      activeId: null,
+      filterText: '',
+      statusEnabled: { modified:true, added:true, deleted:true, renamed:true },
+      wrap: false
+    };
+
+    function calculateTotals(files){
+      let adds = 0, dels = 0; files.forEach(f=>{ adds += (f.additions||0); dels += (f.deletions||0); });
+      return {adds, dels};
+    }
+
+    function renderLines(patch){
+      const frag = document.createDocumentFragment();
+      const lines = String(patch||'').split('\n');
+      for (const ln of lines){
+        if (ln === undefined) continue;
+        const div = document.createElement('div');
+        div.className = 'line';
+        if (ln.startsWith('@@')) div.classList.add('hdr');
+        else if (ln.startsWith('+') && !ln.startsWith('+++')) div.classList.add('add');
+        else if (ln.startsWith('-') && !ln.startsWith('---')) div.classList.add('del');
+        else div.classList.add('ctx');
+        div.textContent = ln;
+        frag.appendChild(div);
+      }
+      return frag;
+    }
+
+    function buildUI(){
+      const list = $('#filesList');
+      const content = $('#diffContent');
+      list.innerHTML = '';
+      content.innerHTML = '';
+      state.files.forEach((f, idx) => {
+        // Sidebar item
+        const li = document.createElement('div');
+        li.className = 'file-item' + (idx===0 ? ' active' : '');
+        li.id = 'li-file-' + idx;
+        li.dataset.target = 'file-' + idx;
+        li.dataset.status = f.status || 'modified';
+        const status = escapeHtml(f.status||'modified');
+        const path = f.path || f.old_path || '';
+        li.innerHTML = `<span class="file-badge add">+${f.additions||0}</span><span class="file-badge del">-${f.deletions||0}</span><span class="status">${status}</span><span class="path">${escapeHtml(path)}</span>`;
+        li.addEventListener('click', () => selectFile(idx, true));
+        list.appendChild(li);
+
+        // Diff section
+        const section = document.createElement('div');
+        section.className = 'file-section' + (idx===0 ? '' : ' collapsed');
+        section.id = 'file-' + idx;
+        section.dataset.status = f.status || 'modified';
+        const right = document.createElement('div');
+        right.className = 'file-actions';
+        const copyPath = document.createElement('a'); copyPath.href = 'javascript:void(0)'; copyPath.className = 'copy-btn action-link'; copyPath.textContent = 'Copy path'; copyPath.addEventListener('click', (ev)=>{ ev.stopPropagation(); copy(path); });
+        const copyPatch = document.createElement('a'); copyPatch.href = 'javascript:void(0)'; copyPatch.className = 'copy-btn action-link'; copyPatch.textContent = 'Copy patch'; copyPatch.addEventListener('click', (ev)=>{ ev.stopPropagation(); copy(f.patch || ''); });
+        right.appendChild(copyPath); right.appendChild(copyPatch);
+        section.innerHTML = `<div class="file-header"><div class="file-title"><span class="caret">▾</span><strong>${escapeHtml(path)}</strong><span class="muted-sm">(${status}, +${f.additions||0} -${f.deletions||0})</span></div><div class="file-actions"></div></div>`;
+        section.querySelector('.file-actions').appendChild(right);
+        const pre = document.createElement('pre');
+        pre.className = 'diff';
+        pre.appendChild(renderLines(f.patch||''));
+        section.appendChild(pre);
+        section.querySelector('.file-header').addEventListener('click', ()=>{ section.classList.toggle('collapsed'); updateHash(idx); });
+        content.appendChild(section);
+      });
+      // Initial active
+      if (state.files.length){ state.activeId = 0; updateActive(); }
+    }
+
+    function updateActive(){
+      $$('.file-item').forEach(el => el.classList.remove('active'));
+      if (state.activeId == null) return;
+      const li = $('#li-file-' + state.activeId);
+      if (li) li.classList.add('active');
+      // Ensure the section is expanded and visible
+      const sec = $('#file-' + state.activeId);
+      if (sec) sec.classList.remove('collapsed');
+    }
+
+    function updateHash(idx){
+      const id = (typeof idx === 'number') ? idx : state.activeId;
+      if (id == null) return;
+      const wanted = '#file-' + id;
+      if (location.hash !== wanted) location.hash = wanted;
+    }
+
+    function selectFile(idx, scroll){
+      state.activeId = idx;
+      updateActive();
+      updateHash(idx);
+      if (scroll){
+        const sec = $('#file-' + idx);
+        const y = sec ? sec.getBoundingClientRect().top + window.scrollY - 120 : 0;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+
+    function restoreFromHash(){
+      const h = location.hash || '';
+      const m = h.match(/^#file-(\d+)/);
+      if (m){ const idx = parseInt(m[1],10); if (!isNaN(idx) && idx >=0 && idx < state.files.length){ selectFile(idx, true); } }
+    }
+
+    function applyFilters(){
+      const txt = state.filterText.toLowerCase();
+      let visibleCount = 0;
+      state.files.forEach((f, idx) => {
+        const li = $('#li-file-' + idx);
+        const sec = $('#file-' + idx);
+        const s = (f.status || 'modified');
+        const path = (f.path || f.old_path || '').toLowerCase();
+        const matchesTxt = !txt || path.includes(txt);
+        const matchesStatus = !!state.statusEnabled[s];
+        const show = matchesTxt && matchesStatus;
+        if (li) li.classList.toggle('hidden', !show);
+        if (sec) sec.classList.toggle('hidden', !show);
+        if (show) visibleCount++;
+      });
+      $('#fileCount').textContent = visibleCount;
+      // If active becomes hidden, move to next visible
+      const activeLi = $('#li-file-' + state.activeId);
+      if (activeLi && activeLi.classList.contains('hidden')){
+        const next = $$('#filesList .file-item:not(.hidden)')[0];
+        if (next){ const id = parseInt(next.id.replace('li-file-',''),10); selectFile(id, false); }
+      }
+    }
+
+    function setStatusEnabled(status, enabled){ state.statusEnabled[status] = enabled; applyFilters(); }
+
+    function bindToolbar(){
+      $('#expandAll').addEventListener('click', ()=> $$('.file-section.hidden, .file-section').forEach(s => s.classList.remove('collapsed')) );
+      $('#collapseAll').addEventListener('click', ()=> $$('.file-section.hidden, .file-section').forEach(s => s.classList.add('collapsed')) );
+      const wrap = $('#wrapToggle');
+      wrap.addEventListener('change', ()=>{ state.wrap = !!wrap.checked; document.body.classList.toggle('wrap', state.wrap); });
+      const filterInput = $('#fileFilter');
+      filterInput.addEventListener('input', ()=>{ state.filterText = filterInput.value; applyFilters(); });
+      // Status chips
+      $$('.status-filter .chip').forEach(ch => ch.addEventListener('click', ()=>{ ch.classList.toggle('active'); setStatusEnabled(ch.dataset.status, ch.classList.contains('active')); }));
+    }
+
+    function bindKeyboard(){
+      document.addEventListener('keydown', (e) => {
+        const active = document.activeElement;
+        const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+        if (isTyping && e.key !== 'Escape') return;
+        const visible = $$('#filesList .file-item:not(.hidden)');
+        if (!visible.length) return;
+        let idx = state.activeId ?? -1;
+        if (e.key === 'j' || e.key === 'ArrowDown') { // next
+          e.preventDefault();
+          const cur = visible.findIndex(el => parseInt(el.id.replace('li-file-',''),10) === idx);
+          const nextEl = visible[Math.min(visible.length-1, Math.max(0, cur+1))];
+          if (nextEl){ const id = parseInt(nextEl.id.replace('li-file-',''),10); selectFile(id, true); }
+        } else if (e.key === 'k' || e.key === 'ArrowUp') { // prev
+          e.preventDefault();
+          const cur = visible.findIndex(el => parseInt(el.id.replace('li-file-',''),10) === idx);
+          const prevEl = visible[Math.max(0, (cur <= 0 ? 0 : cur-1))];
+          if (prevEl){ const id = parseInt(prevEl.id.replace('li-file-',''),10); selectFile(id, true); }
+        } else if (e.key === 'o' || e.key === 'Enter') {
+          e.preventDefault();
+          const sec = $('#file-' + state.activeId); if (sec) sec.classList.toggle('collapsed');
+        } else if (e.key === 'e') { // expand all
+          e.preventDefault(); $$('.file-section').forEach(s => s.classList.remove('collapsed'));
+        } else if (e.key === 'c') { // collapse all
+          e.preventDefault(); $$('.file-section').forEach(s => s.classList.add('collapsed'));
+        } else if (e.key === 'w') { // wrap toggle
+          e.preventDefault(); const t = $('#wrapToggle'); t.checked = !t.checked; t.dispatchEvent(new Event('change'));
+        } else if (e.key === '/') { // focus filter
+          e.preventDefault(); const fi = $('#fileFilter'); fi.focus(); fi.select();
+        } else if (e.key === 'Escape') {
+          if (document.activeElement) document.activeElement.blur();
+        }
+      });
+    }
+
+    function renderDiff(data){
+      $('#hashCode').textContent = (data.hash||'').slice(0,12);
+      $('#msg').textContent = data.message || '';
+      $('#author').textContent = data.author || '';
+      $('#date').textContent = data.date || '';
+
+      state.files = Array.isArray(data.files) ? data.files : [];
+      const totals = calculateTotals(state.files);
+      $('#addsTotal').textContent = totals.adds;
+      $('#delsTotal').textContent = totals.dels;
+      $('#filesTotal').textContent = state.files.length;
+
+      if (!state.files.length){
+        $('#filesList').innerHTML = '<div class="empty">No file changes in this commit</div>';
+        $('#diffContent').innerHTML = '<div class="empty">No diffs to show</div>';
+        $('#fileCount').textContent = '0';
+        return;
+      }
+
+      buildUI();
+      applyFilters();
+      restoreFromHash();
+    }
+
+    async function copy(text){ try{ await navigator.clipboard.writeText(String(text||'')); toast('Copied'); }catch(e){} }
+
+    async function init(){
+      bindToolbar();
+      bindKeyboard();
+      const hash = q('hash');
+      if(!hash){ $('#diffContent').innerHTML = '<div class="error">Missing commit hash</div>'; return; }
+      $('#copyHash').addEventListener('click', ()=> copy(hash));
+      try{
+        const r = await fetch(`/api/v1/git/commit/${encodeURIComponent(hash)}/diff`);
+        if(!r.ok){ throw new Error('fetch failed'); }
+        const j = await r.json();
+        if(j && j.success){ renderDiff(j.data || {}); }
+        else { $('#diffContent').innerHTML = '<div class="error">Failed to load diff</div>'; }
+      }catch(e){ $('#diffContent').innerHTML = '<div class="error">Network error loading diff</div>'; }
+
+      window.addEventListener('hashchange', restoreFromHash);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

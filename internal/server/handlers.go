@@ -10,6 +10,7 @@ import (
 
 	"github.com/ooyeku/issuemap/internal/app"
 	"github.com/ooyeku/issuemap/internal/domain/entities"
+	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
 
 // API Response structures
@@ -21,6 +22,7 @@ type APIResponse struct {
 }
 
 // IssueDTO is a response-friendly representation of an issue
+// Extended to support rich Details UI
 type IssueDTO struct {
 	ID          string            `json:"id"`
 	Title       string            `json:"title"`
@@ -30,7 +32,40 @@ type IssueDTO struct {
 	Priority    string            `json:"priority"`
 	Labels      []string          `json:"labels"`
 	Branch      string            `json:"branch"`
+	Assignee    string            `json:"assignee,omitempty"`
+	Milestone   *MilestoneDTO     `json:"milestone,omitempty"`
+	Metadata    *MetadataDTO      `json:"metadata,omitempty"`
+	Comments    []CommentDTO      `json:"comments,omitempty"`
+	Commits     []CommitDTO       `json:"commits,omitempty"`
 	Timestamps  map[string]string `json:"timestamps"`
+}
+
+type MilestoneDTO struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	DueDate     string `json:"due_date,omitempty"`
+}
+
+type MetadataDTO struct {
+	EstimatedHours float64            `json:"estimated_hours,omitempty"`
+	ActualHours    float64            `json:"actual_hours,omitempty"`
+	RemainingHours float64            `json:"remaining_hours,omitempty"`
+	OverEstimate   bool               `json:"over_estimate,omitempty"`
+	CustomFields   map[string]string  `json:"custom_fields,omitempty"`
+}
+
+type CommentDTO struct {
+	ID     int    `json:"id"`
+	Author string `json:"author"`
+	Date   string `json:"date"`
+	Text   string `json:"text"`
+}
+
+type CommitDTO struct {
+	Hash    string `json:"hash"`
+	Message string `json:"message"`
+	Author  string `json:"author"`
+	Date    string `json:"date"`
 }
 
 func issueToDTO(issue *entities.Issue) IssueDTO {
@@ -48,6 +83,70 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 		ts["closed"] = issue.Timestamps.Closed.Format("2006-01-02T15:04:05Z07:00")
 	}
 
+	// Assignee
+	assignee := ""
+	if issue.Assignee != nil {
+		if issue.Assignee.Username != "" {
+			assignee = issue.Assignee.Username
+		} else if issue.Assignee.Email != "" {
+			assignee = issue.Assignee.Email
+		}
+	}
+
+	// Milestone
+	var milestoneDTO *MilestoneDTO
+	if issue.Milestone != nil {
+		ms := &MilestoneDTO{ Name: issue.Milestone.Name, Description: issue.Milestone.Description }
+		if issue.Milestone.DueDate != nil {
+			ms.DueDate = issue.Milestone.DueDate.Format("2006-01-02")
+		}
+		milestoneDTO = ms
+	}
+
+	// Metadata
+	var metaDTO *MetadataDTO
+	{
+		est := issue.GetEstimatedHours()
+		act := issue.GetActualHours()
+		rem := issue.GetRemainingHours()
+		meta := &MetadataDTO{
+			EstimatedHours: est,
+			ActualHours:    act,
+			RemainingHours: rem,
+			OverEstimate:   issue.IsOverEstimate(),
+			CustomFields:   nil,
+		}
+		if issue.Metadata.CustomFields != nil && len(issue.Metadata.CustomFields) > 0 {
+			meta.CustomFields = issue.Metadata.CustomFields
+		}
+		// Only attach if any values are non-zero or custom fields exist
+		if meta.EstimatedHours != 0 || meta.ActualHours != 0 || meta.RemainingHours != 0 || meta.OverEstimate || meta.CustomFields != nil {
+			metaDTO = meta
+		}
+	}
+
+	// Comments
+	comments := make([]CommentDTO, 0, len(issue.Comments))
+	for _, c := range issue.Comments {
+		comments = append(comments, CommentDTO{
+			ID:     c.ID,
+			Author: c.Author,
+			Date:   c.Date.Format("2006-01-02T15:04:05Z07:00"),
+			Text:   c.Text,
+		})
+	}
+
+	// Commits
+	commits := make([]CommitDTO, 0, len(issue.Commits))
+	for _, cm := range issue.Commits {
+		commits = append(commits, CommitDTO{
+			Hash:    cm.Hash,
+			Message: cm.Message,
+			Author:  cm.Author,
+			Date:    cm.Date.Format("2006-01-02T15:04:05Z07:00"),
+		})
+	}
+
 	return IssueDTO{
 		ID:          issue.ID.String(),
 		Title:       issue.Title,
@@ -57,6 +156,11 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 		Priority:    string(issue.Priority),
 		Labels:      labelNames,
 		Branch:      issue.Branch,
+		Assignee:    assignee,
+		Milestone:   milestoneDTO,
+		Metadata:    metaDTO,
+		Comments:    comments,
+		Commits:     commits,
 		Timestamps:  ts,
 	}
 }
@@ -113,15 +217,24 @@ func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 
 // Server info handler
 func (s *Server) infoHandler(w http.ResponseWriter, r *http.Request) {
+	// Try to load project name from config; fail gracefully
+	projectName := ""
+	if repo := storage.NewFileConfigRepository(s.basePath); repo != nil {
+		if cfg, err := repo.Load(context.Background()); err == nil && cfg != nil {
+			projectName = cfg.Project.Name
+		}
+	}
+
 	response := APIResponse{
 		Success: true,
 		Data: map[string]interface{}{
-			"name":         app.AppName,
-			"version":      app.GetVersion(),
-			"description":  app.AppDescription,
-			"port":         s.port,
-			"api_base":     app.APIBasePath,
-			"issues_count": s.memoryStorage.Size(),
+			"name":          app.AppName,
+			"version":       app.GetVersion(),
+			"description":   app.AppDescription,
+			"port":          s.port,
+			"api_base":      app.APIBasePath,
+			"issues_count":  s.memoryStorage.Size(),
+			"project_name":  projectName,
 		},
 	}
 	s.jsonResponse(w, response, http.StatusOK)
@@ -178,11 +291,16 @@ func (s *Server) getIssueHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	issueID := entities.IssueID(vars["id"])
 
-	issue, exists := s.memoryStorage.Get(issueID)
-	if !exists {
+	// Use service to enrich (e.g., commits from git)
+	ctx := context.Background()
+	issue, err := s.issueService.GetIssue(ctx, issueID)
+	if err != nil || issue == nil {
 		s.errorResponse(w, app.ErrIssueNotFound, http.StatusNotFound)
 		return
 	}
+
+	// Ensure memory storage stays in sync
+	s.memoryStorage.Update(issue)
 
 	response := APIResponse{
 		Success: true,
@@ -409,7 +527,7 @@ func (s *Server) addCommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	err := s.issueService.AddComment(ctx, issueID, req.Text, req.Author)
+ err := s.issueService.AddComment(ctx, issueID, req.Author, req.Text)
 	if err != nil {
 		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -522,4 +640,30 @@ func (s *Server) getSummaryHandler(w http.ResponseWriter, r *http.Request) {
 		Data:    summary,
 	}
 	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// getCommitDiffHandler returns a commit diff with files and patches
+func (s *Server) getCommitDiffHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	hash := vars["hash"]
+	if hash == "" {
+		s.errorResponse(w, "commit hash required", http.StatusBadRequest)
+		return
+	}
+	ctx := context.Background()
+	diff, err := s.issueService.GetCommitDiff(ctx, hash)
+	if err != nil {
+		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Marshal a DTO formatting the date as RFC3339
+	resp := map[string]interface{}{
+		"hash":    diff.Hash,
+		"message": diff.Message,
+		"author":  diff.Author,
+		"email":   diff.Email,
+		"date":    diff.Date.Format("2006-01-02T15:04:05Z07:00"),
+		"files":   diff.Files,
+	}
+	s.jsonResponse(w, APIResponse{Success: true, Data: resp}, http.StatusOK)
 }

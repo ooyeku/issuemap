@@ -86,6 +86,13 @@ func runStart(cmd *cobra.Command, issueID entities.IssueID) error {
 		return err
 	}
 
+	// Also set status to in-progress automatically
+	if _, err := issueService.UpdateIssue(ctx, issueID, map[string]interface{}{
+		"status": string(entities.StatusInProgress),
+	}); err != nil {
+		printWarning(fmt.Sprintf("warning: failed to set status to in-progress: %v", err))
+	}
+
 	// Get issue for display
 	issue, err := issueService.GetIssue(ctx, issueID)
 	if err != nil {

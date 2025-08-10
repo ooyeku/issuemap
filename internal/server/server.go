@@ -22,6 +22,7 @@ import (
 	"github.com/ooyeku/issuemap/internal/domain/repositories"
 	"github.com/ooyeku/issuemap/internal/infrastructure/git"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
+	"github.com/ooyeku/issuemap/web"
 )
 
 // Server represents the IssueMap HTTP server
@@ -238,6 +239,14 @@ func (s *Server) setupRouter() http.Handler {
 	stats := api.PathPrefix("/stats").Subrouter()
 	stats.HandleFunc("", s.getStatsHandler).Methods("GET")
 	stats.HandleFunc("/summary", s.getSummaryHandler).Methods("GET")
+
+	// Git endpoints
+	gitApi := api.PathPrefix("/git").Subrouter()
+	gitApi.HandleFunc("/commit/{hash}/diff", s.getCommitDiffHandler).Methods("GET")
+
+	// Static web UI (serve embedded assets at root)
+	uiFS := http.FileServer(http.FS(web.Static))
+	router.PathPrefix("/").Handler(uiFS)
 
 	// Setup CORS
 	c := cors.New(cors.Options{

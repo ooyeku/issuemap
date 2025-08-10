@@ -8,16 +8,16 @@ import (
 // Version information
 const (
 	// Version is the current version of IssueMap
-	Version = "0.2.1"
+	Version = "0.3.0"
 
 	// VersionMajor is the major version number
 	VersionMajor = 0
 
 	// VersionMinor is the minor version number
-	VersionMinor = 2
+	VersionMinor = 3
 
 	// VersionPatch is the patch version number
-	VersionPatch = 1
+	VersionPatch = 0
 
 	// VersionPrerelease is the prerelease version (empty for stable)
 	VersionPrerelease = ""

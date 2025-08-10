@@ -2,7 +2,7 @@ id: ISSUE-006
 title: Web Dashboard
 description: ""
 type: feature
-status: open
+status: in-progress
 priority: medium
 labels: []
 assignee:
@@ -14,4 +14,4 @@ comments: []
 metadata: {}
 timestamps:
     created: 2025-08-08T16:51:09.646009-05:00
-    updated: 2025-08-08T16:51:09.646013-05:00
+    updated: 2025-08-09T21:04:41.298164-05:00

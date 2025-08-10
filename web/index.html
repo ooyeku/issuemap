@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IssueMap Web</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">IM</div>
+      <div class="titles">
+        <div id="projectName" class="project-name" title="Project Name"></div>
+        <h1>IssueMap</h1>
+        <div class="subtitle">CLI-first, now with a simple web companion</div>
+      </div>
+    </div>
+    <div class="server-info" id="serverInfo">Loading…</div>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <div class="filters">
+        <label>
+          Status
+          <select id="statusFilter">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="review">Review</option>
+            <option value="done">Done</option>
+            <option value="closed">Closed</option>
+          </select>
+        </label>
+        <label>
+          Priority
+          <select id="priorityFilter">
+            <option value="">All</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label class="search">
+          <input type="search" id="searchInput" placeholder="Search title or description…" />
+        </label>
+      </div>
+      <div class="actions">
+        <button id="refreshBtn" class="btn">Refresh</button>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="list-panel">
+        <div class="panel-header">
+          <h2>Issues</h2>
+          <div id="countBadge" class="badge">0</div>
+        </div>
+        <div class="table-wrapper">
+          <table class="issues-table" id="issuesTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Labels</th>
+                <th>Branch</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="issuesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="detail-panel" id="detailPanel">
+        <div class="panel-header">
+          <h2>Details</h2>
+        </div>
+        <div id="detailContent" class="detail-content">
+          <div class="empty">Select an issue to see details</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer class="app-footer">
+    <div>
+      API: <code id="apiBase">/api/v1</code>
+      • <a class="action-link" href="/reference.html">Reference</a>
+    </div>
+    <div>Powered by IssueMap</div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

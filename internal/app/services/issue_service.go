@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -570,4 +571,146 @@ func sanitizeBranchName(title string) string {
 	title = strings.TrimRight(title, "-")
 
 	return title
+}
+
+
+// CommitDiffFile represents a single file diff within a commit
+type CommitDiffFile struct {
+	Path      string `json:"path"`
+	OldPath   string `json:"old_path,omitempty"`
+	Status    string `json:"status"` // added, modified, deleted, renamed
+	Additions int    `json:"additions"`
+	Deletions int    `json:"deletions"`
+	Patch     string `json:"patch"`
+}
+
+// CommitDiff represents the diff of a commit
+type CommitDiff struct {
+	Hash    string           `json:"hash"`
+	Message string           `json:"message"`
+	Author  string           `json:"author"`
+	Email   string           `json:"email"`
+	Date    time.Time        `json:"date"`
+	Files   []CommitDiffFile `json:"files"`
+}
+
+// GetCommitDiff returns a parsed diff for the given commit hash
+func (s *IssueService) GetCommitDiff(ctx context.Context, hash string) (*CommitDiff, error) {
+	if hash == "" {
+		return nil, fmt.Errorf("empty commit hash")
+	}
+	if s.gitRepo == nil {
+		return nil, fmt.Errorf("git repository not configured")
+	}
+	root, err := s.gitRepo.GetRepositoryRoot(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "IssueService.GetCommitDiff", "repo_root")
+	}
+
+	// 1) Fetch commit metadata (hash, author, email, date, subject)
+	metaCmd := exec.CommandContext(ctx, "git", "show", "-s", "--format=%H%n%an%n%ae%n%ad%n%s", "--date=iso-strict", hash)
+	metaCmd.Dir = root
+	metaOut, err := metaCmd.Output()
+	if err != nil {
+		return nil, errors.Wrap(err, "IssueService.GetCommitDiff", "git_show_meta")
+	}
+	lines := strings.Split(strings.ReplaceAll(string(metaOut), "\r\n", "\n"), "\n")
+	if len(lines) < 5 {
+		return nil, fmt.Errorf("unexpected git show meta output")
+	}
+	// Parse date
+	var when time.Time
+	when, _ = time.Parse(time.RFC3339, lines[3])
+	if when.IsZero() {
+		// try fallback formats
+		for _, layout := range []string{time.RFC3339Nano, "2006-01-02 15:04:05 -0700", time.RFC1123Z} {
+			if t, err := time.Parse(layout, lines[3]); err == nil {
+				when = t
+				break
+			}
+		}
+	}
+
+	diff := &CommitDiff{
+		Hash:    lines[0],
+		Author:  lines[1],
+		Email:   lines[2],
+		Date:    when,
+		Message: lines[4],
+		Files:   []CommitDiffFile{},
+	}
+
+	// 2) Fetch full patch only (no commit header) for easier parsing
+	patchCmd := exec.CommandContext(ctx, "git", "show", "--no-color", "--format=", "--patch", hash)
+	patchCmd.Dir = root
+	patchOut, err := patchCmd.Output()
+	if err != nil {
+		return nil, errors.Wrap(err, "IssueService.GetCommitDiff", "git_show_patch")
+	}
+	patch := strings.ReplaceAll(string(patchOut), "\r\n", "\n")
+
+	// Parse the patch into per-file sections
+	lines = strings.Split(patch, "\n")
+	type fileState struct {
+		file CommitDiffFile
+		buf  strings.Builder
+	}
+	var cur *fileState
+	flush := func() {
+		if cur == nil {
+			return
+		}
+		cur.file.Patch = cur.buf.String()
+		diff.Files = append(diff.Files, cur.file)
+		cur = nil
+	}
+
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
+		if strings.HasPrefix(line, "diff --git ") {
+			// start new file section
+			flush()
+			cur = &fileState{file: CommitDiffFile{Status: "modified"}}
+			// Example: diff --git a/path/file b/path/file
+			parts := strings.Split(line, " ")
+			if len(parts) >= 4 {
+				oldP := strings.TrimPrefix(parts[2], "a/")
+				newP := strings.TrimPrefix(parts[3], "b/")
+				cur.file.OldPath = oldP
+				cur.file.Path = newP
+			}
+			cur.buf.WriteString(line)
+			cur.buf.WriteString("\n")
+			continue
+		}
+		if cur == nil {
+			continue
+		}
+
+		// Determine status signals
+		if strings.HasPrefix(line, "new file mode ") {
+			cur.file.Status = "added"
+		} else if strings.HasPrefix(line, "deleted file mode ") {
+			cur.file.Status = "deleted"
+		} else if strings.HasPrefix(line, "rename from ") {
+			cur.file.Status = "renamed"
+			cur.file.OldPath = strings.TrimSpace(strings.TrimPrefix(line, "rename from "))
+		} else if strings.HasPrefix(line, "rename to ") {
+			cur.file.Path = strings.TrimSpace(strings.TrimPrefix(line, "rename to "))
+		}
+
+		// Count additions/deletions, ignore file headers
+		if strings.HasPrefix(line, "+") && !strings.HasPrefix(line, "+++") {
+			cur.file.Additions++
+		} else if strings.HasPrefix(line, "-") && !strings.HasPrefix(line, "---") {
+			cur.file.Deletions++
+		}
+
+		// Accumulate patch text
+		cur.buf.WriteString(line)
+		cur.buf.WriteString("\n")
+	}
+	flush()
+
+	return diff, nil
 }

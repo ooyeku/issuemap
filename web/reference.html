@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IssueMap Reference</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .ref-container { padding: 20px 24px; max-width: 980px; margin: 0 auto; }
+    .ref-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top: 8px; }
+    .ref-header .breadcrumbs a { color: var(--accent-2); text-decoration: none; }
+    .ref-header .breadcrumbs a:hover { text-decoration: underline; }
+    .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border); border-radius:14px; box-shadow:0 10px 30px var(--shadow); overflow:hidden; margin: 16px 0; }
+    .card .card-h { padding: 12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .card .card-b { padding: 16px; }
+    .muted { color: var(--muted); }
+    .grid-2 { display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 900px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .cmd { background:#0b1220; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; }
+    .list { margin:0; padding-left: 18px; }
+    .list li { margin: 6px 0; }
+    .kbd { background:#111827; border:1px solid var(--border); border-radius:6px; padding:0 6px; font-family:inherit; }
+    .pill { background: var(--badge); border:1px solid var(--border); border-radius:999px; padding:2px 8px; font-size:12px; color:#cfe1ff; }
+    .section-title { margin: 12px 0 6px 0; font-size: 18px; }
+    .small { font-size: 12px; }
+    .spaced > * + * { margin-top: 10px; }
+    code { color: #cfe1ff; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">IM</div>
+      <div class="titles">
+        <h1>IssueMap</h1>
+        <div class="subtitle">CLI Reference & Golden Path</div>
+      </div>
+    </div>
+    <div><a href="/" class="action-link">Back to UI</a></div>
+  </header>
+
+  <main class="ref-container">
+    <div class="ref-header">
+      <div class="breadcrumbs muted">Home / <strong>Reference</strong></div>
+      <div class="pill" id="versionPill">Loading…</div>
+    </div>
+
+    <section class="card">
+      <div class="card-h"><h2>Golden Path: From Zero to Done</h2></div>
+      <div class="card-b spaced">
+        <div class="muted">A practical, end-to-end workflow that covers the most common path teams take using IssueMap.</div>
+        <ol class="list">
+          <li>
+            Initialize in a Git repo:
+            <div class="cmd">issuemap init</div>
+          </li>
+          <li>
+            Create an issue:
+            <div class="cmd">issuemap create -t "Implement login page" -d "Basic form, email + password" -p high -l frontend,auth</div>
+          </li>
+          <li>
+            Start work and create a branch:
+            <div class="cmd">issuemap start ISSUE-1</div>
+            <div class="small muted">This can create/switch to a branch like <code>feature/ISSUE-1-login-page</code> depending on your configuration.</div>
+          </li>
+          <li>
+            Do the work, commit, push. Optionally track time:
+            <div class="cmd">issuemap log ISSUE-1 --start 1h
+# ... work happens ...
+issuemap log ISSUE-1 --stop</div>
+          </li>
+          <li>
+            Mark for review or done:
+            <div class="cmd">issuemap edit ISSUE-1 --status review</div>
+          </li>
+          <li>
+            Close/resolve when merged:
+            <div class="cmd">issuemap close ISSUE-1  # or: issuemap resolve ISSUE-1</div>
+          </li>
+          <li>
+            Sync and view in web UI:
+            <div class="cmd">issuemap sync
+issuemap web</div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>CLI Quick Reference</h2><span class="small muted">Use <span class="kbd">-h</span> on any command for full help</span></div>
+      <div class="card-b grid-2">
+        <div>
+          <h3 class="section-title">Core</h3>
+          <ul class="list">
+            <li><strong>init</strong> — Initialize IssueMap in current repo<div class="cmd">issuemap init</div></li>
+            <li><strong>create</strong> — Create a new issue<div class="cmd">issuemap create -t "Title" -d "Description" -p medium -l tag1,tag2 --type task</div></li>
+            <li><strong>list</strong> — List issues with filters<div class="cmd">issuemap list --status open --priority high --label auth</div></li>
+            <li><strong>show</strong> — Show a single issue<div class="cmd">issuemap show ISSUE-1</div></li>
+            <li><strong>edit</strong> — Update fields<div class="cmd">issuemap edit ISSUE-1 --title "New title" --status in-progress --priority high</div></li>
+            <li><strong>delete</strong> — Delete an issue<div class="cmd">issuemap delete ISSUE-1</div></li>
+          </ul>
+          <h3 class="section-title">Workflow</h3>
+          <ul class="list">
+            <li><strong>start</strong> — Start work on an issue (optionally creates a branch)<div class="cmd">issuemap start ISSUE-1</div></li>
+            <li><strong>branch</strong> — Manage or show branch naming<div class="cmd">issuemap branch ISSUE-1</div></li>
+            <li><strong>close</strong> — Close an issue<div class="cmd">issuemap close ISSUE-1</div></li>
+            <li><strong>resolve</strong> — Resolve (done) an issue<div class="cmd">issuemap resolve ISSUE-1</div></li>
+          </ul>
+          <h3 class="section-title">Dependencies</h3>
+          <ul class="list">
+            <li><strong>depend</strong> — Add dependency<div class="cmd">issuemap depend ISSUE-2 --on ISSUE-1</div></li>
+            <li><strong>deps</strong> — Show dependencies<div class="cmd">issuemap deps ISSUE-2</div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="section-title">Time & History</h3>
+          <ul class="list">
+            <li><strong>log</strong> — Start/stop time tracking<div class="cmd">issuemap log ISSUE-1 --start 30m
+issuemap log ISSUE-1 --stop</div></li>
+            <li><strong>history</strong> — Show change history<div class="cmd">issuemap history ISSUE-1</div></li>
+          </ul>
+          <h3 class="section-title">Automation & Reports</h3>
+          <ul class="list">
+            <li><strong>report</strong> — Generate reports<div class="cmd">issuemap report --type summary</div></li>
+            <li><strong>velocity</strong> — Team velocity metrics<div class="cmd">issuemap velocity</div></li>
+            <li><strong>burndown</strong> — Burndown chart data<div class="cmd">issuemap burndown</div></li>
+            <li><strong>template</strong> — Customize fields/templates<div class="cmd">issuemap template edit</div></li>
+          </ul>
+          <h3 class="section-title">Bulk & Search</h3>
+          <ul class="list">
+            <li><strong>bulk</strong> — Bulk operations<div class="cmd">issuemap bulk --status done --label sprint-24</div></li>
+            <li><strong>search</strong> — Full-text search<div class="cmd">issuemap search "login OR auth"</div></li>
+          </ul>
+          <h3 class="section-title">Server & Web</h3>
+          <ul class="list">
+            <li><strong>server</strong> — Manage API server<div class="cmd">issuemap server start
+issuemap server status
+issuemap server stop</div></li>
+            <li><strong>web</strong> — Launch web UI<div class="cmd">issuemap web</div></li>
+            <li><strong>sync</strong> — Sync in-memory and disk state<div class="cmd">issuemap sync</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Tips</h2></div>
+      <div class="card-b">
+        <ul class="list">
+          <li>Use <span class="kbd">--help</span> (or <span class="kbd">-h</span>) on any command to see all flags and examples.</li>
+          <li>Adopt a branch convention like <code>feature/ISSUE-123-title</code> for smooth Git integration.</li>
+          <li>Use labels to group work (e.g., <code>sprint-24</code>, <code>frontend</code>, <code>bug</code>).</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div>Reference • <a class="action-link" href="/">Back to UI</a></div>
+    <div>Powered by IssueMap</div>
+  </footer>
+
+  <script>
+    // Show version/issue count if the server is running
+    (async function(){
+      try {
+        const r = await fetch('/api/v1/info');
+        if (!r.ok) return;
+        const j = await r.json();
+        if (j && j.success) {
+          const d = j.data || {};
+          const pill = document.getElementById('versionPill');
+          if (pill) pill.textContent = (d.name||'IssueMap') + ' v' + d.version + ' • ' + d.issues_count + ' issues';
+        }
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>
