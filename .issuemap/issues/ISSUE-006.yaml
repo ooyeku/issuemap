@@ -2,7 +2,7 @@ id: ISSUE-006
 title: Web Dashboard
 description: ""
 type: feature
-status: in-progress
+status: closed
 priority: medium
 labels: []
 assignee:
@@ -11,7 +11,9 @@ assignee:
 branch: main
 commits: []
 comments: []
-metadata: {}
+metadata:
+    actual_hours: 16.812095741666667
 timestamps:
     created: 2025-08-08T16:51:09.646009-05:00
-    updated: 2025-08-09T21:04:41.298164-05:00
+    updated: 2025-08-10T13:53:20.441796-05:00
+    closed: 2025-08-10T13:53:20.441791-05:00

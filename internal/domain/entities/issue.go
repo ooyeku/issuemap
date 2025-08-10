@@ -2,6 +2,7 @@ package entities
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -9,9 +10,42 @@ import (
 // IssueID represents a unique issue identifier
 type IssueID string
 
-// NewIssueID creates a new issue ID with the given number
-func NewIssueID(number int) IssueID {
+// NewIssueID creates a new issue ID with the given project name and number
+func NewIssueID(projectName string, number int) IssueID {
+	// Sanitize project name to be suitable for ID
+	sanitized := sanitizeProjectName(projectName)
+	return IssueID(fmt.Sprintf("%s-%03d", sanitized, number))
+}
+
+// NewLegacyIssueID creates a legacy issue ID for backward compatibility
+func NewLegacyIssueID(number int) IssueID {
 	return IssueID(fmt.Sprintf("ISSUE-%03d", number))
+}
+
+// sanitizeProjectName converts a project name to a valid ID prefix
+func sanitizeProjectName(name string) string {
+	if name == "" {
+		return "ISSUE"
+	}
+
+	// Convert to uppercase, replace spaces and special chars with underscores
+	sanitized := strings.ToUpper(name)
+	sanitized = regexp.MustCompile(`[^A-Z0-9]+`).ReplaceAllString(sanitized, "_")
+
+	// Ensure it starts with a letter
+	if len(sanitized) == 0 || !regexp.MustCompile(`^[A-Z]`).MatchString(sanitized) {
+		sanitized = "PROJ_" + sanitized
+	}
+
+	// Limit length to 8 characters max for readability
+	if len(sanitized) > 8 {
+		sanitized = sanitized[:8]
+	}
+
+	// Remove trailing underscores
+	sanitized = strings.TrimRight(sanitized, "_")
+
+	return sanitized
 }
 
 // String returns the string representation of the issue ID
