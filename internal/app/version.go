@@ -8,7 +8,7 @@ import (
 // Version information
 const (
 	// Version is the current version of IssueMap
-	Version = "0.4.0"
+	Version = "0.4.1"
 
 	// VersionMajor is the major version number
 	VersionMajor = 0
@@ -17,7 +17,7 @@ const (
 	VersionMinor = 4
 
 	// VersionPatch is the patch version number
-	VersionPatch = 0
+	VersionPatch = 1
 
 	// VersionPrerelease is the prerelease version (empty for stable)
 	VersionPrerelease = ""
@@ -110,7 +110,8 @@ const (
 	PreCommitHook = "pre-commit"
 
 	// IssueReferencePattern is the regex pattern for issue references
-	IssueReferencePattern = `(?i)\b(?:refs?|references?|fixes?|closes?|resolves?)\s+(ISSUE-\d+)\b`
+	// Supports legacy ISSUE-XXX and project-prefixed IDs (letters, digits, underscores)
+	IssueReferencePattern = `(?i)\b(?:refs?|references?|fixes?|closes?|resolves?)\s+([A-Z][A-Z0-9_]*-\d+)\b`
 )
 
 // CLI constants

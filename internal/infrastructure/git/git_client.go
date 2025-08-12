@@ -199,14 +199,16 @@ func (g *GitClient) GetCommitsByIssue(ctx context.Context, issueID entities.Issu
 // ParseIssueReferences extracts issue references from a commit message
 func (g *GitClient) ParseIssueReferences(message string) []string {
 	// Patterns to match:
-	// - ISSUE-123
+	// - PROJECT-123 (project-based IDs, where PROJECT is [A-Z][A-Z0-9_]*)
 	// - #123 (if using numeric IDs)
-	// - Closes ISSUE-123
+	// - Closes PROJECT-123
 	// - Fixes #123
+	// NOTE: Keep legacy ISSUE-XXX covered by the generic PROJECT pattern
+	projectIDPattern := `[A-Z][A-Z0-9_]*-\d+`
 	patterns := []string{
-		`ISSUE-\d+`,
+		projectIDPattern,
 		`#\d+`,
-		`(?i)(?:closes?|fixes?|resolves?)\s+(ISSUE-\d+)`,
+		`(?i)(?:closes?|fixes?|resolves?)\s+(` + projectIDPattern + `)`,
 		`(?i)(?:closes?|fixes?|resolves?)\s+(#\d+)`,
 	}
 
@@ -266,9 +268,9 @@ commit_msg=$(cat "$commit_msg_file")
 # Extract current branch name
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-# Check if branch follows pattern like "feature/ISSUE-123-description" or "bugfix/ISSUE-123-description"
-if echo "$branch" | grep -q "ISSUE-[0-9]\+"; then
-    issue_id=$(echo "$branch" | sed -n 's/.*\(ISSUE-[0-9]\+\).*/\1/p')
+# Check if branch follows pattern like "feature/PROJECT-123-description" (supports underscores)
+if echo "$branch" | grep -qE "[A-Z][A-Z0-9_]*-[0-9]+"; then
+    issue_id=$(echo "$branch" | sed -n 's/.*\([A-Z][A-Z0-9_]*-[0-9]\+\).*/\1/p')
     
     # Check if commit message already contains issue reference
     if ! echo "$commit_msg" | grep -q "$issue_id"; then
@@ -288,9 +290,9 @@ if echo "$branch" | grep -q "ISSUE-[0-9]\+"; then
 fi
 
 # Check for auto-close keywords
-if echo "$commit_msg" | grep -qiE "(closes?|fixes?|resolves?) #?ISSUE-[0-9]+"; then
+if echo "$commit_msg" | grep -qiE "(closes?|fixes?|resolves?) #?[A-Z][A-Z0-9_]*-[0-9]+"; then
     # Extract issue IDs that should be closed
-    close_issues=$(echo "$commit_msg" | grep -oiE "(closes?|fixes?|resolves?) #?ISSUE-[0-9]+" | grep -oE "ISSUE-[0-9]+")
+    close_issues=$(echo "$commit_msg" | grep -oiE "(closes?|fixes?|resolves?) #?[A-Z][A-Z0-9_]*-[0-9]+" | grep -oE "[A-Z][A-Z0-9_]*-[0-9]+")
     for issue in $close_issues; do
         echo "# This commit will close $issue" >> "$commit_msg_file"
         # In a full implementation, we could call: issuemap close $issue --reason "Fixed in commit $(git rev-parse --short HEAD)"

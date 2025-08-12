@@ -75,6 +75,14 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Check if already initialized
 	if exists, _ := configRepo.Exists(ctx); exists {
 		printWarning("IssueMap is already initialized in this repository")
+		// Even if already initialized, attempt to (re)install git hooks so users can refresh updated hooks
+		if gitClient, err := git.NewGitClient(repoPath); err == nil {
+			if err := gitClient.InstallHooks(ctx); err != nil {
+				printWarning("Failed to install git hooks (continuing anyway)")
+			} else {
+				printSuccess("Git hooks installed successfully")
+			}
+		}
 		return nil
 	}
 
@@ -170,8 +178,8 @@ func normalizeIssueID(input string) entities.IssueID {
 	ctx := context.Background()
 	projectName := getCurrentProjectName(ctx)
 
-	// If it already has a project prefix, return as-is
-	if regexp.MustCompile(`^[A-Z]+[A-Z0-9]*-\d{3}$`).MatchString(strings.ToUpper(input)) {
+	// If it already has a project prefix, return as-is (supports underscores and any digit length)
+	if regexp.MustCompile(`^[A-Z][A-Z0-9_]*-\d+$`).MatchString(strings.ToUpper(input)) {
 		return entities.IssueID(strings.ToUpper(input))
 	}
 
