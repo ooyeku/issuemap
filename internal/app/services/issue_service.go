@@ -226,8 +226,9 @@ func (s *IssueService) GetIssue(ctx context.Context, id entities.IssueID) (*enti
 		return nil, errors.Wrap(err, "IssueService.GetIssue", "get_by_id")
 	}
 
-	// Update issue with latest commits if linked to git
-	if issue.Branch != "" && s.gitRepo != nil {
+	// Update issue with latest commits if git is available.
+	// Do not gate on branch presence, since commit messages can reference issues without a branch link.
+	if s.gitRepo != nil {
 		commits, err := s.gitRepo.GetCommitsByIssue(ctx, id)
 		if err == nil {
 			// Update commits in issue

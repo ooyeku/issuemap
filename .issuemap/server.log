@@ -196,3 +196,16 @@
 2025/08/10 14:44:25 server.go:335: Loaded 67 issues into memory from disk
 2025/08/10 14:46:02 server.go:335: Loaded 66 issues into memory from disk
 2025/08/10 14:46:11 server.go:335: Loaded 65 issues into memory from disk
+2025/08/12 17:49:41 server.go:123: IssueMap server starting on port 4042
+2025/08/12 17:49:41 server.go:124: API endpoints available at http://localhost:4042/api/v1
+2025/08/12 17:50:29 server.go:123: IssueMap server starting on port 4043
+2025/08/12 17:50:29 server.go:124: API endpoints available at http://localhost:4043/api/v1
+2025/08/12 17:50:36 server.go:377: GET /api/v1/health 98.791µs
+2025/08/12 17:50:40 server.go:377: GET /api/v1/issues/ENGAGE-001 32.375µs
+2025/08/12 17:51:44 server.go:377: GET /api/v1/issues 435.25µs
+2025/08/12 17:51:46 server.go:377: GET /api/v1/issues 45.625µs
+2025/08/12 17:51:46 server.go:377: GET /api/v1/issues 52.958µs
+2025/08/12 17:51:53 server.go:377: GET /api/v1/issues/ISSUE-003 27.771042ms
+2025/08/12 17:51:53 server.go:377: GET /api/v1/issues/ISSUE-003 5.029125ms
+2025/08/12 17:52:00 server.go:377: GET /api/v1/issues 442.167µs
+2025/08/12 17:52:00 server.go:377: GET /api/v1/issues/ISSUE-003 9.047125ms

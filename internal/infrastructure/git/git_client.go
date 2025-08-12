@@ -169,11 +169,36 @@ func (g *GitClient) GetCommitsByIssue(ctx context.Context, issueID entities.Issu
 
 	var result []repositories.Commit
 	targetIssue := issueID.String()
+	targetUpper := strings.ToUpper(targetIssue)
+	// Extract numeric component of the target issue ID (e.g., PROJECT-001 -> 1)
+	var targetNum int
+	if m := regexp.MustCompile(`\d+`).FindString(targetUpper); m != "" {
+		if n, err := strconv.Atoi(m); err == nil {
+			targetNum = n
+		}
+	}
 
 	err = commits.ForEach(func(c *object.Commit) error {
 		issueRefs := g.ParseIssueReferences(c.Message)
 		for _, ref := range issueRefs {
-			if ref == targetIssue {
+			ru := strings.ToUpper(ref)
+			// Exact match ignoring case (covers PROJECT-123 variants)
+			exactMatch := (ru == targetUpper)
+
+			// Numeric match: allow '#123' or 'proj-123' to match 'PROJ-123' regardless of zero padding
+			numericMatch := false
+			if targetNum > 0 {
+				if m := regexp.MustCompile(`\d+`).FindString(ru); m != "" {
+					if n, err := strconv.Atoi(m); err == nil && n == targetNum {
+						// To avoid accidental collisions, prefer numeric match when ref starts with '#' or contains '-' pattern
+						if strings.HasPrefix(strings.TrimSpace(ru), "#") || strings.Contains(ru, "-") {
+							numericMatch = true
+						}
+					}
+				}
+			}
+
+			if exactMatch || numericMatch {
 				commit := repositories.Commit{
 					Hash:      c.Hash.String(),
 					Message:   c.Message,
