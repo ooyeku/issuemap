@@ -163,3 +163,64 @@ func (s *TimeTrackingService) GetTimeStats(ctx context.Context, filter repositor
 func (s *TimeTrackingService) GetActiveTimers(ctx context.Context) ([]*entities.ActiveTimer, error) {
 	return s.activeTimerRepo.List(ctx)
 }
+
+// ForceStopTimer stops any active timer for the given issue and creates a time entry
+// using the provided author as the one who stopped it (overriding the original starter)
+func (s *TimeTrackingService) ForceStopTimer(ctx context.Context, issueID entities.IssueID, stoppingAuthor string) (*entities.TimeEntry, error) {
+	// Get all active timers and find one for this issue
+	activeTimers, err := s.activeTimerRepo.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get active timers: %w", err)
+	}
+
+	var targetTimer *entities.ActiveTimer
+	for _, timer := range activeTimers {
+		if timer.IssueID == issueID {
+			targetTimer = timer
+			break
+		}
+	}
+
+	if targetTimer == nil {
+		return nil, fmt.Errorf("no active timer found for issue: %s", issueID)
+	}
+
+	// Create time entry from timer but with the stopping author
+	endTime := time.Now()
+	timeEntry := targetTimer.ToTimeEntry(endTime)
+	// Override the author with the one who is force-stopping
+	timeEntry.Author = stoppingAuthor
+
+	// Save time entry
+	if err := s.timeEntryRepo.Create(ctx, timeEntry); err != nil {
+		return nil, fmt.Errorf("failed to create time entry: %w", err)
+	}
+
+	// Update issue actual hours
+	issue, err := s.issueService.GetIssue(ctx, targetTimer.IssueID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get issue: %w", err)
+	}
+
+	newActualHours := issue.GetActualHours() + timeEntry.GetDurationHours()
+	updates := map[string]interface{}{
+		"actual_hours": newActualHours,
+	}
+
+	_, err = s.issueService.UpdateIssue(ctx, targetTimer.IssueID, updates)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update issue actual hours: %w", err)
+	}
+
+	// Remove active timer (using original author for deletion)
+	if err := s.activeTimerRepo.Delete(ctx, targetTimer.IssueID, targetTimer.Author); err != nil {
+		return nil, fmt.Errorf("failed to remove active timer: %w", err)
+	}
+
+	// Record in history (with note about force stop)
+	if s.historyService != nil {
+		s.historyService.RecordTimerStopped(ctx, targetTimer.IssueID, stoppingAuthor, timeEntry.GetDurationHours())
+	}
+
+	return timeEntry, nil
+}

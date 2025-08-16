@@ -22,7 +22,8 @@ var stopCmd = &cobra.Command{
 
 Examples:
   issuemap stop
-  issuemap stop ISSUE-001`,
+  issuemap stop ISSUE-001
+  issuemap stop --force ISSUE-001  # Force stop any timer for the issue`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var maybeIssueID *entities.IssueID
@@ -36,6 +37,7 @@ Examples:
 
 func init() {
 	rootCmd.AddCommand(stopCmd)
+	stopCmd.Flags().Bool("force", false, "Force stop timer regardless of who started it")
 }
 
 func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
@@ -77,17 +79,43 @@ func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
 	// Get current user
 	author := getCurrentUser(gitRepo)
 
-	// Stop the timer (validates optional issue ID against the active timer)
-	timeEntry, err := timeTrackingService.StopTimer(ctx, author)
-	if err != nil {
-		printError(fmt.Errorf("failed to stop timer: %w", err))
-		return err
+	// Check if force flag is set
+	force, _ := cmd.Flags().GetBool("force")
+
+	// Debug: print flag status
+	if force {
+		fmt.Printf("Force mode enabled\n")
+	} else {
+		fmt.Printf("Normal mode (force flag: %v)\n", force)
 	}
 
-	if maybeIssueID != nil && timeEntry.IssueID != *maybeIssueID {
-		printError(fmt.Errorf("active timer is for %s, not %s",
-			timeEntry.IssueID, *maybeIssueID))
-		return fmt.Errorf("timer issue mismatch")
+	var timeEntry *entities.TimeEntry
+
+	if force {
+		// Force mode: requires issue ID and stops any timer for that issue
+		if maybeIssueID == nil {
+			printError(fmt.Errorf("issue ID is required when using --force flag"))
+			return fmt.Errorf("issue ID required for force stop")
+		}
+
+		timeEntry, err = timeTrackingService.ForceStopTimer(ctx, *maybeIssueID, author)
+		if err != nil {
+			printError(fmt.Errorf("failed to force stop timer: %w", err))
+			return err
+		}
+	} else {
+		// Normal mode: stop the user's own active timer
+		timeEntry, err = timeTrackingService.StopTimer(ctx, author)
+		if err != nil {
+			printError(fmt.Errorf("failed to stop timer: %w", err))
+			return err
+		}
+
+		if maybeIssueID != nil && timeEntry.IssueID != *maybeIssueID {
+			printError(fmt.Errorf("active timer is for %s, not %s",
+				timeEntry.IssueID, *maybeIssueID))
+			return fmt.Errorf("timer issue mismatch")
+		}
 	}
 
 	// Get issue for display

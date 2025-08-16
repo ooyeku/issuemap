@@ -18,7 +18,8 @@ attachments:
       storage_path: attachments/ISSUEMAP-090/1755313149762283000_Brand-and-Demand.pdf
       uploaded_by: web_user
       uploaded_at: 2025-08-15T21:59:09.762268-05:00
-metadata: {}
+metadata:
+    actual_hours: 1.520220221111111
 timestamps:
     created: 2025-08-10T21:50:02.401343-05:00
-    updated: 2025-08-15T22:19:19.641078-05:00
+    updated: 2025-08-15T22:28:15.132143-05:00
