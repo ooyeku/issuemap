@@ -7,6 +7,8 @@ priority: medium
 labels:
     - name: tui
       color: '#gray'
+milestone:
+    name: v0.5.0
 branch: main
 commits: []
 comments: []
@@ -14,4 +16,4 @@ attachments: []
 metadata: {}
 timestamps:
     created: 2025-08-15T22:11:02.781762-05:00
-    updated: 2025-08-15T22:11:02.781765-05:00
+    updated: 2025-08-15T22:55:02.377037-05:00

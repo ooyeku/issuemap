@@ -678,3 +678,67 @@
 2025/08/15 22:44:08 server.go:389: GET /api/v1/issues 537.708µs
 2025/08/15 22:44:08 server.go:389: GET /api/v1/issues/ISSUEMAP-090 9.8735ms
 2025/08/15 22:44:08 server.go:389: GET /api/v1/issues/ISSUEMAP-090 8.120959ms
+2025/08/15 22:45:19 server.go:389: GET /api/v1/git/commit/2623dbf303adef0ddece54cab953c9ca071831d1/diff 40.248209ms
+2025/08/15 22:45:45 server.go:389: GET /api/v1/info 126µs
+2025/08/15 22:45:45 server.go:389: GET /api/v1/issues 356.125µs
+2025/08/15 22:46:57 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:47:05 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:47:15 server.go:389: GET /api/v1/issues 209.625µs
+2025/08/15 22:47:20 server.go:389: GET /api/v1/issues/ISSUEMAP-091 11.092084ms
+2025/08/15 22:47:20 server.go:389: GET /api/v1/issues/ISSUEMAP-091 7.440791ms
+2025/08/15 22:47:24 server.go:389: GET /api/v1/issues/ISSUEMAP-092 9.658875ms
+2025/08/15 22:47:24 server.go:389: GET /api/v1/issues/ISSUEMAP-092 7.971042ms
+2025/08/15 22:47:41 server.go:389: GET /api/v1/issues 759.708µs
+2025/08/15 22:47:41 server.go:389: GET /api/v1/issues/ISSUEMAP-092 9.748291ms
+2025/08/15 22:47:42 server.go:389: GET /api/v1/issues 522.042µs
+2025/08/15 22:47:42 server.go:389: GET /api/v1/issues/ISSUEMAP-092 8.51175ms
+2025/08/15 22:50:55 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:51:02 server.go:389: GET /api/v1/issues 583.458µs
+2025/08/15 22:51:02 server.go:389: GET /api/v1/issues/ISSUEMAP-092 11.230209ms
+2025/08/15 22:51:03 server.go:389: GET /api/v1/issues 245.875µs
+2025/08/15 22:51:03 server.go:389: GET /api/v1/issues/ISSUEMAP-092 5.662291ms
+2025/08/15 22:51:04 server.go:389: GET /api/v1/issues/ISSUEMAP-091 8.231083ms
+2025/08/15 22:51:04 server.go:389: GET /api/v1/issues/ISSUEMAP-091 7.485042ms
+2025/08/15 22:52:41 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:52:59 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:53:38 server.go:389: GET /api/v1/issues 228.458µs
+2025/08/15 22:53:38 server.go:389: GET /api/v1/issues/ISSUEMAP-091 6.196875ms
+2025/08/15 22:54:04 server.go:389: GET /api/v1/issues/ISSUEMAP-092 8.771333ms
+2025/08/15 22:54:04 server.go:389: GET /api/v1/issues/ISSUEMAP-092 8.9145ms
+2025/08/15 22:54:06 server.go:389: GET /api/v1/issues/ISSUEMAP-090 7.908917ms
+2025/08/15 22:54:06 server.go:389: GET /api/v1/issues/ISSUEMAP-090 3.965083ms
+2025/08/15 22:54:08 server.go:389: GET /api/v1/issues/ISSUEMAP-091 9.014375ms
+2025/08/15 22:54:08 server.go:389: GET /api/v1/issues/ISSUEMAP-091 6.681708ms
+2025/08/15 22:54:18 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:54:24 server.go:389: GET /api/v1/issues 287.875µs
+2025/08/15 22:54:24 server.go:389: GET /api/v1/issues/ISSUEMAP-091 3.881667ms
+2025/08/15 22:54:45 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:54:51 server.go:389: GET /api/v1/issues 163.084µs
+2025/08/15 22:54:51 server.go:389: GET /api/v1/issues/ISSUEMAP-091 3.486916ms
+2025/08/15 22:55:02 server.go:347: Loaded 68 issues into memory from disk
+2025/08/15 22:56:23 server.go:389: GET /api/v1/issues 321.875µs
+2025/08/15 22:56:23 server.go:389: GET /api/v1/issues/ISSUEMAP-091 3.910709ms
+2025/08/15 22:56:23 server.go:389: GET /api/v1/issues 209.333µs
+2025/08/15 22:56:23 server.go:389: GET /api/v1/issues/ISSUEMAP-091 6.902667ms
+2025/08/15 22:56:25 server.go:389: GET /api/v1/info 55.417µs
+2025/08/15 22:56:25 server.go:389: GET /api/v1/issues 294.458µs
+2025/08/15 22:56:25 server.go:389: GET /api/v1/issues/ISSUEMAP-091 6.928542ms
+2025/08/15 22:56:25 server.go:389: GET /api/v1/issues/ISSUEMAP-091 4.414334ms
+2025/08/15 22:57:38 server.go:127: IssueMap server starting on port 4042
+2025/08/15 22:57:38 server.go:128: API endpoints available at http://localhost:4042/api/v1
+2025/08/15 22:57:38 server.go:389: GET /api/v1/health 152.792µs
+2025/08/15 22:57:38 server.go:389: GET /api/v1/info 78.583µs
+2025/08/15 22:57:38 server.go:389: GET /api/v1/issues 407.5µs
+2025/08/15 22:58:18 server.go:389: GET /api/v1/issues/ISSUEMAP-091 27.614083ms
+2025/08/15 22:58:18 server.go:389: GET /api/v1/issues/ISSUEMAP-091 5.871542ms
+2025/08/15 22:59:09 server.go:389: GET /api/v1/info 46.625µs
+2025/08/15 22:59:09 server.go:389: GET /api/v1/issues 317.666µs
+2025/08/15 22:59:09 server.go:389: GET /api/v1/issues/ISSUEMAP-091 10.308667ms
+2025/08/15 22:59:09 server.go:389: GET /api/v1/issues/ISSUEMAP-091 7.777542ms
+2025/08/15 22:59:29 server.go:127: IssueMap server starting on port 4042
+2025/08/15 22:59:29 server.go:128: API endpoints available at http://localhost:4042/api/v1
+2025/08/15 22:59:29 server.go:389: GET /api/v1/health 181.125µs
+2025/08/15 22:59:29 server.go:389: GET /api/v1/info 299.042µs
+2025/08/15 22:59:29 server.go:389: GET /api/v1/issues 329.75µs
+2025/08/15 22:59:50 server.go:389: GET /api/v1/issues/ISSUEMAP-092 11.784791ms
+2025/08/15 22:59:50 server.go:389: GET /api/v1/issues/ISSUEMAP-092 8.296791ms

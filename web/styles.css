@@ -76,8 +76,16 @@ input[type="search"] { min-width: 280px; }
 }
 .table-wrapper { overflow: auto; max-height: 60vh; }
 
-.issues-table { width: 100%; border-collapse: collapse; }
+.issues-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .issues-table th, .issues-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.issues-table th:nth-child(1), .issues-table td:nth-child(1) { width: 120px; } /* ID */
+.issues-table th:nth-child(2), .issues-table td:nth-child(2) { width: auto; min-width: 200px; } /* Title */
+.issues-table th:nth-child(3), .issues-table td:nth-child(3) { width: 100px; } /* Status */
+.issues-table th:nth-child(4), .issues-table td:nth-child(4) { width: 90px; } /* Priority */
+.issues-table th:nth-child(5), .issues-table td:nth-child(5) { width: 120px; } /* Labels */
+.issues-table th:nth-child(6), .issues-table td:nth-child(6) { width: 80px; } /* Branch */
+.issues-table th:nth-child(7), .issues-table td:nth-child(7) { width: 100px; } /* Milestone */
+.issues-table th:nth-child(8), .issues-table td:nth-child(8) { width: 80px; } /* Actions */
 .issues-table thead th { position: sticky; top: 0; background: #0f1722; z-index: 1; text-align: left; font-weight: 600; color: #c9d7e8; }
 .issues-table tbody tr { transition: background 0.12s ease; }
 .issues-table tbody tr:hover { background: rgba(77, 163, 255, 0.06); }

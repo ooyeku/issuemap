@@ -362,13 +362,23 @@ func (s *IssueService) UpdateIssue(ctx context.Context, id entities.IssueID, upd
 				if milestoneName == "" {
 					issue.SetMilestone(nil)
 				} else {
-					// Find milestone in config
-					for _, milestone := range config.Milestones {
-						if milestone.Name == milestoneName {
-							issue.SetMilestone(&milestone)
+					// Find milestone in config, or create new one if not found
+					var milestone *entities.Milestone
+					for _, configMilestone := range config.Milestones {
+						if configMilestone.Name == milestoneName {
+							milestone = &configMilestone
 							break
 						}
 					}
+					// If milestone not found in config, create a new one
+					if milestone == nil {
+						milestone = &entities.Milestone{
+							Name:        milestoneName,
+							Description: "",
+							DueDate:     nil,
+						}
+					}
+					issue.SetMilestone(milestone)
 				}
 			}
 		case "estimated_hours":

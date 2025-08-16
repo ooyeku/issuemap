@@ -55,7 +55,7 @@
 
     if (!list.length) {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td colspan="7" class="empty">No issues found</td>';
+      tr.innerHTML = '<td colspan="8" class="empty">No issues found</td>';
       tbody.appendChild(tr);
       return;
     }
@@ -71,6 +71,7 @@
         <td class="priority ${escapeHtml(iss.priority)}">${escapeHtml(iss.priority)}</td>
         <td class="labels"></td>
         <td>${escapeHtml(iss.branch || '')}</td>
+        <td class="milestone">${iss.milestone ? escapeHtml(iss.milestone.name) : ''}</td>
         <td class="row-actions"></td>
       `;
       tr.addEventListener('click', () => {
