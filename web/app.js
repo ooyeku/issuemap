@@ -261,7 +261,7 @@
             <div class="attachment-meta muted">${escapeHtml(att.size_formatted)} • ${escapeHtml(att.type)} • Uploaded by ${escapeHtml(att.uploaded_by)} on ${new Date(att.uploaded_at).toLocaleDateString()}</div>
             ${att.description ? `<div class="attachment-desc">${escapeHtml(att.description)}</div>` : ''}
           </div>
-          <a class="attachment-view action-link" href="/attachment.html?id=${encodeURIComponent(att.id)}" target="_blank">View</a>
+          <a class="attachment-view action-link" href="/attachment.html?id=${encodeURIComponent(att.id)}&issue=${encodeURIComponent(iss.id)}" target="_blank">View</a>
         `;
         container.appendChild(item);
       });

@@ -16,6 +16,7 @@ import (
 type AttachmentService struct {
 	attachmentRepo repositories.AttachmentRepository
 	issueRepo      repositories.IssueRepository
+	security       *AttachmentSecurity
 }
 
 // NewAttachmentService creates a new attachment service
@@ -23,11 +24,20 @@ func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issu
 	return &AttachmentService{
 		attachmentRepo: attachmentRepo,
 		issueRepo:      issueRepo,
+		security:       NewAttachmentSecurity(),
 	}
 }
 
 // UploadAttachment uploads a new attachment for an issue
 func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entities.IssueID, filename string, content io.Reader, size int64, uploadedBy string) (*entities.Attachment, error) {
+	// Sanitize filename first
+	filename = s.security.SanitizeFilename(filename)
+
+	// Validate file security
+	if err := s.security.ValidateFile(filename, size, content); err != nil {
+		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "security_validation")
+	}
+
 	// Verify issue exists
 	issue, err := s.issueRepo.GetByID(ctx, issueID)
 	if err != nil {
@@ -38,6 +48,11 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	contentType := mime.TypeByExtension(filepath.Ext(filename))
 	if contentType == "" {
 		contentType = "application/octet-stream"
+	}
+
+	// Validate MIME type
+	if err := s.security.ValidateMimeType(contentType); err != nil {
+		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "mime_validation")
 	}
 
 	// Create attachment entity
@@ -136,6 +151,25 @@ func (s *AttachmentService) DeleteAttachment(ctx context.Context, attachmentID s
 	// Delete metadata
 	if err := s.attachmentRepo.DeleteMetadata(ctx, attachmentID); err != nil {
 		return errors.Wrap(err, "AttachmentService.DeleteAttachment", "delete_metadata")
+	}
+
+	return nil
+}
+
+// UpdateDescription updates an attachment's description
+func (s *AttachmentService) UpdateDescription(ctx context.Context, attachmentID, description string) error {
+	// Get attachment metadata
+	attachment, err := s.attachmentRepo.GetMetadata(ctx, attachmentID)
+	if err != nil {
+		return errors.Wrap(err, "AttachmentService.UpdateDescription", "get_metadata")
+	}
+
+	// Update description
+	attachment.Description = description
+
+	// Save updated metadata
+	if err := s.attachmentRepo.SaveMetadata(ctx, attachment); err != nil {
+		return errors.Wrap(err, "AttachmentService.UpdateDescription", "save_metadata")
 	}
 
 	return nil

@@ -31,6 +31,20 @@ func NewFileAttachmentRepository(basePath string) *FileAttachmentRepository {
 
 // SaveFile saves an attachment file to storage
 func (r *FileAttachmentRepository) SaveFile(ctx context.Context, issueID entities.IssueID, filename string, content io.Reader) (string, error) {
+	// Validate inputs
+	if issueID == "" {
+		return "", errors.Wrap(fmt.Errorf("invalid issue ID"), "FileAttachmentRepository.SaveFile", "validation")
+	}
+	if filename == "" {
+		return "", errors.Wrap(fmt.Errorf("invalid filename"), "FileAttachmentRepository.SaveFile", "validation")
+	}
+
+	// Sanitize filename to prevent path traversal
+	safeFilename := filepath.Base(filename)
+	if safeFilename == "." || safeFilename == ".." {
+		return "", errors.Wrap(fmt.Errorf("invalid filename"), "FileAttachmentRepository.SaveFile", "validation")
+	}
+
 	// Create attachments directory structure
 	attachmentsDir := filepath.Join(r.basePath, "attachments", string(issueID))
 	if err := os.MkdirAll(attachmentsDir, 0755); err != nil {
@@ -39,8 +53,14 @@ func (r *FileAttachmentRepository) SaveFile(ctx context.Context, issueID entitie
 
 	// Generate unique filename to avoid collisions
 	timestamp := fmt.Sprintf("%d", time.Now().UnixNano())
-	safeFilename := fmt.Sprintf("%s_%s", timestamp, filename)
-	storagePath := filepath.Join("attachments", string(issueID), safeFilename)
+	uniqueFilename := fmt.Sprintf("%s_%s", timestamp, safeFilename)
+	storagePath := filepath.Join("attachments", string(issueID), uniqueFilename)
+
+	// Validate storage path for security
+	if strings.Contains(storagePath, "..") {
+		return "", errors.Wrap(fmt.Errorf("invalid storage path"), "FileAttachmentRepository.SaveFile", "security")
+	}
+
 	fullPath := filepath.Join(r.basePath, storagePath)
 
 	// Create the file
@@ -61,7 +81,34 @@ func (r *FileAttachmentRepository) SaveFile(ctx context.Context, issueID entitie
 
 // GetFile retrieves an attachment file from storage
 func (r *FileAttachmentRepository) GetFile(ctx context.Context, storagePath string) (io.ReadCloser, error) {
+	// Validate storage path for security
+	if strings.Contains(storagePath, "..") ||
+		!strings.HasPrefix(storagePath, "attachments/") {
+		return nil, errors.Wrap(fmt.Errorf("invalid storage path"), "FileAttachmentRepository.GetFile", "security")
+	}
+
+	// Clean the path to prevent path traversal
+	cleanPath := filepath.Clean(storagePath)
+	if cleanPath != storagePath {
+		return nil, errors.Wrap(fmt.Errorf("invalid storage path"), "FileAttachmentRepository.GetFile", "security")
+	}
+
 	fullPath := filepath.Join(r.basePath, storagePath)
+
+	// Ensure the resolved path is still within our base directory
+	absBasePath, err := filepath.Abs(r.basePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "FileAttachmentRepository.GetFile", "abs_path")
+	}
+
+	absFullPath, err := filepath.Abs(fullPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "FileAttachmentRepository.GetFile", "abs_path")
+	}
+
+	if !strings.HasPrefix(absFullPath, absBasePath) {
+		return nil, errors.Wrap(fmt.Errorf("path outside base directory"), "FileAttachmentRepository.GetFile", "security")
+	}
 
 	file, err := os.Open(fullPath)
 	if err != nil {

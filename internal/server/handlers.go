@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -742,38 +743,87 @@ func (s *Server) uploadAttachmentHandler(w http.ResponseWriter, r *http.Request)
 	vars := mux.Vars(r)
 	issueID := entities.IssueID(vars["id"])
 
+	// Validate issue ID format
+	if issueID == "" {
+		s.errorResponse(w, "Invalid issue ID", http.StatusBadRequest)
+		return
+	}
+
+	// Check content length before parsing
+	if r.ContentLength > 10<<20 { // 10MB
+		s.errorResponse(w, "File too large. Maximum size is 10MB", http.StatusRequestEntityTooLarge)
+		return
+	}
+
 	// Parse multipart form (10MB max)
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		s.errorResponse(w, "Failed to parse form", http.StatusBadRequest)
+		log.Printf("Failed to parse multipart form: %v", err)
+		s.errorResponse(w, "Failed to parse upload form", http.StatusBadRequest)
 		return
 	}
 
 	// Get file from form
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		s.errorResponse(w, "Failed to get file from form", http.StatusBadRequest)
+		log.Printf("Failed to get file from form: %v", err)
+		s.errorResponse(w, "No file provided in upload", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	// Get optional description
-	description := r.FormValue("description")
-	uploadedBy := r.FormValue("uploaded_by")
+	// Validate file size
+	if header.Size <= 0 {
+		s.errorResponse(w, "Invalid file size", http.StatusBadRequest)
+		return
+	}
+
+	// Get optional description and validate
+	description := strings.TrimSpace(r.FormValue("description"))
+	if len(description) > 500 {
+		s.errorResponse(w, "Description too long (max 500 characters)", http.StatusBadRequest)
+		return
+	}
+
+	uploadedBy := strings.TrimSpace(r.FormValue("uploaded_by"))
 	if uploadedBy == "" {
 		uploadedBy = "anonymous"
+	}
+	if len(uploadedBy) > 100 {
+		s.errorResponse(w, "Uploaded by field too long (max 100 characters)", http.StatusBadRequest)
+		return
 	}
 
 	ctx := context.Background()
 	attachment, err := s.attachmentService.UploadAttachment(ctx, issueID, header.Filename, file, header.Size, uploadedBy)
 	if err != nil {
-		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Failed to upload attachment: %v", err)
+		// Check for specific error types to provide better user feedback
+		errMsg := err.Error()
+		statusCode := http.StatusInternalServerError
+
+		if strings.Contains(errMsg, "security_validation") ||
+			strings.Contains(errMsg, "mime_validation") ||
+			strings.Contains(errMsg, "not allowed") ||
+			strings.Contains(errMsg, "invalid") {
+			statusCode = http.StatusBadRequest
+		} else if strings.Contains(errMsg, "not found") {
+			statusCode = http.StatusNotFound
+		}
+
+		s.errorResponse(w, errMsg, statusCode)
 		return
 	}
 
 	// Update description if provided
 	if description != "" {
 		attachment.Description = description
+		// Save the updated metadata
+		ctx := context.Background()
+		if err := s.attachmentService.UpdateDescription(ctx, attachment.ID, description); err != nil {
+			log.Printf("Failed to update attachment description: %v", err)
+			// Continue anyway, don't fail the whole upload
+		}
 	}
 
 	// Convert to DTO
@@ -838,18 +888,35 @@ func (s *Server) downloadAttachmentHandler(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	attachmentID := vars["id"]
 
+	// Validate attachment ID
+	if attachmentID == "" || len(attachmentID) > 200 {
+		s.errorResponse(w, "Invalid attachment ID", http.StatusBadRequest)
+		return
+	}
+
 	ctx := context.Background()
 	content, attachment, err := s.attachmentService.GetAttachmentContent(ctx, attachmentID)
 	if err != nil {
+		log.Printf("Failed to get attachment content: %v", err)
 		s.errorResponse(w, "Attachment not found", http.StatusNotFound)
 		return
 	}
-	defer content.Close()
+	defer func() {
+		if err := content.Close(); err != nil {
+			log.Printf("Error closing attachment content: %v", err)
+		}
+	}()
+
+	// Sanitize filename for header
+	safeFilename := strings.ReplaceAll(attachment.Filename, "\"", "")
+	safeFilename = strings.ReplaceAll(safeFilename, "\n", "")
+	safeFilename = strings.ReplaceAll(safeFilename, "\r", "")
 
 	// Set headers for file download
 	w.Header().Set("Content-Type", attachment.ContentType)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", attachment.Filename))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", safeFilename))
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", attachment.Size))
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 
 	// Stream the file content
 	if _, err := io.Copy(w, content); err != nil {

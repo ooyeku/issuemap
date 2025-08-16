@@ -76,7 +76,7 @@
   </header>
 
   <main class="attachment-viewer">
-    <a href="javascript:history.back()" class="action-link back-link">← Back to Issue</a>
+    <a href="/" class="action-link back-link" id="backLink">← Back to Issue</a>
     
     <div class="viewer-header">
       <h2 id="fileName">Loading...</h2>
@@ -114,6 +114,15 @@
       async function loadAttachment() {
         const params = new URLSearchParams(location.search);
         const id = params.get('id');
+        const issueId = params.get('issue');
+        
+        // Set the back link
+        const backLink = $('#backLink');
+        if (issueId) {
+          backLink.href = `/#${encodeURIComponent(issueId)}`;
+        } else {
+          backLink.href = '/';
+        }
         
         if (!id) {
           $('#fileName').textContent = 'No attachment ID provided';
