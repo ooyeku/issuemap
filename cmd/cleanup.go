@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -12,15 +14,24 @@ import (
 
 	"github.com/ooyeku/issuemap/internal/app/services"
 	"github.com/ooyeku/issuemap/internal/domain/entities"
+	"github.com/ooyeku/issuemap/internal/domain/repositories"
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
 
 var (
-	cleanupDryRun      bool
-	cleanupJSON        bool
-	cleanupVerbose     bool
-	cleanupConfigShow  bool
-	cleanupConfigReset bool
+	cleanupDryRun            bool
+	cleanupJSON              bool
+	cleanupVerbose           bool
+	cleanupConfigShow        bool
+	cleanupConfigReset       bool
+	cleanupOlderThan         string
+	cleanupClosedOnly        bool
+	cleanupClosedDays        int
+	cleanupOrphanedOnly      bool
+	cleanupTimeEntriesOnly   bool
+	cleanupTimeEntriesBefore string
+	cleanupForceConfirm      bool
+	cleanupNoBackup          bool
 )
 
 // cleanupCmd represents the cleanup command
@@ -33,11 +44,14 @@ This command provides tools to clean up old data, manage retention policies,
 and prevent storage bloat over time.
 
 Examples:
-  issuemap cleanup                    # Run cleanup with current settings
-  issuemap cleanup --dry-run          # Preview what would be cleaned
-  issuemap cleanup --json             # JSON output
-  issuemap cleanup config             # Show cleanup configuration
-  issuemap cleanup config --reset     # Reset to default configuration`,
+  issuemap cleanup                           # Run cleanup with current settings
+  issuemap cleanup --dry-run                 # Preview what would be cleaned
+  issuemap cleanup --older-than 30d          # Clean items older than 30 days
+  issuemap cleanup --closed --days 180       # Clean closed issues older than 180 days
+  issuemap cleanup --orphaned-attachments    # Clean only orphaned attachments
+  issuemap cleanup --time-entries --before 2024-01-01  # Clean time entries before date
+  issuemap cleanup --json                    # JSON output
+  issuemap cleanup config                    # Show cleanup configuration`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runCleanup(cmd, args)
 	},
@@ -77,6 +91,16 @@ func init() {
 	cleanupCmd.Flags().BoolVar(&cleanupJSON, "json", false, "output in JSON format")
 	cleanupCmd.Flags().BoolVar(&cleanupVerbose, "verbose", false, "verbose output with detailed information")
 
+	// Admin cleanup flags
+	cleanupCmd.Flags().StringVar(&cleanupOlderThan, "older-than", "", "clean items older than duration (e.g., 30d, 6m, 1y)")
+	cleanupCmd.Flags().BoolVar(&cleanupClosedOnly, "closed", false, "clean only closed issues")
+	cleanupCmd.Flags().IntVar(&cleanupClosedDays, "days", 0, "days to keep closed issues (use with --closed)")
+	cleanupCmd.Flags().BoolVar(&cleanupOrphanedOnly, "orphaned-attachments", false, "clean only orphaned attachments")
+	cleanupCmd.Flags().BoolVar(&cleanupTimeEntriesOnly, "time-entries", false, "clean only time entries")
+	cleanupCmd.Flags().StringVar(&cleanupTimeEntriesBefore, "before", "", "clean time entries before date (YYYY-MM-DD)")
+	cleanupCmd.Flags().BoolVar(&cleanupForceConfirm, "yes", false, "skip confirmation prompts")
+	cleanupCmd.Flags().BoolVar(&cleanupNoBackup, "no-backup", false, "skip creating backup before deletion")
+
 	// Cleanup config flags
 	cleanupConfigCmd.Flags().BoolVar(&cleanupConfigShow, "show", false, "show current configuration")
 	cleanupConfigCmd.Flags().BoolVar(&cleanupConfigReset, "reset", false, "reset configuration to defaults")
@@ -106,7 +130,12 @@ func runCleanup(cmd *cobra.Command, args []string) error {
 
 	cleanupService := services.NewCleanupService(issuemapPath, configRepo, issueRepo, attachmentRepo)
 
-	// Run cleanup
+	// Check if admin flags are used
+	if hasAdminFlags(cmd) {
+		return runAdminCleanup(ctx, cleanupService, issuemapPath, configRepo, issueRepo, attachmentRepo)
+	}
+
+	// Run regular cleanup
 	result, err := cleanupService.RunCleanup(ctx, cleanupDryRun)
 	if err != nil {
 		printError(fmt.Errorf("cleanup failed: %w", err))
@@ -414,4 +443,184 @@ func formatRetentionDays(days int) string {
 		return "never"
 	}
 	return fmt.Sprintf("%d", days)
+}
+
+// hasAdminFlags checks if any admin-specific flags are used
+func hasAdminFlags(cmd *cobra.Command) bool {
+	return cleanupOlderThan != "" ||
+		cleanupClosedOnly ||
+		cleanupClosedDays > 0 ||
+		cleanupOrphanedOnly ||
+		cleanupTimeEntriesOnly ||
+		cleanupTimeEntriesBefore != "" ||
+		cleanupForceConfirm ||
+		cleanupNoBackup
+}
+
+// runAdminCleanup handles admin cleanup operations
+func runAdminCleanup(ctx context.Context, cleanupService *services.CleanupService, basePath string, configRepo repositories.ConfigRepository, issueRepo repositories.IssueRepository, attachmentRepo repositories.AttachmentRepository) error {
+	adminService := services.NewAdminCleanupService(cleanupService, basePath, configRepo, issueRepo, attachmentRepo)
+
+	// Build admin cleanup options
+	options, err := buildAdminCleanupOptions()
+	if err != nil {
+		printError(fmt.Errorf("invalid options: %w", err))
+		return err
+	}
+
+	// Run admin cleanup
+	result, err := adminService.RunAdminCleanup(ctx, options)
+	if err != nil {
+		printError(fmt.Errorf("admin cleanup failed: %w", err))
+		return err
+	}
+
+	// Output results
+	if cleanupJSON {
+		jsonData, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			printError(fmt.Errorf("failed to marshal JSON: %w", err))
+			return err
+		}
+		fmt.Println(string(jsonData))
+		return nil
+	}
+
+	displayAdminCleanupResult(result, cleanupVerbose)
+	return nil
+}
+
+// buildAdminCleanupOptions builds cleanup options from command flags
+func buildAdminCleanupOptions() (*entities.AdminCleanupOptions, error) {
+	options := &entities.AdminCleanupOptions{
+		DryRun:          cleanupDryRun,
+		ForceConfirm:    cleanupForceConfirm,
+		NoBackup:        cleanupNoBackup,
+		ClosedOnly:      cleanupClosedOnly,
+		OrphanedOnly:    cleanupOrphanedOnly,
+		TimeEntriesOnly: cleanupTimeEntriesOnly,
+	}
+
+	// Parse older-than duration
+	if cleanupOlderThan != "" {
+		duration, err := parseDurationString(cleanupOlderThan)
+		if err != nil {
+			return nil, fmt.Errorf("invalid --older-than duration: %w", err)
+		}
+		options.OlderThan = &duration
+	}
+
+	// Parse closed days
+	if cleanupClosedDays > 0 {
+		options.ClosedDays = &cleanupClosedDays
+	}
+
+	// Parse time entries before date
+	if cleanupTimeEntriesBefore != "" {
+		beforeDate, err := time.Parse("2006-01-02", cleanupTimeEntriesBefore)
+		if err != nil {
+			return nil, fmt.Errorf("invalid --before date format (use YYYY-MM-DD): %w", err)
+		}
+		options.TimeEntriesBefore = &beforeDate
+	}
+
+	return options, nil
+}
+
+// parseDurationString parses duration strings like "30d", "6m", "1y"
+func parseDurationString(duration string) (time.Duration, error) {
+	if duration == "" {
+		return 0, fmt.Errorf("empty duration")
+	}
+
+	// Handle common patterns
+	if strings.HasSuffix(duration, "d") {
+		days, err := strconv.Atoi(strings.TrimSuffix(duration, "d"))
+		if err != nil {
+			return 0, fmt.Errorf("invalid day value: %w", err)
+		}
+		return time.Duration(days) * 24 * time.Hour, nil
+	}
+
+	if strings.HasSuffix(duration, "m") {
+		months, err := strconv.Atoi(strings.TrimSuffix(duration, "m"))
+		if err != nil {
+			return 0, fmt.Errorf("invalid month value: %w", err)
+		}
+		return time.Duration(months) * 30 * 24 * time.Hour, nil // Approximate month
+	}
+
+	if strings.HasSuffix(duration, "y") {
+		years, err := strconv.Atoi(strings.TrimSuffix(duration, "y"))
+		if err != nil {
+			return 0, fmt.Errorf("invalid year value: %w", err)
+		}
+		return time.Duration(years) * 365 * 24 * time.Hour, nil // Approximate year
+	}
+
+	// Try standard Go duration parsing
+	return time.ParseDuration(duration)
+}
+
+// displayAdminCleanupResult displays admin cleanup results
+func displayAdminCleanupResult(result *entities.AdminCleanupResult, verbose bool) {
+	// Header with admin info
+	if result.DryRun {
+		if noColor {
+			fmt.Printf("Admin Cleanup Result (DRY RUN) - %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
+		} else {
+			color.Cyan("Admin Cleanup Result (DRY RUN) - %s", result.Timestamp.Format("2006-01-02 15:04:05"))
+		}
+	} else {
+		if noColor {
+			fmt.Printf("Admin Cleanup Result - %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
+		} else {
+			color.Cyan("Admin Cleanup Result - %s", result.Timestamp.Format("2006-01-02 15:04:05"))
+		}
+	}
+
+	if noColor {
+		fmt.Println("═══════════════════════════════════════════════════")
+	} else {
+		color.HiBlack("═══════════════════════════════════════════════════")
+	}
+
+	// Admin-specific information
+	if noColor {
+		fmt.Printf("Target: %s\n", result.Target)
+		fmt.Printf("Backup Created: %v\n", result.BackupCreated)
+		if result.BackupCreated {
+			fmt.Printf("Backup Location: %s\n", result.BackupLocation)
+		}
+		fmt.Printf("Confirmation Used: %v\n", result.ConfirmationUsed)
+	} else {
+		fmt.Printf("%s %s\n", colorLabel("Target:"), colorValue(string(result.Target)))
+		fmt.Printf("%s %v\n", colorLabel("Backup Created:"), result.BackupCreated)
+		if result.BackupCreated {
+			fmt.Printf("%s %s\n", colorLabel("Backup Location:"), colorValue(result.BackupLocation))
+		}
+		fmt.Printf("%s %v\n", colorLabel("Confirmation Used:"), result.ConfirmationUsed)
+	}
+
+	// Show filter criteria if verbose
+	if verbose && len(result.FilterCriteria) > 0 {
+		fmt.Println()
+		if noColor {
+			fmt.Println("Filter Criteria:")
+		} else {
+			color.Yellow("Filter Criteria:")
+		}
+		for key, value := range result.FilterCriteria {
+			if noColor {
+				fmt.Printf("  %s: %v\n", key, value)
+			} else {
+				fmt.Printf("  %s %v\n", colorLabel(fmt.Sprintf("%s:", key)), value)
+			}
+		}
+	}
+
+	fmt.Println()
+
+	// Regular cleanup result display
+	displayCleanupResult(result.CleanupResult, verbose)
 }

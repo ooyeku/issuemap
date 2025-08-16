@@ -51,7 +51,8 @@ branch: main
 commits: []
 comments: []
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.3
 timestamps:
     created: 2025-08-16T13:05:33.07468-05:00
-    updated: 2025-08-16T13:13:20.942119-05:00
+    updated: 2025-08-16T17:52:19.689054-05:00

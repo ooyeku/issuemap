@@ -35,7 +35,7 @@ description: |-
     - [ ] JSON output supported
     - [ ] Performance is acceptable (<1s)
 type: feature
-status: open
+status: closed
 priority: high
 labels:
     - name: cli
@@ -53,4 +53,5 @@ attachments: []
 metadata: {}
 timestamps:
     created: 2025-08-16T13:05:58.001039-05:00
-    updated: 2025-08-16T13:13:32.678439-05:00
+    updated: 2025-08-16T17:45:22.193556-05:00
+    closed: 2025-08-16T17:45:22.193544-05:00
