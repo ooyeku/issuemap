@@ -7,6 +7,211 @@
   let filtered = [];
   let selectedId = null;
 
+  // State Management System
+  const StateManager = {
+    keys: {
+      SELECTED_ISSUE: 'issuemap_selected_issue',
+      FILTERS: 'issuemap_filters',
+      COLUMN_WIDTHS: 'issuemap_column_widths',
+      SCROLL_POSITION: 'issuemap_scroll_position',
+      PANEL_WIDTH: 'issuemap_panel_width',
+      VIEW_PREFERENCES: 'issuemap_view_prefs',
+      RECENT_ISSUES: 'issuemap_recent_issues'
+    },
+
+    // Save state to localStorage
+    save(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.warn('Failed to save state:', e);
+      }
+    },
+
+    // Load state from localStorage
+    load(key, defaultValue = null) {
+      try {
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : defaultValue;
+      } catch (e) {
+        console.warn('Failed to load state:', e);
+        return defaultValue;
+      }
+    },
+
+    // Remove state
+    remove(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn('Failed to remove state:', e);
+      }
+    },
+
+    // Save current filter state
+    saveFilters() {
+      const filters = {
+        status: $('#statusFilter').value,
+        priority: $('#priorityFilter').value,
+        search: $('#searchInput').value
+      };
+      this.save(this.keys.FILTERS, filters);
+    },
+
+    // Restore filter state
+    restoreFilters() {
+      const filters = this.load(this.keys.FILTERS, {});
+      if (filters.status) $('#statusFilter').value = filters.status;
+      if (filters.priority) $('#priorityFilter').value = filters.priority;
+      if (filters.search) $('#searchInput').value = filters.search;
+    },
+
+    // Save scroll position
+    saveScrollPosition() {
+      const wrapper = $('.table-wrapper');
+      if (wrapper) {
+        this.save(this.keys.SCROLL_POSITION, {
+          top: wrapper.scrollTop,
+          left: wrapper.scrollLeft
+        });
+      }
+    },
+
+    // Restore scroll position
+    restoreScrollPosition() {
+      const wrapper = $('.table-wrapper');
+      const position = this.load(this.keys.SCROLL_POSITION);
+      if (wrapper && position) {
+        setTimeout(() => {
+          wrapper.scrollTop = position.top || 0;
+          wrapper.scrollLeft = position.left || 0;
+        }, 100);
+      }
+    },
+
+    // Save selected issue
+    saveSelectedIssue(issueId) {
+      this.save(this.keys.SELECTED_ISSUE, issueId);
+      this.addToRecentIssues(issueId);
+    },
+
+    // Restore selected issue
+    restoreSelectedIssue() {
+      return this.load(this.keys.SELECTED_ISSUE);
+    },
+
+    // Add to recent issues (keep last 10)
+    addToRecentIssues(issueId) {
+      if (!issueId) return;
+      let recent = this.load(this.keys.RECENT_ISSUES, []);
+      recent = recent.filter(id => id !== issueId); // Remove if exists
+      recent.unshift(issueId); // Add to beginning
+      recent = recent.slice(0, 10); // Keep only last 10
+      this.save(this.keys.RECENT_ISSUES, recent);
+    },
+
+    // Get recent issues
+    getRecentIssues() {
+      return this.load(this.keys.RECENT_ISSUES, []);
+    },
+
+    // Save view preferences
+    saveViewPreferences(prefs) {
+      const current = this.load(this.keys.VIEW_PREFERENCES, {});
+      this.save(this.keys.VIEW_PREFERENCES, { ...current, ...prefs });
+    },
+
+    // Load view preferences
+    getViewPreferences() {
+      return this.load(this.keys.VIEW_PREFERENCES, {
+        showClosedIssues: false,
+        compactView: false,
+        autoRefresh: false,
+        refreshInterval: 30000
+      });
+    },
+
+    // Save panel width
+    savePanelWidth(width) {
+      this.save(this.keys.PANEL_WIDTH, width);
+    },
+
+    // Get panel width
+    getPanelWidth() {
+      return this.load(this.keys.PANEL_WIDTH, 400);
+    },
+
+    // Clear all state
+    clearAll() {
+      Object.values(this.keys).forEach(key => this.remove(key));
+      toast('All preferences cleared');
+    }
+  };
+
+  // Enhanced state-aware functions
+  function saveCurrentState() {
+    StateManager.saveFilters();
+    StateManager.saveScrollPosition();
+    if (selectedId) {
+      StateManager.saveSelectedIssue(selectedId);
+    }
+  }
+
+  function restoreState() {
+    StateManager.restoreFilters();
+    
+    // Restore selected issue after data loads
+    const savedIssueId = StateManager.restoreSelectedIssue();
+    if (savedIssueId) {
+      selectedId = savedIssueId;
+      // Will be handled in restoreSelection() after issues load
+    }
+
+    // Apply view preferences
+    const prefs = StateManager.getViewPreferences();
+    applyViewPreferences(prefs);
+  }
+
+  function applyViewPreferences(prefs) {
+    // Apply panel width
+    const panelWidth = StateManager.getPanelWidth();
+    if (panelWidth !== 400) {
+      const content = $('.content');
+      if (content) {
+        content.style.gridTemplateColumns = `1fr ${panelWidth}px`;
+      }
+    }
+
+    // Apply other preferences as needed
+    if (prefs.autoRefresh) {
+      startAutoRefresh(prefs.refreshInterval);
+    }
+  }
+
+  // Auto-refresh functionality
+  let autoRefreshInterval = null;
+  function startAutoRefresh(interval = 30000) {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(() => {
+      fetchIssues();
+    }, interval);
+  }
+
+  function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+    }
+  }
+
+  // Enhanced window events for state management
+  window.addEventListener('beforeunload', () => {
+    saveCurrentState();
+  });
+
+  // Save state periodically
+  setInterval(saveCurrentState, 5000);
+
   function setApiBase(api){
     API_BASE = api || API_BASE;
     const el = $('#apiBase');
@@ -556,9 +761,11 @@
   async function init(){
     renderDetailEmpty();
     wire();
+    restoreState(); // Restore saved preferences
     await fetchInfo();
     await fetchIssues();
     restoreSelection();
+    StateManager.restoreScrollPosition(); // Restore scroll after content loads
   }
 
   document.addEventListener('DOMContentLoaded', init);
