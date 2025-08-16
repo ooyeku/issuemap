@@ -244,7 +244,7 @@
       c.appendChild(sec);
     }
 
-    // Attachments
+    // Attachments (show if any exist)
     if (Array.isArray(iss.attachments) && iss.attachments.length) {
       const sec = document.createElement('div');
       sec.className = 'section';
@@ -271,31 +271,50 @@
     // Upload attachment form
     const uploadSec = document.createElement('div');
     uploadSec.className = 'section';
+    const formId = `uploadForm_${iss.id}`;
+    const fileInputId = `fileInput_${iss.id}`;
+    const descInputId = `descInput_${iss.id}`;
+    
     uploadSec.innerHTML = `
       <h4>Upload Attachment</h4>
-      <form id="uploadForm" class="upload-form">
-        <input type="file" id="fileInput" name="file" required>
-        <input type="text" id="descInput" name="description" placeholder="Description (optional)">
+      <form id="${formId}" class="upload-form">
+        <input type="file" id="${fileInputId}" name="file" required accept=".txt,.md,.pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.xls,.xlsx">
+        <input type="text" id="${descInputId}" name="description" placeholder="Description (optional)" maxlength="500">
         <button type="submit" class="btn">Upload</button>
       </form>
     `;
     c.appendChild(uploadSec);
 
     // Wire upload form
-    const uploadForm = $('#uploadForm');
+    const uploadForm = document.getElementById(formId);
     if (uploadForm) {
       uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const fileInput = $('#fileInput');
-        const descInput = $('#descInput');
-        if (!fileInput.files.length) {
+        const fileInput = document.getElementById(fileInputId);
+        const descInput = document.getElementById(descInputId);
+        const submitBtn = uploadForm.querySelector('button[type="submit"]');
+        
+        if (!fileInput || !fileInput.files.length) {
           toast('Please select a file');
           return;
         }
+
+        // Validate file size (10MB max)
+        const file = fileInput.files[0];
+        if (file.size > 10 * 1024 * 1024) {
+          toast('File too large. Maximum size is 10MB');
+          return;
+        }
+        
+        // Disable submit button during upload
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
         
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('description', descInput.value);
+        formData.append('file', file);
+        if (descInput) {
+          formData.append('description', descInput.value.trim());
+        }
         formData.append('uploaded_by', 'web_user');
         
         try {
@@ -303,14 +322,25 @@
             method: 'POST',
             body: formData
           });
+          
           if (r.ok) {
-            toast('Attachment uploaded');
-            loadDetail(iss.id); // Reload to show new attachment
+            toast('Attachment uploaded successfully');
+            // Clear the form
+            fileInput.value = '';
+            if (descInput) descInput.value = '';
+            // Reload to show new attachment
+            loadDetail(iss.id);
           } else {
-            toast('Failed to upload attachment');
+            const errorData = await r.json().catch(() => ({ error: 'Unknown error' }));
+            toast('Upload failed: ' + (errorData.error || 'Unknown error'));
           }
         } catch (e) {
+          console.error('Upload error:', e);
           toast('Network error during upload');
+        } finally {
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Upload';
         }
       });
     }

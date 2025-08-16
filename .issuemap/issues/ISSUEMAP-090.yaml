@@ -18,7 +18,16 @@ attachments:
       storage_path: attachments/ISSUEMAP-090/1755310646796784000_test_attachment.txt
       uploaded_by: cli_test
       uploaded_at: 2025-08-15T21:17:26.796669-05:00
+    - id: ISSUEMAP-090-att-1755313149762264000
+      issue_id: ISSUEMAP-090
+      filename: Brand-and-Demand.pdf
+      content_type: application/pdf
+      size: 8984479
+      type: document
+      storage_path: attachments/ISSUEMAP-090/1755313149762283000_Brand-and-Demand.pdf
+      uploaded_by: web_user
+      uploaded_at: 2025-08-15T21:59:09.762268-05:00
 metadata: {}
 timestamps:
     created: 2025-08-10T21:50:02.401343-05:00
-    updated: 2025-08-15T21:17:26.797036-05:00
+    updated: 2025-08-15T21:59:09.767532-05:00
