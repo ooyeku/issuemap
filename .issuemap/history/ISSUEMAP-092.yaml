@@ -1,0 +1,36 @@
+issue_id: ISSUEMAP-092
+current_version: 1
+created_at: 2025-08-15T22:11:02.822797-05:00
+updated_at: 2025-08-15T22:11:02.822802-05:00
+entries:
+    - id: hist_1755313862806073000
+      issue_id: ISSUEMAP-092
+      version: 1
+      type: created
+      author: Test User
+      timestamp: 2025-08-15T22:11:02.806075-05:00
+      message: 'Issue created: Fix cli display to show full issue id'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Fix cli display to show full issue id
+        - field: description
+          old_value: null
+          new_value: issuemap show cli currently truncates critical information such as issue id and critical description text
+        - field: type
+          old_value: null
+          new_value: bug
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - tui
+      metadata:
+        git_author: Test User
+        git_branch: main
+        git_email: test@example.com

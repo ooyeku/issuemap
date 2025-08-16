@@ -9,15 +9,6 @@ branch: main
 commits: []
 comments: []
 attachments:
-    - id: ISSUEMAP-090-att-1755310646796665000
-      issue_id: ISSUEMAP-090
-      filename: test_attachment.txt
-      content_type: text/plain; charset=utf-8
-      size: 44
-      type: text
-      storage_path: attachments/ISSUEMAP-090/1755310646796784000_test_attachment.txt
-      uploaded_by: cli_test
-      uploaded_at: 2025-08-15T21:17:26.796669-05:00
     - id: ISSUEMAP-090-att-1755313149762264000
       issue_id: ISSUEMAP-090
       filename: Brand-and-Demand.pdf
@@ -30,4 +21,4 @@ attachments:
 metadata: {}
 timestamps:
     created: 2025-08-10T21:50:02.401343-05:00
-    updated: 2025-08-15T21:59:09.767532-05:00
+    updated: 2025-08-15T22:19:19.641078-05:00

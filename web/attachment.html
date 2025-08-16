@@ -89,6 +89,7 @@
 
     <div class="download-section">
       <a id="downloadBtn" class="btn" href="#" download>Download File</a>
+      <button id="deleteBtn" class="btn" style="background: var(--danger); margin-left: 12px;">Delete Attachment</button>
     </div>
   </main>
 
@@ -159,6 +160,38 @@
           const downloadBtn = $('#downloadBtn');
           downloadBtn.href = `${API_BASE}/attachments/${encodeURIComponent(id)}/download`;
           downloadBtn.download = att.filename;
+          
+          // Setup delete button
+          const deleteBtn = $('#deleteBtn');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', async () => {
+              if (confirm(`Are you sure you want to delete "${att.filename}"?`)) {
+                try {
+                  const response = await fetch(`${API_BASE}/attachments/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                  });
+                  
+                  if (response.ok) {
+                    toast('Attachment deleted successfully');
+                    // Redirect back to issue after successful deletion
+                    setTimeout(() => {
+                      if (issueId) {
+                        window.location.href = `/#${encodeURIComponent(issueId)}`;
+                      } else {
+                        window.location.href = '/';
+                      }
+                    }, 1000);
+                  } else {
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                    toast('Delete failed: ' + (errorData.error || 'Unknown error'));
+                  }
+                } catch (error) {
+                  console.error('Delete error:', error);
+                  toast('Network error during delete');
+                }
+              }
+            });
+          }
           
           // Show preview based on type
           const viewerContent = $('#viewerContent');

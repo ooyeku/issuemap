@@ -261,10 +261,43 @@
             <div class="attachment-meta muted">${escapeHtml(att.size_formatted)} • ${escapeHtml(att.type)} • Uploaded by ${escapeHtml(att.uploaded_by)} on ${new Date(att.uploaded_at).toLocaleDateString()}</div>
             ${att.description ? `<div class="attachment-desc">${escapeHtml(att.description)}</div>` : ''}
           </div>
-          <a class="attachment-view action-link" href="/attachment.html?id=${encodeURIComponent(att.id)}&issue=${encodeURIComponent(iss.id)}" target="_blank">View</a>
+          <div class="attachment-actions">
+            <a class="attachment-view action-link" href="/attachment.html?id=${encodeURIComponent(att.id)}&issue=${encodeURIComponent(iss.id)}" target="_blank">View</a>
+            <a class="attachment-delete action-link" href="javascript:void(0)" data-attachment-id="${escapeHtml(att.id)}" data-filename="${escapeHtml(att.filename)}">Delete</a>
+          </div>
         `;
         container.appendChild(item);
       });
+      
+      // Add delete event listeners
+      container.querySelectorAll('.attachment-delete').forEach(deleteBtn => {
+        deleteBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const attachmentId = deleteBtn.dataset.attachmentId;
+          const filename = deleteBtn.dataset.filename;
+          
+          if (confirm(`Are you sure you want to delete "${filename}"?`)) {
+            try {
+              const response = await fetch(`${API_BASE}/attachments/${encodeURIComponent(attachmentId)}`, {
+                method: 'DELETE'
+              });
+              
+              if (response.ok) {
+                toast('Attachment deleted successfully');
+                // Reload issue details to reflect changes
+                loadDetail(iss.id);
+              } else {
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                toast('Delete failed: ' + (errorData.error || 'Unknown error'));
+              }
+            } catch (error) {
+              console.error('Delete error:', error);
+              toast('Network error during delete');
+            }
+          }
+        });
+      });
+      
       c.appendChild(sec);
     }
 

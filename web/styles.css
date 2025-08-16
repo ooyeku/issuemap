@@ -180,8 +180,19 @@ input[type="search"] { min-width: 280px; }
   color: var(--text);
   opacity: 0.9;
 }
-.attachment-view {
+.attachment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex-shrink: 0;
+}
+
+.attachment-delete {
+  color: var(--danger) !important;
+}
+
+.attachment-delete:hover {
+  text-decoration: underline;
 }
 
 /* Upload form styles */
