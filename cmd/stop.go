@@ -23,7 +23,9 @@ var stopCmd = &cobra.Command{
 Examples:
   issuemap stop
   issuemap stop ISSUE-001
-  issuemap stop --force ISSUE-001  # Force stop any timer for the issue`,
+  issuemap stop --force ISSUE-001         # Force stop any timer for the issue
+  issuemap stop --close ISSUE-001         # Stop timer and close the issue
+  issuemap stop --force --close ISSUE-001 # Force stop and close the issue`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var maybeIssueID *entities.IssueID
@@ -38,6 +40,7 @@ Examples:
 func init() {
 	rootCmd.AddCommand(stopCmd)
 	stopCmd.Flags().Bool("force", false, "Force stop timer regardless of who started it")
+	stopCmd.Flags().Bool("close", false, "Automatically close the issue after stopping timer")
 }
 
 func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
@@ -81,13 +84,7 @@ func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
 
 	// Check if force flag is set
 	force, _ := cmd.Flags().GetBool("force")
-
-	// Debug: print flag status
-	if force {
-		fmt.Printf("Force mode enabled\n")
-	} else {
-		fmt.Printf("Normal mode (force flag: %v)\n", force)
-	}
+	closeIssue, _ := cmd.Flags().GetBool("close")
 
 	var timeEntry *entities.TimeEntry
 
@@ -149,6 +146,17 @@ func runStop(cmd *cobra.Command, maybeIssueID *entities.IssueID) error {
 		if issue.IsOverEstimate() {
 			printWarning("Actual time exceeds estimate")
 		}
+	}
+
+	// Close issue if --close flag is set
+	if closeIssue {
+		fmt.Printf("\nClosing issue %s...\n", timeEntry.IssueID)
+		err = issueService.CloseIssue(ctx, timeEntry.IssueID, "Closed after stopping timer")
+		if err != nil {
+			printError(fmt.Errorf("failed to close issue: %w", err))
+			return err
+		}
+		printSuccess(fmt.Sprintf("Issue %s closed successfully", timeEntry.IssueID))
 	}
 
 	return nil

@@ -133,7 +133,7 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 			OverEstimate:   issue.IsOverEstimate(),
 			CustomFields:   nil,
 		}
-		if issue.Metadata.CustomFields != nil && len(issue.Metadata.CustomFields) > 0 {
+		if len(issue.Metadata.CustomFields) > 0 {
 			meta.CustomFields = issue.Metadata.CustomFields
 		}
 		// Only attach if any values are non-zero or custom fields exist
@@ -459,7 +459,7 @@ func (s *Server) closeIssueHandler(w http.ResponseWriter, r *http.Request) {
 	issueID := entities.IssueID(vars["id"])
 
 	var req CloseRequest
-	json.NewDecoder(r.Body).Decode(&req) // Optional body
+	_ = json.NewDecoder(r.Body).Decode(&req) // Optional body
 
 	ctx := context.Background()
 	err := s.issueService.CloseIssue(ctx, issueID, req.Reason)

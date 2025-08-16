@@ -264,7 +264,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 
 	// Pull changes if requested
 	if syncPull && status.IsTracked {
-		fmt.Printf("  ⬇️  Pulling changes from origin...\n")
+		fmt.Printf("  Pulling changes from origin...\n")
 		err := gitClient.PullBranch(ctx, branch)
 		if err != nil {
 			printWarning(fmt.Sprintf("Failed to pull changes: %v", err))
@@ -304,7 +304,7 @@ func syncBranchWithIssues(ctx context.Context, branch string, gitClient *git.Git
 
 	// Push changes if requested
 	if syncPush && status.IsTracked {
-		fmt.Printf("  ⬆️  Pushing changes to origin...\n")
+		fmt.Printf("  Pushing changes to origin...\n")
 		err := gitClient.PushBranch(ctx, branch)
 		if err != nil {
 			printWarning(fmt.Sprintf("Failed to push changes: %v", err))

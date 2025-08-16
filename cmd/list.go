@@ -172,7 +172,6 @@ func runList(cmd *cobra.Command, args []string) error {
 	if format == "table" {
 		displayIssuesTable(issueList.Issues)
 	} else {
-		// TODO: Add JSON/YAML output formats
 		fmt.Printf("Found %d issues (showing %d)\n", issueList.Total, issueList.Count)
 		for _, issue := range issueList.Issues {
 			fmt.Printf("%s: %s [%s] (%s)\n", issue.ID, issue.Title, issue.Status, issue.Type)
@@ -236,7 +235,7 @@ func displayIssuesTable(issues []entities.Issue) {
 		idStr := string(issue.ID)
 		// Add attachment indicator if issue has attachments
 		if issue.HasAttachments() {
-			idStr = idStr + " 📎"
+			idStr = idStr + " [+]"
 		}
 		id := truncateString(idStr, idWidth)
 		title := truncateString(issue.Title, titleWidth)

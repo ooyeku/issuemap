@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -154,7 +153,7 @@ func (r *FileAttachmentRepository) SaveMetadata(ctx context.Context, attachment 
 		return errors.Wrap(err, "FileAttachmentRepository.SaveMetadata", "marshal")
 	}
 
-	if err := ioutil.WriteFile(metadataPath, data, 0644); err != nil {
+	if err := os.WriteFile(metadataPath, data, 0644); err != nil {
 		return errors.Wrap(err, "FileAttachmentRepository.SaveMetadata", "write")
 	}
 
@@ -165,7 +164,7 @@ func (r *FileAttachmentRepository) SaveMetadata(ctx context.Context, attachment 
 func (r *FileAttachmentRepository) GetMetadata(ctx context.Context, attachmentID string) (*entities.Attachment, error) {
 	metadataPath := filepath.Join(r.basePath, "attachments", ".metadata", fmt.Sprintf("%s.yaml", attachmentID))
 
-	data, err := ioutil.ReadFile(metadataPath)
+	data, err := os.ReadFile(metadataPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, errors.Wrap(errors.ErrAttachmentNotFound, "FileAttachmentRepository.GetMetadata", "not_found")
@@ -190,7 +189,7 @@ func (r *FileAttachmentRepository) ListByIssue(ctx context.Context, issueID enti
 		return []*entities.Attachment{}, nil
 	}
 
-	files, err := ioutil.ReadDir(metadataDir)
+	files, err := os.ReadDir(metadataDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "FileAttachmentRepository.ListByIssue", "read_dir")
 	}
@@ -202,7 +201,7 @@ func (r *FileAttachmentRepository) ListByIssue(ctx context.Context, issueID enti
 		}
 
 		metadataPath := filepath.Join(metadataDir, file.Name())
-		data, err := ioutil.ReadFile(metadataPath)
+		data, err := os.ReadFile(metadataPath)
 		if err != nil {
 			continue // Skip files that can't be read
 		}
@@ -247,7 +246,7 @@ func (r *FileAttachmentRepository) GetStorageStats(ctx context.Context) (*reposi
 		return stats, nil
 	}
 
-	files, err := ioutil.ReadDir(metadataDir)
+	files, err := os.ReadDir(metadataDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "FileAttachmentRepository.GetStorageStats", "read_dir")
 	}
@@ -261,7 +260,7 @@ func (r *FileAttachmentRepository) GetStorageStats(ctx context.Context) (*reposi
 		}
 
 		metadataPath := filepath.Join(metadataDir, file.Name())
-		data, err := ioutil.ReadFile(metadataPath)
+		data, err := os.ReadFile(metadataPath)
 		if err != nil {
 			continue
 		}

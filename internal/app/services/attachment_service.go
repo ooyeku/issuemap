@@ -68,7 +68,7 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	// Save metadata
 	if err := s.attachmentRepo.SaveMetadata(ctx, attachment); err != nil {
 		// Try to clean up the file if metadata save fails
-		s.attachmentRepo.DeleteFile(ctx, storagePath)
+		_ = s.attachmentRepo.DeleteFile(ctx, storagePath)
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "save_metadata")
 	}
 
@@ -76,8 +76,8 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	issue.AddAttachment(*attachment)
 	if err := s.issueRepo.Update(ctx, issue); err != nil {
 		// Clean up on failure
-		s.attachmentRepo.DeleteFile(ctx, storagePath)
-		s.attachmentRepo.DeleteMetadata(ctx, attachment.ID)
+		_ = s.attachmentRepo.DeleteFile(ctx, storagePath)
+		_ = s.attachmentRepo.DeleteMetadata(ctx, attachment.ID)
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "update_issue")
 	}
 

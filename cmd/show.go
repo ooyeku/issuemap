@@ -177,14 +177,14 @@ func displayIssueDetails(issue *entities.Issue) {
 	if len(issue.Attachments) > 0 {
 		printSectionHeader(fmt.Sprintf("Attachments (%d)", len(issue.Attachments)))
 		for _, attachment := range issue.Attachments {
-			icon := "📎"
+			icon := "[ATT]"
 			switch attachment.Type {
 			case entities.AttachmentTypeImage:
-				icon = "🖼️"
+				icon = "[IMG]"
 			case entities.AttachmentTypeDocument:
-				icon = "📄"
+				icon = "[DOC]"
 			case entities.AttachmentTypeText:
-				icon = "📝"
+				icon = "[TXT]"
 			}
 
 			if noColor {
@@ -241,11 +241,4 @@ func displayIssueDetails(issue *entities.Issue) {
 			fmt.Printf("  %s: %s\n", key, value)
 		}
 	}
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

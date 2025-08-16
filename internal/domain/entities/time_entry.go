@@ -20,7 +20,7 @@ func generateUniqueID(issueID IssueID) string {
 	now := time.Now()
 	// Use random bytes to ensure uniqueness even within the same nanosecond
 	randBytes := make([]byte, 4)
-	rand.Read(randBytes)
+	_, _ = rand.Read(randBytes)
 	return fmt.Sprintf("%s-%d-%d-%x", issueID, now.Unix(), now.Nanosecond(), randBytes)
 }
 

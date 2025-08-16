@@ -65,7 +65,7 @@
       const tr = document.createElement('tr');
       tr.dataset.id = String(iss.id);
       tr.innerHTML = `
-        <td><code>${escapeHtml(iss.id)}</code>${(iss.attachments && iss.attachments.length) ? ' 📎' : ''}</td>
+        <td><code>${escapeHtml(iss.id)}</code>${(iss.attachments && iss.attachments.length) ? ' [+]' : ''}</td>
         <td class="title-cell">${escapeHtml(iss.title)}</td>
         <td></td>
         <td class="priority ${escapeHtml(iss.priority)}">${escapeHtml(iss.priority)}</td>
@@ -487,10 +487,10 @@
 
   function getAttachmentIcon(type) {
     switch(type) {
-      case 'image': return '🖼️';
-      case 'document': return '📄';
-      case 'text': return '📝';
-      default: return '📎';
+      case 'image': return '[IMG]';
+      case 'document': return '[DOC]';
+      case 'text': return '[TXT]';
+      default: return '[ATT]';
     }
   }
 

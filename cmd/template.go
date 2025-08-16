@@ -17,7 +17,6 @@ import (
 )
 
 var (
-	templateName         string
 	templateType         string
 	templateTitle        string
 	templateDescription  string
@@ -408,7 +407,6 @@ func runTemplateDelete(cmd *cobra.Command, args []string) error {
 func runInteractiveTemplateCreate(ctx context.Context) error {
 	printInfo("Creating a new template interactively...")
 
-	// TODO: Implement interactive template creation
 	printInfo("Interactive template creation not yet implemented")
 	printInfo("Use flags to create templates: issuemap template create <name> --type <type> --title <title>")
 

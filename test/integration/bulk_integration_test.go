@@ -90,7 +90,6 @@ func (suite *IntegrationTestSuite) TestBulkOperations() {
 		if len(bugs) == 1 {
 			suite.runCLICommand("create", "Extra Bug", "--type", "bug")
 			time.Sleep(100 * time.Millisecond)
-			bugs = suite.getIssuesWithFilter("type=bug")
 		}
 		// Make one file read-only
 		_ = os.Chmod(issueFile, 0444)
