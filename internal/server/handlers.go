@@ -251,24 +251,37 @@ func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 
 // Server info handler
 func (s *Server) infoHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
 	// Try to load project name from config; fail gracefully
 	projectName := ""
 	if repo := storage.NewFileConfigRepository(s.basePath); repo != nil {
-		if cfg, err := repo.Load(context.Background()); err == nil && cfg != nil {
+		if cfg, err := repo.Load(ctx); err == nil && cfg != nil {
 			projectName = cfg.Project.Name
 		}
+	}
+
+	// Get storage status for warnings
+	storageStatus, err := s.storageService.GetStorageStatus(ctx, false)
+	var storageWarnings []string
+	var storageUsage float64
+	if err == nil {
+		storageWarnings = storageStatus.Warnings
+		storageUsage = storageStatus.UsagePercentage
 	}
 
 	response := APIResponse{
 		Success: true,
 		Data: map[string]interface{}{
-			"name":         app.AppName,
-			"version":      app.GetVersion(),
-			"description":  app.AppDescription,
-			"port":         s.port,
-			"api_base":     app.APIBasePath,
-			"issues_count": s.memoryStorage.Size(),
-			"project_name": projectName,
+			"name":             app.AppName,
+			"version":          app.GetVersion(),
+			"description":      app.AppDescription,
+			"port":             s.port,
+			"api_base":         app.APIBasePath,
+			"issues_count":     s.memoryStorage.Size(),
+			"project_name":     projectName,
+			"storage_usage":    storageUsage,
+			"storage_warnings": storageWarnings,
 		},
 	}
 	s.jsonResponse(w, response, http.StatusOK)
@@ -955,6 +968,60 @@ func (s *Server) deleteAttachmentHandler(w http.ResponseWriter, r *http.Request)
 	response := APIResponse{
 		Success: true,
 		Data:    map[string]string{"message": "Attachment deleted successfully"},
+	}
+	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// Storage handlers
+
+// getStorageStatusHandler returns current storage status
+func (s *Server) getStorageStatusHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	// Check for refresh parameter
+	refresh := r.URL.Query().Get("refresh") == "true"
+
+	status, err := s.storageService.GetStorageStatus(ctx, refresh)
+	if err != nil {
+		s.errorResponse(w, fmt.Sprintf("Failed to get storage status: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    status,
+	}
+	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// getStorageConfigHandler returns storage configuration
+func (s *Server) getStorageConfigHandler(w http.ResponseWriter, r *http.Request) {
+	config := s.storageService.GetConfig()
+
+	response := APIResponse{
+		Success: true,
+		Data:    config,
+	}
+	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// updateStorageConfigHandler updates storage configuration
+func (s *Server) updateStorageConfigHandler(w http.ResponseWriter, r *http.Request) {
+	var config entities.StorageConfig
+
+	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
+		s.errorResponse(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.storageService.UpdateConfig(&config); err != nil {
+		s.errorResponse(w, fmt.Sprintf("Failed to update config: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    map[string]string{"message": "Storage configuration updated successfully"},
 	}
 	s.jsonResponse(w, response, http.StatusOK)
 }

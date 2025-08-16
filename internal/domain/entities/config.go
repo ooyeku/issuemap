@@ -10,6 +10,7 @@ type Config struct {
 	Git           GitConfig         `yaml:"git" json:"git"`
 	UI            UIConfig          `yaml:"ui" json:"ui"`
 	SavedSearches map[string]string `yaml:"saved_searches,omitempty" json:"saved_searches,omitempty"`
+	StorageConfig *StorageConfig    `yaml:"storage,omitempty" json:"storage,omitempty"`
 }
 
 // ProjectConfig contains project-specific settings
@@ -183,6 +184,7 @@ func NewDefaultConfig() *Config {
 			Pager:       "auto",
 			Format:      "table",
 		},
+		StorageConfig: DefaultStorageConfig(),
 	}
 }
 

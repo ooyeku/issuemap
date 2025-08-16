@@ -1,0 +1,56 @@
+id: ISSUEMAP-098
+title: Add storage status monitoring command
+description: |-
+    Implement a command to monitor and report storage usage statistics.
+
+    ## Problem
+    No visibility into current storage usage makes it impossible to proactively manage disk space.
+
+    ## Required Command
+    issuemap storage --status
+
+    ## Output Information
+    - Total .issuemap directory size
+    - Breakdown by data type:
+      - Issues: count and size
+      - Attachments: count and size
+      - History: count and size
+      - Time entries: count and size
+    - Largest files/attachments
+    - Growth rate (if historical data available)
+    - Available disk space
+    - Warnings if approaching limits
+
+    ## Additional Options
+    - issuemap storage --json (machine-readable output)
+    - issuemap storage --verbose (detailed breakdown)
+    - issuemap storage --largest 10 (show largest files)
+    - issuemap storage --by-issue (group by issue)
+    - issuemap storage --growth (show growth trends)
+
+    ## Acceptance Criteria
+    - [ ] Command shows current usage
+    - [ ] Breakdown by category provided
+    - [ ] Large files identified
+    - [ ] JSON output supported
+    - [ ] Performance is acceptable (<1s)
+type: feature
+status: open
+priority: high
+labels:
+    - name: cli
+      color: '#gray'
+    - name: storage
+      color: '#gray'
+    - name: monitoring
+      color: '#gray'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:05:58.001039-05:00
+    updated: 2025-08-16T13:13:32.678439-05:00

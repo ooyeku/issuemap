@@ -1,0 +1,84 @@
+issue_id: ISSUEMAP-098
+current_version: 2
+created_at: 2025-08-16T13:05:58.041541-05:00
+updated_at: 2025-08-16T13:13:32.698072-05:00
+entries:
+    - id: hist_1755367558021448000
+      issue_id: ISSUEMAP-098
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:05:58.02145-05:00
+      message: 'Issue created: Add storage status monitoring command'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Add storage status monitoring command
+        - field: description
+          old_value: null
+          new_value: |-
+            Implement a command to monitor and report storage usage statistics.
+
+            ## Problem
+            No visibility into current storage usage makes it impossible to proactively manage disk space.
+
+            ## Required Command
+            issuemap storage --status
+
+            ## Output Information
+            - Total .issuemap directory size
+            - Breakdown by data type:
+              - Issues: count and size
+              - Attachments: count and size
+              - History: count and size
+              - Time entries: count and size
+            - Largest files/attachments
+            - Growth rate (if historical data available)
+            - Available disk space
+            - Warnings if approaching limits
+
+            ## Additional Options
+            - issuemap storage --json (machine-readable output)
+            - issuemap storage --verbose (detailed breakdown)
+            - issuemap storage --largest 10 (show largest files)
+            - issuemap storage --by-issue (group by issue)
+            - issuemap storage --growth (show growth trends)
+
+            ## Acceptance Criteria
+            - [ ] Command shows current usage
+            - [ ] Breakdown by category provided
+            - [ ] Large files identified
+            - [ ] JSON output supported
+            - [ ] Performance is acceptable (<1s)
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+        - field: labels
+          old_value: null
+          new_value:
+            - cli
+            - storage
+            - monitoring
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755368012697640000
+      issue_id: ISSUEMAP-098
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:13:32.697651-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main

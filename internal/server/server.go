@@ -34,6 +34,7 @@ type Server struct {
 	basePath          string
 	issueService      *services.IssueService
 	attachmentService *services.AttachmentService
+	storageService    *services.StorageService
 	memoryStorage     *entities.IssueLinkedList
 	syncService       *SyncService
 	pidFile           string
@@ -63,7 +64,12 @@ func NewServer(basePath string) (*Server, error) {
 
 	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
 	attachmentRepo := storage.NewFileAttachmentRepository(basePath)
-	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo)
+
+	// Create storage service
+	storageService := services.NewStorageService(basePath, configRepo, issueRepo, attachmentRepo)
+
+	// Create attachment service with storage service for quota checking
+	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService)
 	memoryStorage := entities.NewIssueLinkedList()
 
 	// Find available port
@@ -77,6 +83,7 @@ func NewServer(basePath string) (*Server, error) {
 		basePath:          basePath,
 		issueService:      issueService,
 		attachmentService: attachmentService,
+		storageService:    storageService,
 		memoryStorage:     memoryStorage,
 		pidFile:           filepath.Join(basePath, app.ServerPIDFile),
 		logFile:           filepath.Join(basePath, app.ServerLogFile),
@@ -303,6 +310,12 @@ func (s *Server) setupRouter() http.Handler {
 	stats := api.PathPrefix("/stats").Subrouter()
 	stats.HandleFunc("", s.getStatsHandler).Methods("GET")
 	stats.HandleFunc("/summary", s.getSummaryHandler).Methods("GET")
+
+	// Storage endpoints
+	storage := api.PathPrefix("/storage").Subrouter()
+	storage.HandleFunc("", s.getStorageStatusHandler).Methods("GET")
+	storage.HandleFunc("/config", s.getStorageConfigHandler).Methods("GET")
+	storage.HandleFunc("/config", s.updateStorageConfigHandler).Methods("PUT")
 
 	// Git endpoints
 	gitApi := api.PathPrefix("/git").Subrouter()

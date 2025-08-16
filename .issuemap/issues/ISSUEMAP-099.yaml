@@ -1,0 +1,62 @@
+id: ISSUEMAP-099
+title: Implement archive functionality for old issues
+description: |-
+    Add capability to archive old closed issues to reduce active storage usage.
+
+    ## Problem
+    Closed issues remain in active storage forever, even when they're no longer relevant. This contributes to storage bloat and performance degradation.
+
+    ## Requirements
+    - Archive closed issues older than configurable threshold
+    - Compressed archive format (tar.gz or zip)
+    - Searchable archive index
+    - Restore capability for archived issues
+    - Automatic archival option
+
+    ## Archive Command
+    issuemap archive --closed --older-than 6m
+    issuemap archive --issue ISSUE-001
+    issuemap archive --restore ISSUE-001
+    issuemap archive --list
+    issuemap archive --search <query>
+
+    ## Archive Structure
+    .issuemap/
+    └── archives/
+        ├── 2025-01-archive.tar.gz
+        ├── 2025-02-archive.tar.gz
+        └── index.json
+
+    ## Features
+    - Compress archived data (70-80% reduction)
+    - Maintain searchable index
+    - Restore individual issues
+    - Bulk restore capability
+    - Archive integrity verification
+
+    ## Acceptance Criteria
+    - [ ] Issues can be archived/restored
+    - [ ] Archives are compressed
+    - [ ] Archive index is searchable
+    - [ ] Restore works correctly
+    - [ ] Automatic archival configurable
+type: feature
+status: open
+priority: medium
+labels:
+    - name: storage
+      color: '#gray'
+    - name: maintenance
+      color: '#gray'
+    - name: enhancement
+      color: '#a2eeef'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:06:40.953549-05:00
+    updated: 2025-08-16T13:18:21.902375-05:00

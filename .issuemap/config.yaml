@@ -1,0 +1,36 @@
+project:
+    name: ""
+    version: ""
+workflow:
+    statuses: []
+    default_status: ""
+templates:
+    default: ""
+    available:
+        - improvement
+labels: []
+milestones: []
+git:
+    auto_link: false
+    auto_close_keywords: []
+    default_branch_prefix: ""
+    branch_config:
+        template: ""
+        prefix_by_type: {}
+        max_title_length: 0
+        auto_switch: false
+        auto_merge_targets: []
+ui:
+    colors: false
+    interactive: false
+    pager: ""
+    format: ""
+storage:
+    max_project_size: 524288000
+    max_attachment_size: 10485760
+    max_total_attachments: 524288000
+    max_attachment_age: 0
+    enable_auto_cleanup: false
+    warning_threshold: 70
+    critical_threshold: 95
+    enforce_quotas: true

@@ -1,0 +1,53 @@
+id: ISSUEMAP-095
+title: Implement external storage integration (S3, cloud storage)
+description: |-
+    Add support for storing attachments in external cloud storage services instead of local disk.
+
+    ## Problem
+    Large binary files stored locally cause repository bloat and consume disk space. For teams with heavy attachment usage, this becomes unsustainable.
+
+    ## Requirements
+    - Support for multiple storage backends (S3, Azure Blob, GCS)
+    - Configurable storage provider selection
+    - Local caching for performance
+    - Migration tools for existing attachments
+    - Fallback to local storage if cloud unavailable
+
+    ## Storage Providers
+    - AWS S3
+    - Azure Blob Storage
+    - Google Cloud Storage
+    - MinIO (self-hosted S3-compatible)
+    - Local filesystem (default)
+
+    ## Implementation
+    - Abstract storage interface
+    - Provider-specific implementations
+    - Credential management
+    - URL generation for direct access
+    - Cost optimization (lifecycle policies)
+
+    ## Acceptance Criteria
+    - [ ] Multiple storage backends supported
+    - [ ] Seamless migration from local to cloud
+    - [ ] Performance maintained with caching
+    - [ ] Secure credential handling
+    - [ ] Backward compatibility maintained
+type: feature
+status: open
+priority: medium
+labels:
+    - name: storage
+      color: '#gray'
+    - name: cloud
+      color: '#gray'
+    - name: enhancement
+      color: '#a2eeef'
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:04:34.946764-05:00
+    updated: 2025-08-16T13:04:34.946766-05:00

@@ -1,0 +1,52 @@
+id: ISSUEMAP-096
+title: Add file deduplication for attachments
+description: |-
+    Implement content-based deduplication to avoid storing duplicate files multiple times.
+
+    ## Problem
+    The same file uploaded to multiple issues is stored separately each time, wasting disk space. Common files like logos, templates, or documentation get duplicated unnecessarily.
+
+    ## Requirements
+    - Hash-based content identification (SHA-256)
+    - Reference counting for shared files
+    - Automatic deduplication on upload
+    - Safe deletion only when last reference removed
+    - Migration tool for existing duplicates
+
+    ## Technical Approach
+    - Calculate file hash before storage
+    - Check if hash already exists
+    - Store files by hash, not by name
+    - Maintain reference mapping (issue -> hash)
+    - Handle hash collisions safely
+
+    ## Benefits
+    - Significant space savings (30-50% typical)
+    - Faster uploads for duplicate files
+    - Reduced backup sizes
+    - Better cache utilization
+
+    ## Acceptance Criteria
+    - [ ] Duplicate files detected on upload
+    - [ ] Storage uses single copy per unique file
+    - [ ] Reference counting prevents data loss
+    - [ ] Existing duplicates can be deduplicated
+    - [ ] Performance impact is minimal
+type: feature
+status: open
+priority: medium
+labels:
+    - name: storage
+      color: '#gray'
+    - name: optimization
+      color: '#gray'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:05:11.225067-05:00
+    updated: 2025-08-16T13:17:52.522367-05:00

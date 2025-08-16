@@ -1,0 +1,85 @@
+issue_id: ISSUEMAP-097
+current_version: 2
+created_at: 2025-08-16T13:05:33.11973-05:00
+updated_at: 2025-08-16T13:13:20.962375-05:00
+entries:
+    - id: hist_1755367533097181000
+      issue_id: ISSUEMAP-097
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:05:33.097182-05:00
+      message: 'Issue created: Implement admin cleanup commands'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Implement admin cleanup commands
+        - field: description
+          old_value: null
+          new_value: |-
+            Add CLI commands for manual storage maintenance and cleanup operations.
+
+            ## Problem
+            No manual cleanup tools exist for administrators to manage storage when needed. Teams need ability to clean up storage on-demand.
+
+            ## Required Commands
+            - issuemap cleanup --older-than <duration>
+            - issuemap cleanup --closed --days 180
+            - issuemap cleanup --orphaned-attachments
+            - issuemap cleanup --time-entries --before <date>
+            - issuemap cleanup --dry-run (preview changes)
+
+            ## Features
+            - Age-based filtering
+            - Status-based filtering
+            - Size-based targeting
+            - Dry-run mode for safety
+            - Confirmation prompts
+            - Detailed cleanup reports
+            - Undo/restore capability
+
+            ## Safety Measures
+            - Always require confirmation
+            - Create backup before deletion
+            - Log all cleanup operations
+            - Provide restore command
+            - Validate permissions
+
+            ## Acceptance Criteria
+            - [ ] All cleanup commands implemented
+            - [ ] Dry-run mode works correctly
+            - [ ] Confirmation required for destructive ops
+            - [ ] Cleanup activity is logged
+            - [ ] Restore functionality available
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+        - field: labels
+          old_value: null
+          new_value:
+            - cli
+            - storage
+            - maintenance
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755368000961949000
+      issue_id: ISSUEMAP-097
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:13:20.961958-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main

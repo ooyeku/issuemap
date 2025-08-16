@@ -1,0 +1,61 @@
+id: ISSUEMAP-100
+title: Add attachment compression for storage optimization
+description: |-
+    Implement automatic compression for certain attachment types to reduce storage usage.
+
+    ## Problem
+    Attachments are stored uncompressed, wasting space for compressible file types like text, logs, and documents.
+
+    ## Requirements
+    - Automatic compression for suitable file types
+    - Transparent decompression on retrieval
+    - Configurable compression settings
+    - Skip already-compressed formats (jpg, png, zip)
+    - Maintain original for incompressible files
+
+    ## Compression Strategy
+    Compressible types:
+    - Text files (.txt, .log, .csv, .json, .xml)
+    - Documents (.doc, .docx, .xls, .xlsx)
+    - Code files (.js, .py, .go, .java)
+    - Markdown (.md)
+
+    Skip compression:
+    - Images (.jpg, .png, .gif) - already compressed
+    - Archives (.zip, .tar, .gz)
+    - Media (.mp4, .mp3)
+    - PDFs (minimal benefit)
+
+    ## Implementation
+    - Use gzip for compression (60-80% for text)
+    - Store compression metadata
+    - Decompress on-the-fly for viewing
+    - Background compression for existing files
+    - Monitor compression ratios
+
+    ## Acceptance Criteria
+    - [ ] Suitable files compressed automatically
+    - [ ] Transparent decompression works
+    - [ ] Compression configurable
+    - [ ] Performance impact minimal
+    - [ ] Storage savings measurable
+type: feature
+status: open
+priority: medium
+labels:
+    - name: storage
+      color: '#gray'
+    - name: optimization
+      color: '#gray'
+    - name: enhancement
+      color: '#a2eeef'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:07:08.127107-05:00
+    updated: 2025-08-16T13:18:40.940378-05:00

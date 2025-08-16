@@ -1,0 +1,75 @@
+issue_id: ISSUEMAP-094
+current_version: 2
+created_at: 2025-08-16T13:03:55.109881-05:00
+updated_at: 2025-08-16T13:13:13.974171-05:00
+entries:
+    - id: hist_1755367435087280000
+      issue_id: ISSUEMAP-094
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:03:55.087281-05:00
+      message: 'Issue created: Add automatic cleanup mechanisms for old data'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Add automatic cleanup mechanisms for old data
+        - field: description
+          old_value: null
+          new_value: |-
+            Implement automatic cleanup processes to manage storage growth over time.
+
+            ## Problem
+            Data accumulates indefinitely without any automatic cleanup, leading to storage bloat. Closed issues, old attachments, and historical data persist forever.
+
+            ## Requirements
+            - Background cleanup process that runs periodically
+            - Configurable retention policies for different data types
+            - Safe deletion with backup/archive options
+            - Cleanup of orphaned attachments
+            - Removal of old time entries and history
+
+            ## Implementation
+            - Scheduled cleanup tasks (daily/weekly/monthly)
+            - Age-based retention policies
+            - Size-based triggers for cleanup
+            - Dry-run mode for safety
+            - Cleanup logs and reports
+
+            ## Acceptance Criteria
+            - [ ] Automatic cleanup can be enabled/disabled
+            - [ ] Retention policies are configurable
+            - [ ] Cleanup runs safely without data loss
+            - [ ] Orphaned files are detected and removed
+            - [ ] Cleanup activity is logged
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+        - field: labels
+          old_value: null
+          new_value:
+            - storage
+            - maintenance
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755367993973706000
+      issue_id: ISSUEMAP-094
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:13:13.973715-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main

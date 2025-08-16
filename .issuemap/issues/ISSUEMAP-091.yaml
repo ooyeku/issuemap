@@ -2,7 +2,7 @@ id: ISSUEMAP-091
 title: PDF attachments fail to render
 description: Implement rich display for pdf and other file types outside of txt files
 type: bug
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: frontend
@@ -28,4 +28,5 @@ metadata:
     actual_hours: 6.2396488677777775
 timestamps:
     created: 2025-08-15T22:09:38.933122-05:00
-    updated: 2025-08-16T12:48:21.133902-05:00
+    updated: 2025-08-16T12:51:48.779579-05:00
+    closed: 2025-08-16T12:48:55.21507-05:00

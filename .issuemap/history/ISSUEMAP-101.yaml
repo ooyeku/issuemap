@@ -1,0 +1,100 @@
+issue_id: ISSUEMAP-101
+current_version: 2
+created_at: 2025-08-16T13:08:00.307708-05:00
+updated_at: 2025-08-16T13:16:37.89419-05:00
+entries:
+    - id: hist_1755367680285752000
+      issue_id: ISSUEMAP-101
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:08:00.285754-05:00
+      message: 'Issue created: Epic: Storage Management and Optimization'
+      changes:
+        - field: title
+          old_value: null
+          new_value: 'Epic: Storage Management and Optimization'
+        - field: description
+          old_value: null
+          new_value: |-
+            Parent epic for comprehensive storage management improvements to prevent disk space issues.
+
+            ## Problem Statement
+            Issuemap currently lacks storage management capabilities, leading to potential disk space exhaustion over time. Active teams can accumulate gigabytes of data with no cleanup or optimization mechanisms.
+
+            ## Current Issues
+            - No storage limits or quotas
+            - No cleanup mechanisms
+            - Attachments stored uncompressed
+            - Duplicate files stored multiple times
+            - No visibility into storage usage
+            - Old data persists forever
+
+            ## Solution Overview
+            Implement comprehensive storage management through:
+            1. Monitoring and quotas (ISSUEMAP-093)
+            2. Automatic cleanup (ISSUEMAP-094)
+            3. Manual cleanup tools (ISSUEMAP-097)
+            4. Storage monitoring (ISSUEMAP-098)
+            5. Archive functionality (ISSUEMAP-099)
+            6. File deduplication (ISSUEMAP-096)
+            7. Attachment compression (ISSUEMAP-100)
+            8. Cloud storage option (ISSUEMAP-095)
+
+            ## Expected Benefits
+            - Prevent disk space exhaustion
+            - Reduce storage by 50-70%
+            - Better performance
+            - Scalability for large teams
+            - Cost savings (cloud storage)
+
+            ## Implementation Phases
+            Phase 1 (v0.6.0): Critical features
+            - Storage monitoring (ISSUEMAP-098)
+            - Cleanup commands (ISSUEMAP-097)
+            - Quotas and limits (ISSUEMAP-093)
+            - Automatic cleanup (ISSUEMAP-094)
+
+            Phase 2 (v0.7.0): Optimizations
+            - Archive functionality (ISSUEMAP-099)
+            - File deduplication (ISSUEMAP-096)
+            - Compression (ISSUEMAP-100)
+            - Cloud storage (ISSUEMAP-095)
+
+            ## Success Metrics
+            - Storage growth rate reduced by 70%
+            - Average project size under 500MB
+            - Zero disk space incidents
+            - Cleanup automation working
+        - field: type
+          old_value: null
+          new_value: epic
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: critical
+        - field: labels
+          old_value: null
+          new_value:
+            - epic
+            - storage
+            - critical
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755368197893778000
+      issue_id: ISSUEMAP-101
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:16:37.893785-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main

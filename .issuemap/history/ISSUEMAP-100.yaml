@@ -1,0 +1,89 @@
+issue_id: ISSUEMAP-100
+current_version: 2
+created_at: 2025-08-16T13:07:08.167163-05:00
+updated_at: 2025-08-16T13:18:40.960205-05:00
+entries:
+    - id: hist_1755367628145644000
+      issue_id: ISSUEMAP-100
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:07:08.145645-05:00
+      message: 'Issue created: Add attachment compression for storage optimization'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Add attachment compression for storage optimization
+        - field: description
+          old_value: null
+          new_value: |-
+            Implement automatic compression for certain attachment types to reduce storage usage.
+
+            ## Problem
+            Attachments are stored uncompressed, wasting space for compressible file types like text, logs, and documents.
+
+            ## Requirements
+            - Automatic compression for suitable file types
+            - Transparent decompression on retrieval
+            - Configurable compression settings
+            - Skip already-compressed formats (jpg, png, zip)
+            - Maintain original for incompressible files
+
+            ## Compression Strategy
+            Compressible types:
+            - Text files (.txt, .log, .csv, .json, .xml)
+            - Documents (.doc, .docx, .xls, .xlsx)
+            - Code files (.js, .py, .go, .java)
+            - Markdown (.md)
+
+            Skip compression:
+            - Images (.jpg, .png, .gif) - already compressed
+            - Archives (.zip, .tar, .gz)
+            - Media (.mp4, .mp3)
+            - PDFs (minimal benefit)
+
+            ## Implementation
+            - Use gzip for compression (60-80% for text)
+            - Store compression metadata
+            - Decompress on-the-fly for viewing
+            - Background compression for existing files
+            - Monitor compression ratios
+
+            ## Acceptance Criteria
+            - [ ] Suitable files compressed automatically
+            - [ ] Transparent decompression works
+            - [ ] Compression configurable
+            - [ ] Performance impact minimal
+            - [ ] Storage savings measurable
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: medium
+        - field: labels
+          old_value: null
+          new_value:
+            - storage
+            - optimization
+            - enhancement
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755368320959724000
+      issue_id: ISSUEMAP-100
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:18:40.959734-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main

@@ -1,0 +1,46 @@
+id: ISSUEMAP-093
+title: Implement storage quotas and monitoring
+description: |-
+    Add configurable storage limits and monitoring capabilities to prevent disk space issues.
+
+    ## Problem
+    Currently, issuemap has no built-in storage limits or monitoring, which can lead to excessive disk usage over time. Teams using attachments heavily could accumulate gigabytes of data without warning.
+
+    ## Requirements
+    - Add StorageConfig struct with configurable limits (MaxProjectSize, MaxAttachmentAge, etc.)
+    - Implement real-time storage monitoring
+    - Add warnings when approaching storage limits
+    - Prevent uploads that would exceed quotas
+    - Add configuration options in config file
+
+    ## Technical Details
+    - Track total .issuemap directory size
+    - Monitor attachment storage separately
+    - Provide API endpoints for storage metrics
+    - Include storage info in 'issuemap info' command
+
+    ## Acceptance Criteria
+    - [ ] Storage limits can be configured
+    - [ ] Users are warned before hitting limits
+    - [ ] Storage usage is visible in CLI and web UI
+    - [ ] Uploads are blocked when quota exceeded
+type: feature
+status: closed
+priority: high
+labels:
+    - name: storage
+      color: '#gray'
+    - name: monitoring
+      color: '#gray'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata:
+    actual_hours: 0.25652899944444446
+timestamps:
+    created: 2025-08-16T13:03:11.437336-05:00
+    updated: 2025-08-16T17:08:35.951657-05:00
+    closed: 2025-08-16T17:08:17.692251-05:00

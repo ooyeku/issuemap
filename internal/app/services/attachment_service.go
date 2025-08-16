@@ -16,14 +16,16 @@ import (
 type AttachmentService struct {
 	attachmentRepo repositories.AttachmentRepository
 	issueRepo      repositories.IssueRepository
+	storageService *StorageService
 	security       *AttachmentSecurity
 }
 
 // NewAttachmentService creates a new attachment service
-func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issueRepo repositories.IssueRepository) *AttachmentService {
+func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issueRepo repositories.IssueRepository, storageService *StorageService) *AttachmentService {
 	return &AttachmentService{
 		attachmentRepo: attachmentRepo,
 		issueRepo:      issueRepo,
+		storageService: storageService,
 		security:       NewAttachmentSecurity(),
 	}
 }
@@ -36,6 +38,13 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	// Validate file security
 	if err := s.security.ValidateFile(filename, size, content); err != nil {
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "security_validation")
+	}
+
+	// Check storage quotas if storage service is available
+	if s.storageService != nil {
+		if err := s.storageService.CheckAttachmentQuota(ctx, size); err != nil {
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "quota_exceeded")
+		}
 	}
 
 	// Verify issue exists

@@ -1,0 +1,107 @@
+issue_id: ISSUEMAP-093
+current_version: 5
+created_at: 2025-08-16T13:03:11.486193-05:00
+updated_at: 2025-08-16T17:08:35.991378-05:00
+entries:
+    - id: hist_1755367391466699000
+      issue_id: ISSUEMAP-093
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:03:11.4667-05:00
+      message: 'Issue created: Implement storage quotas and monitoring'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Implement storage quotas and monitoring
+        - field: description
+          old_value: null
+          new_value: |-
+            Add configurable storage limits and monitoring capabilities to prevent disk space issues.
+
+            ## Problem
+            Currently, issuemap has no built-in storage limits or monitoring, which can lead to excessive disk usage over time. Teams using attachments heavily could accumulate gigabytes of data without warning.
+
+            ## Requirements
+            - Add StorageConfig struct with configurable limits (MaxProjectSize, MaxAttachmentAge, etc.)
+            - Implement real-time storage monitoring
+            - Add warnings when approaching storage limits
+            - Prevent uploads that would exceed quotas
+            - Add configuration options in config file
+
+            ## Technical Details
+            - Track total .issuemap directory size
+            - Monitor attachment storage separately
+            - Provide API endpoints for storage metrics
+            - Include storage info in 'issuemap info' command
+
+            ## Acceptance Criteria
+            - [ ] Storage limits can be configured
+            - [ ] Users are warned before hitting limits
+            - [ ] Storage usage is visible in CLI and web UI
+            - [ ] Uploads are blocked when quota exceeded
+        - field: type
+          old_value: null
+          new_value: feature
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+        - field: labels
+          old_value: null
+          new_value:
+            - storage
+            - monitoring
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com
+    - id: hist_1755367985954014000
+      issue_id: ISSUEMAP-093
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T13:13:05.954022-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.5.0
+      metadata:
+        git_branch: main
+    - id: hist_1755381192434409000
+      issue_id: ISSUEMAP-093
+      version: 3
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T16:53:12.43441-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755381192450177000
+      issue_id: ISSUEMAP-093
+      version: 4
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T16:53:12.450184-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: main
+    - id: hist_1755382115990977000
+      issue_id: ISSUEMAP-093
+      version: 5
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T17:08:35.990978-05:00
+      message: Stopped timer (0.3 hours)
+      changes: []
+      metadata:
+        action: timer_stopped
+        hours_logged: "0.26"

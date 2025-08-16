@@ -1,0 +1,57 @@
+id: ISSUEMAP-097
+title: Implement admin cleanup commands
+description: |-
+    Add CLI commands for manual storage maintenance and cleanup operations.
+
+    ## Problem
+    No manual cleanup tools exist for administrators to manage storage when needed. Teams need ability to clean up storage on-demand.
+
+    ## Required Commands
+    - issuemap cleanup --older-than <duration>
+    - issuemap cleanup --closed --days 180
+    - issuemap cleanup --orphaned-attachments
+    - issuemap cleanup --time-entries --before <date>
+    - issuemap cleanup --dry-run (preview changes)
+
+    ## Features
+    - Age-based filtering
+    - Status-based filtering
+    - Size-based targeting
+    - Dry-run mode for safety
+    - Confirmation prompts
+    - Detailed cleanup reports
+    - Undo/restore capability
+
+    ## Safety Measures
+    - Always require confirmation
+    - Create backup before deletion
+    - Log all cleanup operations
+    - Provide restore command
+    - Validate permissions
+
+    ## Acceptance Criteria
+    - [ ] All cleanup commands implemented
+    - [ ] Dry-run mode works correctly
+    - [ ] Confirmation required for destructive ops
+    - [ ] Cleanup activity is logged
+    - [ ] Restore functionality available
+type: feature
+status: open
+priority: high
+labels:
+    - name: cli
+      color: '#gray'
+    - name: storage
+      color: '#gray'
+    - name: maintenance
+      color: '#gray'
+milestone:
+    name: v0.5.0
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-16T13:05:33.07468-05:00
+    updated: 2025-08-16T13:13:20.942119-05:00
