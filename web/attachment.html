@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attachment Viewer - IssueMap</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .attachment-viewer {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+    .viewer-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .viewer-content {
+      margin: 2rem 0;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      min-height: 400px;
+    }
+    .image-preview {
+      text-align: center;
+    }
+    .image-preview img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .text-preview {
+      white-space: pre-wrap;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+    .download-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 0.5rem 1rem;
+      margin-top: 1rem;
+    }
+    .metadata-grid .key {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .no-preview {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">IM</div>
+      <div class="titles">
+        <h1>Attachment Viewer</h1>
+        <div class="subtitle">IssueMap File Attachment</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="attachment-viewer">
+    <a href="javascript:history.back()" class="action-link back-link">← Back to Issue</a>
+    
+    <div class="viewer-header">
+      <h2 id="fileName">Loading...</h2>
+      <div class="metadata-grid" id="metadata"></div>
+    </div>
+
+    <div class="viewer-content" id="viewerContent">
+      <div class="no-preview">Loading attachment...</div>
+    </div>
+
+    <div class="download-section">
+      <a id="downloadBtn" class="btn" href="#" download>Download File</a>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function() {
+      const $ = sel => document.querySelector(sel);
+      const API_BASE = '/api/v1';
+
+      function toast(msg) {
+        const t = $('#toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+      }
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+      }
+
+      async function loadAttachment() {
+        const params = new URLSearchParams(location.search);
+        const id = params.get('id');
+        
+        if (!id) {
+          $('#fileName').textContent = 'No attachment ID provided';
+          $('#viewerContent').innerHTML = '<div class="no-preview">Invalid attachment ID</div>';
+          return;
+        }
+
+        try {
+          // Fetch attachment metadata
+          const r = await fetch(`${API_BASE}/attachments/${encodeURIComponent(id)}`);
+          if (!r.ok) throw new Error('Failed to load attachment');
+          
+          const data = await r.json();
+          if (!data.success) throw new Error('Failed to load attachment data');
+          
+          const att = data.data;
+          
+          // Update header
+          $('#fileName').textContent = att.filename;
+          document.title = `${att.filename} - IssueMap`;
+          
+          // Update metadata
+          const metaGrid = $('#metadata');
+          metaGrid.innerHTML = `
+            <div class="key">Type:</div><div>${escapeHtml(att.type)}</div>
+            <div class="key">Size:</div><div>${escapeHtml(att.size_formatted)}</div>
+            <div class="key">Content Type:</div><div>${escapeHtml(att.content_type)}</div>
+            <div class="key">Uploaded By:</div><div>${escapeHtml(att.uploaded_by)}</div>
+            <div class="key">Uploaded At:</div><div>${new Date(att.uploaded_at).toLocaleString()}</div>
+            ${att.description ? `<div class="key">Description:</div><div>${escapeHtml(att.description)}</div>` : ''}
+          `;
+          
+          // Update download button
+          const downloadBtn = $('#downloadBtn');
+          downloadBtn.href = `${API_BASE}/attachments/${encodeURIComponent(id)}/download`;
+          downloadBtn.download = att.filename;
+          
+          // Show preview based on type
+          const viewerContent = $('#viewerContent');
+          
+          if (att.type === 'image') {
+            // Show image preview
+            viewerContent.innerHTML = `
+              <div class="image-preview">
+                <img src="${API_BASE}/attachments/${encodeURIComponent(id)}/download" alt="${escapeHtml(att.filename)}">
+              </div>
+            `;
+          } else if (att.type === 'text' || att.content_type.startsWith('text/')) {
+            // Load and show text content
+            try {
+              const contentR = await fetch(`${API_BASE}/attachments/${encodeURIComponent(id)}/download`);
+              if (contentR.ok) {
+                const text = await contentR.text();
+                viewerContent.innerHTML = `<div class="text-preview">${escapeHtml(text)}</div>`;
+              } else {
+                viewerContent.innerHTML = '<div class="no-preview">Unable to load text preview</div>';
+              }
+            } catch (e) {
+              viewerContent.innerHTML = '<div class="no-preview">Unable to load text preview</div>';
+            }
+          } else {
+            // No preview available
+            viewerContent.innerHTML = `
+              <div class="no-preview">
+                <p>Preview not available for ${escapeHtml(att.type)} files</p>
+                <p>File: ${escapeHtml(att.filename)}</p>
+                <p>Size: ${escapeHtml(att.size_formatted)}</p>
+              </div>
+            `;
+          }
+          
+        } catch (e) {
+          toast('Failed to load attachment');
+          $('#fileName').textContent = 'Error loading attachment';
+          $('#viewerContent').innerHTML = '<div class="no-preview">Failed to load attachment</div>';
+        }
+      }
+
+      // Load on page load
+      loadAttachment();
+    })();
+  </script>
+</body>
+</html>

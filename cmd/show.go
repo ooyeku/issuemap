@@ -173,6 +173,39 @@ func displayIssueDetails(issue *entities.Issue) {
 		}
 	}
 
+	// Attachments
+	if len(issue.Attachments) > 0 {
+		printSectionHeader(fmt.Sprintf("Attachments (%d)", len(issue.Attachments)))
+		for _, attachment := range issue.Attachments {
+			icon := "📎"
+			switch attachment.Type {
+			case entities.AttachmentTypeImage:
+				icon = "🖼️"
+			case entities.AttachmentTypeDocument:
+				icon = "📄"
+			case entities.AttachmentTypeText:
+				icon = "📝"
+			}
+
+			if noColor {
+				fmt.Printf("  %s %s - %s (%s, uploaded by %s)\n",
+					icon, attachment.Filename, attachment.GetSizeFormatted(),
+					attachment.Type, attachment.UploadedBy)
+				if attachment.Description != "" {
+					fmt.Printf("     Description: %s\n", attachment.Description)
+				}
+			} else {
+				fmt.Printf("  %s %s - %s %s\n",
+					icon, colorValue(attachment.Filename),
+					color.HiBlackString(attachment.GetSizeFormatted()),
+					color.HiBlackString("(%s, uploaded by %s)", attachment.Type, attachment.UploadedBy))
+				if attachment.Description != "" {
+					fmt.Printf("     %s %s\n", colorLabel("Description:"), attachment.Description)
+				}
+			}
+		}
+	}
+
 	// Comments
 	if len(issue.Comments) > 0 {
 		printSectionHeader(fmt.Sprintf("Comments (%d)", len(issue.Comments)))

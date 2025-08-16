@@ -22,6 +22,7 @@ var (
 	ErrOperationFailed    = fmt.Errorf("operation failed")
 	ErrNotInitialized     = fmt.Errorf("issuemap not initialized in this repository")
 	ErrNotFound           = fmt.Errorf("not found")
+	ErrAttachmentNotFound = fmt.Errorf("attachment not found")
 )
 
 // Error represents a wrapped error with additional context

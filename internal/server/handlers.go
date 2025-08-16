@@ -3,6 +3,9 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -37,6 +40,7 @@ type IssueDTO struct {
 	Metadata    *MetadataDTO      `json:"metadata,omitempty"`
 	Comments    []CommentDTO      `json:"comments,omitempty"`
 	Commits     []CommitDTO       `json:"commits,omitempty"`
+	Attachments []AttachmentDTO   `json:"attachments,omitempty"`
 	Timestamps  map[string]string `json:"timestamps"`
 }
 
@@ -47,11 +51,11 @@ type MilestoneDTO struct {
 }
 
 type MetadataDTO struct {
-	EstimatedHours float64            `json:"estimated_hours,omitempty"`
-	ActualHours    float64            `json:"actual_hours,omitempty"`
-	RemainingHours float64            `json:"remaining_hours,omitempty"`
-	OverEstimate   bool               `json:"over_estimate,omitempty"`
-	CustomFields   map[string]string  `json:"custom_fields,omitempty"`
+	EstimatedHours float64           `json:"estimated_hours,omitempty"`
+	ActualHours    float64           `json:"actual_hours,omitempty"`
+	RemainingHours float64           `json:"remaining_hours,omitempty"`
+	OverEstimate   bool              `json:"over_estimate,omitempty"`
+	CustomFields   map[string]string `json:"custom_fields,omitempty"`
 }
 
 type CommentDTO struct {
@@ -66,6 +70,18 @@ type CommitDTO struct {
 	Message string `json:"message"`
 	Author  string `json:"author"`
 	Date    string `json:"date"`
+}
+
+type AttachmentDTO struct {
+	ID            string `json:"id"`
+	Filename      string `json:"filename"`
+	ContentType   string `json:"content_type"`
+	Size          int64  `json:"size"`
+	SizeFormatted string `json:"size_formatted"`
+	Type          string `json:"type"`
+	UploadedBy    string `json:"uploaded_by"`
+	UploadedAt    string `json:"uploaded_at"`
+	Description   string `json:"description,omitempty"`
 }
 
 func issueToDTO(issue *entities.Issue) IssueDTO {
@@ -96,7 +112,7 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 	// Milestone
 	var milestoneDTO *MilestoneDTO
 	if issue.Milestone != nil {
-		ms := &MilestoneDTO{ Name: issue.Milestone.Name, Description: issue.Milestone.Description }
+		ms := &MilestoneDTO{Name: issue.Milestone.Name, Description: issue.Milestone.Description}
 		if issue.Milestone.DueDate != nil {
 			ms.DueDate = issue.Milestone.DueDate.Format("2006-01-02")
 		}
@@ -147,6 +163,22 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 		})
 	}
 
+	// Attachments
+	attachments := make([]AttachmentDTO, 0, len(issue.Attachments))
+	for _, att := range issue.Attachments {
+		attachments = append(attachments, AttachmentDTO{
+			ID:            att.ID,
+			Filename:      att.Filename,
+			ContentType:   att.ContentType,
+			Size:          att.Size,
+			SizeFormatted: att.GetSizeFormatted(),
+			Type:          string(att.Type),
+			UploadedBy:    att.UploadedBy,
+			UploadedAt:    att.UploadedAt.Format("2006-01-02T15:04:05Z07:00"),
+			Description:   att.Description,
+		})
+	}
+
 	return IssueDTO{
 		ID:          issue.ID.String(),
 		Title:       issue.Title,
@@ -161,6 +193,7 @@ func issueToDTO(issue *entities.Issue) IssueDTO {
 		Metadata:    metaDTO,
 		Comments:    comments,
 		Commits:     commits,
+		Attachments: attachments,
 		Timestamps:  ts,
 	}
 }
@@ -228,13 +261,13 @@ func (s *Server) infoHandler(w http.ResponseWriter, r *http.Request) {
 	response := APIResponse{
 		Success: true,
 		Data: map[string]interface{}{
-			"name":          app.AppName,
-			"version":       app.GetVersion(),
-			"description":   app.AppDescription,
-			"port":          s.port,
-			"api_base":      app.APIBasePath,
-			"issues_count":  s.memoryStorage.Size(),
-			"project_name":  projectName,
+			"name":         app.AppName,
+			"version":      app.GetVersion(),
+			"description":  app.AppDescription,
+			"port":         s.port,
+			"api_base":     app.APIBasePath,
+			"issues_count": s.memoryStorage.Size(),
+			"project_name": projectName,
 		},
 	}
 	s.jsonResponse(w, response, http.StatusOK)
@@ -527,7 +560,7 @@ func (s *Server) addCommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
- err := s.issueService.AddComment(ctx, issueID, req.Author, req.Text)
+	err := s.issueService.AddComment(ctx, issueID, req.Author, req.Text)
 	if err != nil {
 		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -666,4 +699,195 @@ func (s *Server) getCommitDiffHandler(w http.ResponseWriter, r *http.Request) {
 		"files":   diff.Files,
 	}
 	s.jsonResponse(w, APIResponse{Success: true, Data: resp}, http.StatusOK)
+}
+
+// listAttachmentsHandler returns all attachments for an issue
+func (s *Server) listAttachmentsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	issueID := entities.IssueID(vars["id"])
+
+	ctx := context.Background()
+	attachments, err := s.attachmentService.ListIssueAttachments(ctx, issueID)
+	if err != nil {
+		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to DTOs
+	dtos := make([]AttachmentDTO, 0, len(attachments))
+	for _, att := range attachments {
+		dtos = append(dtos, AttachmentDTO{
+			ID:            att.ID,
+			Filename:      att.Filename,
+			ContentType:   att.ContentType,
+			Size:          att.Size,
+			SizeFormatted: att.GetSizeFormatted(),
+			Type:          string(att.Type),
+			UploadedBy:    att.UploadedBy,
+			UploadedAt:    att.UploadedAt.Format("2006-01-02T15:04:05Z07:00"),
+			Description:   att.Description,
+		})
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    dtos,
+		Count:   len(dtos),
+	}
+	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// uploadAttachmentHandler handles file upload for an issue
+func (s *Server) uploadAttachmentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	issueID := entities.IssueID(vars["id"])
+
+	// Parse multipart form (10MB max)
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		s.errorResponse(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	// Get file from form
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		s.errorResponse(w, "Failed to get file from form", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Get optional description
+	description := r.FormValue("description")
+	uploadedBy := r.FormValue("uploaded_by")
+	if uploadedBy == "" {
+		uploadedBy = "anonymous"
+	}
+
+	ctx := context.Background()
+	attachment, err := s.attachmentService.UploadAttachment(ctx, issueID, header.Filename, file, header.Size, uploadedBy)
+	if err != nil {
+		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Update description if provided
+	if description != "" {
+		attachment.Description = description
+	}
+
+	// Convert to DTO
+	dto := AttachmentDTO{
+		ID:            attachment.ID,
+		Filename:      attachment.Filename,
+		ContentType:   attachment.ContentType,
+		Size:          attachment.Size,
+		SizeFormatted: attachment.GetSizeFormatted(),
+		Type:          string(attachment.Type),
+		UploadedBy:    attachment.UploadedBy,
+		UploadedAt:    attachment.UploadedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Description:   attachment.Description,
+	}
+
+	// Update memory storage with the modified issue
+	issue, _ := s.issueService.GetIssue(ctx, issueID)
+	if issue != nil {
+		s.memoryStorage.Update(issue)
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    dto,
+	}
+	s.jsonResponse(w, response, http.StatusCreated)
+}
+
+// getAttachmentHandler returns attachment metadata
+func (s *Server) getAttachmentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	attachmentID := vars["id"]
+
+	ctx := context.Background()
+	attachment, err := s.attachmentService.GetAttachment(ctx, attachmentID)
+	if err != nil {
+		s.errorResponse(w, "Attachment not found", http.StatusNotFound)
+		return
+	}
+
+	dto := AttachmentDTO{
+		ID:            attachment.ID,
+		Filename:      attachment.Filename,
+		ContentType:   attachment.ContentType,
+		Size:          attachment.Size,
+		SizeFormatted: attachment.GetSizeFormatted(),
+		Type:          string(attachment.Type),
+		UploadedBy:    attachment.UploadedBy,
+		UploadedAt:    attachment.UploadedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Description:   attachment.Description,
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    dto,
+	}
+	s.jsonResponse(w, response, http.StatusOK)
+}
+
+// downloadAttachmentHandler streams the attachment content
+func (s *Server) downloadAttachmentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	attachmentID := vars["id"]
+
+	ctx := context.Background()
+	content, attachment, err := s.attachmentService.GetAttachmentContent(ctx, attachmentID)
+	if err != nil {
+		s.errorResponse(w, "Attachment not found", http.StatusNotFound)
+		return
+	}
+	defer content.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Type", attachment.ContentType)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", attachment.Filename))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", attachment.Size))
+
+	// Stream the file content
+	if _, err := io.Copy(w, content); err != nil {
+		log.Printf("Error streaming attachment: %v", err)
+	}
+}
+
+// deleteAttachmentHandler deletes an attachment
+func (s *Server) deleteAttachmentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	attachmentID := vars["id"]
+
+	ctx := context.Background()
+
+	// Get attachment to find issue ID
+	attachment, err := s.attachmentService.GetAttachment(ctx, attachmentID)
+	if err != nil {
+		s.errorResponse(w, "Attachment not found", http.StatusNotFound)
+		return
+	}
+
+	issueID := attachment.IssueID
+
+	// Delete the attachment
+	if err := s.attachmentService.DeleteAttachment(ctx, attachmentID); err != nil {
+		s.errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Update memory storage
+	issue, _ := s.issueService.GetIssue(ctx, issueID)
+	if issue != nil {
+		s.memoryStorage.Update(issue)
+	}
+
+	response := APIResponse{
+		Success: true,
+		Data:    map[string]string{"message": "Attachment deleted successfully"},
+	}
+	s.jsonResponse(w, response, http.StatusOK)
 }

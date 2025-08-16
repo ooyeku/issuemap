@@ -147,6 +147,7 @@ type Issue struct {
 	Branch      string        `yaml:"branch,omitempty" json:"branch,omitempty"`
 	Commits     []CommitRef   `yaml:"commits" json:"commits"`
 	Comments    []Comment     `yaml:"comments" json:"comments"`
+	Attachments []Attachment  `yaml:"attachments" json:"attachments"`
 	Metadata    IssueMetadata `yaml:"metadata" json:"metadata"`
 	Timestamps  Timestamps    `yaml:"timestamps" json:"timestamps"`
 }
@@ -164,6 +165,7 @@ func NewIssue(id IssueID, title, description string, issueType IssueType) *Issue
 		Labels:      []Label{},
 		Commits:     []CommitRef{},
 		Comments:    []Comment{},
+		Attachments: []Attachment{},
 		Metadata:    IssueMetadata{CustomFields: make(map[string]string)},
 		Timestamps: Timestamps{
 			Created: now,
@@ -285,6 +287,39 @@ func (i *Issue) IsOverEstimate() bool {
 func (i *Issue) AddCommit(commit CommitRef) {
 	i.Commits = append(i.Commits, commit)
 	i.Timestamps.Updated = time.Now()
+}
+
+// AddAttachment adds an attachment to the issue
+func (i *Issue) AddAttachment(attachment Attachment) {
+	i.Attachments = append(i.Attachments, attachment)
+	i.Timestamps.Updated = time.Now()
+}
+
+// RemoveAttachment removes an attachment from the issue
+func (i *Issue) RemoveAttachment(attachmentID string) bool {
+	for idx, att := range i.Attachments {
+		if att.ID == attachmentID {
+			i.Attachments = append(i.Attachments[:idx], i.Attachments[idx+1:]...)
+			i.Timestamps.Updated = time.Now()
+			return true
+		}
+	}
+	return false
+}
+
+// GetAttachment retrieves an attachment by ID
+func (i *Issue) GetAttachment(attachmentID string) *Attachment {
+	for _, att := range i.Attachments {
+		if att.ID == attachmentID {
+			return &att
+		}
+	}
+	return nil
+}
+
+// HasAttachments returns true if the issue has attachments
+func (i *Issue) HasAttachments() bool {
+	return len(i.Attachments) > 0
 }
 
 // GetStatusDirectory returns the directory name for the issue based on its status

@@ -2,13 +2,23 @@ id: ISSUEMAP-090
 title: Implement Attachments for UI mode
 description: attachments can include files, images, etc... and visible only in ui mode but referenced in cli mode
 type: feature
-status: open
+status: in-progress
 priority: high
 labels: []
 branch: main
 commits: []
 comments: []
+attachments:
+    - id: ISSUEMAP-090-att-1755310646796665000
+      issue_id: ISSUEMAP-090
+      filename: test_attachment.txt
+      content_type: text/plain; charset=utf-8
+      size: 44
+      type: text
+      storage_path: attachments/ISSUEMAP-090/1755310646796784000_test_attachment.txt
+      uploaded_by: cli_test
+      uploaded_at: 2025-08-15T21:17:26.796669-05:00
 metadata: {}
 timestamps:
     created: 2025-08-10T21:50:02.401343-05:00
-    updated: 2025-08-10T21:50:02.401343-05:00
+    updated: 2025-08-15T21:17:26.797036-05:00

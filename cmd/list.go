@@ -233,7 +233,12 @@ func displayIssuesTable(issues []entities.Issue) {
 
 	for _, issue := range issues {
 		// Format and truncate each field to fit column width
-		id := truncateString(string(issue.ID), idWidth)
+		idStr := string(issue.ID)
+		// Add attachment indicator if issue has attachments
+		if issue.HasAttachments() {
+			idStr = idStr + " 📎"
+		}
+		id := truncateString(idStr, idWidth)
 		title := truncateString(issue.Title, titleWidth)
 		issueType := truncateString(string(issue.Type), typeWidth)
 		status := truncateString(string(issue.Status), statusWidth)

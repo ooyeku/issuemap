@@ -1,6 +1,7 @@
 package server
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,9 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
-	"compress/gzip"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -29,15 +29,16 @@ import (
 
 // Server represents the IssueMap HTTP server
 type Server struct {
-	httpServer    *http.Server
-	port          int
-	basePath      string
-	issueService  *services.IssueService
-	memoryStorage *entities.IssueLinkedList
-	syncService   *SyncService
-	pidFile       string
-	logFile       string
-	logFileHandle *os.File
+	httpServer        *http.Server
+	port              int
+	basePath          string
+	issueService      *services.IssueService
+	attachmentService *services.AttachmentService
+	memoryStorage     *entities.IssueLinkedList
+	syncService       *SyncService
+	pidFile           string
+	logFile           string
+	logFileHandle     *os.File
 }
 
 // ServerConfig holds server configuration
@@ -61,6 +62,8 @@ func NewServer(basePath string) (*Server, error) {
 	}
 
 	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
+	attachmentRepo := storage.NewFileAttachmentRepository(basePath)
+	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo)
 	memoryStorage := entities.NewIssueLinkedList()
 
 	// Find available port
@@ -70,12 +73,13 @@ func NewServer(basePath string) (*Server, error) {
 	}
 
 	server := &Server{
-		port:          port,
-		basePath:      basePath,
-		issueService:  issueService,
-		memoryStorage: memoryStorage,
-		pidFile:       filepath.Join(basePath, app.ServerPIDFile),
-		logFile:       filepath.Join(basePath, app.ServerLogFile),
+		port:              port,
+		basePath:          basePath,
+		issueService:      issueService,
+		attachmentService: attachmentService,
+		memoryStorage:     memoryStorage,
+		pidFile:           filepath.Join(basePath, app.ServerPIDFile),
+		logFile:           filepath.Join(basePath, app.ServerLogFile),
 	}
 
 	// Create sync service
@@ -281,6 +285,14 @@ func (s *Server) setupRouter() http.Handler {
 	issues.HandleFunc("/{id}/reopen", s.reopenIssueHandler).Methods("POST")
 	issues.HandleFunc("/{id}/assign", s.assignIssueHandler).Methods("POST")
 	issues.HandleFunc("/{id}/comments", s.addCommentHandler).Methods("POST")
+	issues.HandleFunc("/{id}/attachments", s.listAttachmentsHandler).Methods("GET")
+	issues.HandleFunc("/{id}/attachments", s.uploadAttachmentHandler).Methods("POST")
+
+	// Attachment endpoints
+	attachments := api.PathPrefix("/attachments").Subrouter()
+	attachments.HandleFunc("/{id}", s.getAttachmentHandler).Methods("GET")
+	attachments.HandleFunc("/{id}/download", s.downloadAttachmentHandler).Methods("GET")
+	attachments.HandleFunc("/{id}", s.deleteAttachmentHandler).Methods("DELETE")
 
 	// History endpoints
 	history := api.PathPrefix("/history").Subrouter()

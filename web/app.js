@@ -65,7 +65,7 @@
       const tr = document.createElement('tr');
       tr.dataset.id = String(iss.id);
       tr.innerHTML = `
-        <td><code>${escapeHtml(iss.id)}</code></td>
+        <td><code>${escapeHtml(iss.id)}</code>${(iss.attachments && iss.attachments.length) ? ' 📎' : ''}</td>
         <td class="title-cell">${escapeHtml(iss.title)}</td>
         <td></td>
         <td class="priority ${escapeHtml(iss.priority)}">${escapeHtml(iss.priority)}</td>
@@ -244,6 +244,77 @@
       c.appendChild(sec);
     }
 
+    // Attachments
+    if (Array.isArray(iss.attachments) && iss.attachments.length) {
+      const sec = document.createElement('div');
+      sec.className = 'section';
+      sec.innerHTML = `<h4>Attachments</h4><div class="attachments"></div>`;
+      const container = sec.querySelector('.attachments');
+      iss.attachments.forEach(att => {
+        const item = document.createElement('div');
+        item.className = 'attachment-item';
+        const icon = getAttachmentIcon(att.type);
+        item.innerHTML = `
+          <span class="attachment-icon">${icon}</span>
+          <div class="attachment-info">
+            <a class="attachment-name action-link" href="/api/v1/attachments/${encodeURIComponent(att.id)}/download" download="${escapeHtml(att.filename)}">${escapeHtml(att.filename)}</a>
+            <div class="attachment-meta muted">${escapeHtml(att.size_formatted)} • ${escapeHtml(att.type)} • Uploaded by ${escapeHtml(att.uploaded_by)} on ${new Date(att.uploaded_at).toLocaleDateString()}</div>
+            ${att.description ? `<div class="attachment-desc">${escapeHtml(att.description)}</div>` : ''}
+          </div>
+          <a class="attachment-view action-link" href="/attachment.html?id=${encodeURIComponent(att.id)}" target="_blank">View</a>
+        `;
+        container.appendChild(item);
+      });
+      c.appendChild(sec);
+    }
+
+    // Upload attachment form
+    const uploadSec = document.createElement('div');
+    uploadSec.className = 'section';
+    uploadSec.innerHTML = `
+      <h4>Upload Attachment</h4>
+      <form id="uploadForm" class="upload-form">
+        <input type="file" id="fileInput" name="file" required>
+        <input type="text" id="descInput" name="description" placeholder="Description (optional)">
+        <button type="submit" class="btn">Upload</button>
+      </form>
+    `;
+    c.appendChild(uploadSec);
+
+    // Wire upload form
+    const uploadForm = $('#uploadForm');
+    if (uploadForm) {
+      uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fileInput = $('#fileInput');
+        const descInput = $('#descInput');
+        if (!fileInput.files.length) {
+          toast('Please select a file');
+          return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('description', descInput.value);
+        formData.append('uploaded_by', 'web_user');
+        
+        try {
+          const r = await fetch(`${API_BASE}/issues/${encodeURIComponent(iss.id)}/attachments`, {
+            method: 'POST',
+            body: formData
+          });
+          if (r.ok) {
+            toast('Attachment uploaded');
+            loadDetail(iss.id); // Reload to show new attachment
+          } else {
+            toast('Failed to upload attachment');
+          }
+        } catch (e) {
+          toast('Network error during upload');
+        }
+      });
+    }
+
     // Commits
     if (Array.isArray(iss.commits) && iss.commits.length) {
       const sec = document.createElement('div');
@@ -349,6 +420,15 @@
 
   function escapeHtml(str){
     return String(str||'').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+  }
+
+  function getAttachmentIcon(type) {
+    switch(type) {
+      case 'image': return '🖼️';
+      case 'document': return '📄';
+      case 'text': return '📝';
+      default: return '📎';
+    }
   }
 
   function updateHashFromSelection(){
