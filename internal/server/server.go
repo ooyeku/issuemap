@@ -77,7 +77,7 @@ func NewServer(basePath string) (*Server, error) {
 	schedulerService := services.NewSchedulerService(cleanupService, storageService)
 
 	// Create attachment service with storage service for quota checking
-	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService)
+	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService, basePath)
 	memoryStorage := entities.NewIssueLinkedList()
 
 	// Find available port

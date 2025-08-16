@@ -331,6 +331,26 @@ func displayStorageStatus(status *entities.StorageStatus, config *entities.Stora
 		fmt.Printf("  %s %s\n", colorLabel("Metadata:"), colorValue(entities.FormatBytes(status.MetadataSize)))
 	}
 
+	// Show deduplication information if available
+	if status.DeduplicationStats != nil {
+		fmt.Println()
+		if noColor {
+			fmt.Println("Deduplication Summary:")
+			fmt.Printf("  Enabled:          %v\n", status.DeduplicationEnabled)
+			fmt.Printf("  Unique Files:     %d\n", status.DeduplicationStats.UniqueFiles)
+			fmt.Printf("  Total References: %d\n", status.DeduplicationStats.TotalReferences)
+			fmt.Printf("  Space Saved:      %s\n", entities.FormatBytes(status.DeduplicationStats.SpaceSaved))
+			fmt.Printf("  Efficiency:       %.1f%%\n", status.DeduplicationStats.DeduplicationRatio*100)
+		} else {
+			color.Yellow("Deduplication Summary:")
+			fmt.Printf("  %s %v\n", colorLabel("Enabled:"), status.DeduplicationEnabled)
+			fmt.Printf("  %s %s\n", colorLabel("Unique Files:"), colorValue(fmt.Sprintf("%d", status.DeduplicationStats.UniqueFiles)))
+			fmt.Printf("  %s %s\n", colorLabel("Total References:"), colorValue(fmt.Sprintf("%d", status.DeduplicationStats.TotalReferences)))
+			fmt.Printf("  %s %s\n", colorLabel("Space Saved:"), colorValue(entities.FormatBytes(status.DeduplicationStats.SpaceSaved)))
+			fmt.Printf("  %s %s\n", colorLabel("Efficiency:"), colorValue(fmt.Sprintf("%.1f%%", status.DeduplicationStats.DeduplicationRatio*100)))
+		}
+	}
+
 	// Warnings
 	if len(status.Warnings) > 0 {
 		fmt.Println()

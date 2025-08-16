@@ -25,6 +25,7 @@ type StorageService struct {
 	config         *entities.StorageConfig
 	mu             sync.RWMutex
 	cache          *storageCache
+	dedupService   *DeduplicationService
 }
 
 type storageCache struct {
@@ -58,7 +59,15 @@ func NewStorageService(
 		attachmentRepo: attachmentRepo,
 		config:         config,
 		cache:          &storageCache{},
+		dedupService:   nil, // Will be set via SetDeduplicationService
 	}
+}
+
+// SetDeduplicationService sets the deduplication service
+func (s *StorageService) SetDeduplicationService(dedupService *DeduplicationService) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.dedupService = dedupService
 }
 
 // GetStorageStatus returns current storage status
@@ -155,9 +164,22 @@ func (s *StorageService) calculateStorageStatus(ctx context.Context) (*entities.
 
 	wg.Wait()
 
+	// Add deduplication directory to total if it exists
+	dedupSize, _ := s.calculateDirSize(filepath.Join(s.basePath, "dedup"))
+
 	// Calculate total size
 	status.TotalSize = status.IssuesSize + status.AttachmentsSize +
-		status.HistorySize + status.TimeEntriesSize + status.MetadataSize
+		status.HistorySize + status.TimeEntriesSize + status.MetadataSize + dedupSize
+
+	// Add deduplication information if available
+	s.mu.RLock()
+	if s.dedupService != nil {
+		status.DeduplicationEnabled = s.dedupService.GetConfig().Enabled
+		if dedupStats, err := s.dedupService.GetDeduplicationStats(); err == nil {
+			status.DeduplicationStats = dedupStats
+		}
+	}
+	s.mu.RUnlock()
 
 	// Get largest files
 	status.LargestFiles = s.findLargestFiles(10)

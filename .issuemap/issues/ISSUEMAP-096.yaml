@@ -33,7 +33,7 @@ description: |-
     - [ ] Existing duplicates can be deduplicated
     - [ ] Performance impact is minimal
 type: feature
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: storage
@@ -46,7 +46,8 @@ branch: main
 commits: []
 comments: []
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.42778288805555553
 timestamps:
     created: 2025-08-16T13:05:11.225067-05:00
-    updated: 2025-08-16T13:17:52.522367-05:00
+    updated: 2025-08-16T18:24:44.133719-05:00

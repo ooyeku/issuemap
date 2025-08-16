@@ -1,11 +1,14 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"mime"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ooyeku/issuemap/internal/domain/entities"
 	"github.com/ooyeku/issuemap/internal/domain/errors"
@@ -18,16 +21,25 @@ type AttachmentService struct {
 	issueRepo      repositories.IssueRepository
 	storageService *StorageService
 	security       *AttachmentSecurity
+	dedupService   *DeduplicationService
+	basePath       string
 }
 
 // NewAttachmentService creates a new attachment service
-func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issueRepo repositories.IssueRepository, storageService *StorageService) *AttachmentService {
+func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issueRepo repositories.IssueRepository, storageService *StorageService, basePath string) *AttachmentService {
 	return &AttachmentService{
 		attachmentRepo: attachmentRepo,
 		issueRepo:      issueRepo,
 		storageService: storageService,
 		security:       NewAttachmentSecurity(),
+		dedupService:   nil, // Will be set via SetDeduplicationService
+		basePath:       basePath,
 	}
+}
+
+// SetDeduplicationService sets the deduplication service
+func (s *AttachmentService) SetDeduplicationService(dedupService *DeduplicationService) {
+	s.dedupService = dedupService
 }
 
 // UploadAttachment uploads a new attachment for an issue
@@ -67,17 +79,95 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	// Create attachment entity
 	attachment := entities.NewAttachment(issueID, filename, contentType, size, uploadedBy)
 
-	// Save file to storage
-	storagePath, err := s.attachmentRepo.SaveFile(ctx, issueID, filename, content)
-	if err != nil {
-		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "save_file")
+	// Check if deduplication is enabled and should be used for this file
+	var storagePath string
+	var fileHash string
+
+	if s.dedupService != nil && s.dedupService.ShouldDeduplicate(size, contentType) {
+		// Read content into buffer for hash calculation
+		contentBuffer := &bytes.Buffer{}
+		teeReader := io.TeeReader(content, contentBuffer)
+
+		// Calculate file hash
+		hash, actualSize, err := s.dedupService.CalculateFileHash(teeReader)
+		if err != nil {
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "calculate_hash")
+		}
+
+		// Verify size matches
+		if actualSize != size {
+			return nil, errors.Wrap(fmt.Errorf("file size doesn't match expected size"), "AttachmentService.UploadAttachment", "size_mismatch")
+		}
+
+		// Get or create file hash entry
+		fileHashEntry, isNew, err := s.dedupService.GetOrCreateFileHash(hash, size, filename, contentType)
+		if err != nil {
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "get_file_hash")
+		}
+
+		// If this is a new file, save it to deduplicated storage
+		if isNew {
+			// Ensure target directory exists
+			targetDir := filepath.Dir(fileHashEntry.StoragePath)
+			if err := os.MkdirAll(targetDir, 0755); err != nil {
+				return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "create_dedup_dir")
+			}
+
+			// Save file to deduplicated location
+			file, err := os.Create(fileHashEntry.StoragePath)
+			if err != nil {
+				return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "create_dedup_file")
+			}
+			defer file.Close()
+
+			if _, err := io.Copy(file, contentBuffer); err != nil {
+				os.Remove(fileHashEntry.StoragePath) // Clean up on failure
+				return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "write_dedup_file")
+			}
+
+			if err := file.Sync(); err != nil {
+				os.Remove(fileHashEntry.StoragePath) // Clean up on failure
+				return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "sync_dedup_file")
+			}
+		}
+
+		// Add reference to the deduplicated file
+		if err := s.dedupService.AddReference(attachment.ID, issueID, hash, filename); err != nil {
+			// Clean up if this was a new file
+			if isNew {
+				os.Remove(fileHashEntry.StoragePath)
+			}
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "add_dedup_reference")
+		}
+
+		// Store relative path for compatibility with repository
+		relPath, err := filepath.Rel(s.basePath, fileHashEntry.StoragePath)
+		if err != nil {
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "get_relative_path")
+		}
+		storagePath = relPath
+		fileHash = hash
+	} else {
+		// Use traditional storage
+		path, err := s.attachmentRepo.SaveFile(ctx, issueID, filename, content)
+		if err != nil {
+			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "save_file")
+		}
+		storagePath = path
 	}
+
 	attachment.StoragePath = storagePath
 
 	// Save metadata
 	if err := s.attachmentRepo.SaveMetadata(ctx, attachment); err != nil {
-		// Try to clean up the file if metadata save fails
-		_ = s.attachmentRepo.DeleteFile(ctx, storagePath)
+		// Try to clean up on failure
+		if fileHash != "" && s.dedupService != nil {
+			// Remove deduplication reference
+			s.dedupService.RemoveReference(attachment.ID, fileHash)
+		} else {
+			// Remove traditional file
+			s.attachmentRepo.DeleteFile(ctx, storagePath)
+		}
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "save_metadata")
 	}
 
@@ -85,8 +175,14 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	issue.AddAttachment(*attachment)
 	if err := s.issueRepo.Update(ctx, issue); err != nil {
 		// Clean up on failure
-		_ = s.attachmentRepo.DeleteFile(ctx, storagePath)
-		_ = s.attachmentRepo.DeleteMetadata(ctx, attachment.ID)
+		if fileHash != "" && s.dedupService != nil {
+			// Remove deduplication reference
+			s.dedupService.RemoveReference(attachment.ID, fileHash)
+		} else {
+			// Remove traditional file
+			s.attachmentRepo.DeleteFile(ctx, storagePath)
+		}
+		s.attachmentRepo.DeleteMetadata(ctx, attachment.ID)
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "update_issue")
 	}
 
@@ -152,9 +248,37 @@ func (s *AttachmentService) DeleteAttachment(ctx context.Context, attachmentID s
 		return errors.Wrap(err, "AttachmentService.DeleteAttachment", "update_issue")
 	}
 
-	// Delete file
-	if err := s.attachmentRepo.DeleteFile(ctx, attachment.StoragePath); err != nil {
-		// Continue even if file deletion fails
+	// Check if this file is in deduplicated storage
+	var isDeduplicatedFile bool
+	var fileHash string
+
+	if s.dedupService != nil {
+		// Check if storage path is in dedup directory (relative path)
+		if strings.HasPrefix(attachment.StoragePath, "dedup/") {
+			isDeduplicatedFile = true
+
+			// Extract hash from storage path
+			// Remove "dedup/" prefix
+			pathWithoutPrefix := strings.TrimPrefix(attachment.StoragePath, "dedup/")
+			// Combine directory + filename to get hash (remove the "/" separator)
+			dir := filepath.Dir(pathWithoutPrefix)
+			filename := filepath.Base(pathWithoutPrefix)
+			fileHash = dir + filename
+		}
+	}
+
+	// Handle file deletion based on storage type
+	if isDeduplicatedFile && s.dedupService != nil {
+		// Remove deduplication reference (this will handle file deletion if ref count reaches 0)
+		if err := s.dedupService.RemoveReference(attachmentID, fileHash); err != nil {
+			// Log error but continue - metadata cleanup is more important
+			fmt.Printf("Warning: failed to remove deduplication reference: %v\n", err)
+		}
+	} else {
+		// Delete traditional file
+		if err := s.attachmentRepo.DeleteFile(ctx, attachment.StoragePath); err != nil {
+			// Continue even if file deletion fails
+		}
 	}
 
 	// Delete metadata

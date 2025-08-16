@@ -36,7 +36,7 @@ description: |-
     - [ ] Cleanup activity is logged
     - [ ] Restore functionality available
 type: feature
-status: open
+status: closed
 priority: high
 labels:
     - name: cli
@@ -55,4 +55,5 @@ metadata:
     actual_hours: 0.3
 timestamps:
     created: 2025-08-16T13:05:33.07468-05:00
-    updated: 2025-08-16T17:52:19.689054-05:00
+    updated: 2025-08-16T17:53:41.558516-05:00
+    closed: 2025-08-16T17:53:41.55851-05:00

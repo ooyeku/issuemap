@@ -67,6 +67,10 @@ type StorageStatus struct {
 	Status             StorageHealthStatus `json:"status"`
 	Warnings           []string            `json:"warnings"`
 	LastCalculated     time.Time           `json:"last_calculated"`
+
+	// Deduplication information
+	DeduplicationEnabled bool                `json:"deduplication_enabled,omitempty"`
+	DeduplicationStats   *DeduplicationStats `json:"deduplication_stats,omitempty"`
 }
 
 // FileInfo represents information about a file

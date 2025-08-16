@@ -82,7 +82,7 @@ func (r *FileAttachmentRepository) SaveFile(ctx context.Context, issueID entitie
 func (r *FileAttachmentRepository) GetFile(ctx context.Context, storagePath string) (io.ReadCloser, error) {
 	// Validate storage path for security
 	if strings.Contains(storagePath, "..") ||
-		!strings.HasPrefix(storagePath, "attachments/") {
+		(!strings.HasPrefix(storagePath, "attachments/") && !strings.HasPrefix(storagePath, "dedup/")) {
 		return nil, errors.Wrap(fmt.Errorf("invalid storage path"), "FileAttachmentRepository.GetFile", "security")
 	}
 
