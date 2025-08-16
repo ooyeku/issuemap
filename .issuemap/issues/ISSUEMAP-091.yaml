@@ -2,7 +2,7 @@ id: ISSUEMAP-091
 title: PDF attachments fail to render
 description: Implement rich display for pdf and other file types outside of txt files
 type: bug
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: frontend
@@ -14,8 +14,18 @@ milestone:
 branch: main
 commits: []
 comments: []
-attachments: []
-metadata: {}
+attachments:
+    - id: ISSUEMAP-091-att-1755366395217038000
+      issue_id: ISSUEMAP-091
+      filename: How would I calculate LTV_.pdf
+      content_type: application/pdf
+      size: 363650
+      type: document
+      storage_path: attachments/ISSUEMAP-091/1755366395217387000_How would I calculate LTV_.pdf
+      uploaded_by: web_user
+      uploaded_at: 2025-08-16T12:46:35.217044-05:00
+metadata:
+    actual_hours: 6.2396488677777775
 timestamps:
     created: 2025-08-15T22:09:38.933122-05:00
-    updated: 2025-08-15T22:54:45.84774-05:00
+    updated: 2025-08-16T12:48:21.133902-05:00

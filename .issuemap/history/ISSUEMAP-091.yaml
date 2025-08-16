@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-091
-current_version: 3
+current_version: 6
 created_at: 2025-08-15T22:09:38.975262-05:00
-updated_at: 2025-08-15T22:54:45.862629-05:00
+updated_at: 2025-08-16T12:48:21.152985-05:00
 entries:
     - id: hist_1755313778960183000
       issue_id: ISSUEMAP-091
@@ -61,3 +61,37 @@ entries:
           new_value: v0.5.0
       metadata:
         git_branch: main
+    - id: hist_1755344038380696000
+      issue_id: ISSUEMAP-091
+      version: 4
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T06:33:58.380697-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755344038400445000
+      issue_id: ISSUEMAP-091
+      version: 5
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T06:33:58.40046-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: main
+    - id: hist_1755366501152505000
+      issue_id: ISSUEMAP-091
+      version: 6
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T12:48:21.152505-05:00
+      message: Stopped timer (6.2 hours)
+      changes: []
+      metadata:
+        action: timer_stopped
+        hours_logged: "6.24"

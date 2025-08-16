@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Attachment Viewer - IssueMap</title>
   <link rel="stylesheet" href="/styles.css" />
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" onerror="console.warn('Failed to load marked.js from CDN')"></script>
+  <!-- PDF.js for PDF rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" onerror="console.warn('Failed to load PDF.js from CDN')"></script>
+  <script>
+    // Configure PDF.js worker (only if PDF.js loaded successfully)
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
   <style>
     .attachment-viewer {
       max-width: 1200px;
@@ -56,11 +66,163 @@
     .no-preview {
       text-align: center;
       padding: 4rem 2rem;
-      color: var(--text-secondary);
+      color: var(--muted);
+      background: var(--panel);
+      border-radius: 8px;
+      border: 1px solid var(--border);
     }
     .back-link {
       display: inline-block;
       margin-bottom: 1rem;
+    }
+    
+    /* PDF Viewer Styles */
+    .pdf-viewer {
+      background: #525659;
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 600px;
+    }
+    .pdf-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: var(--panel);
+      border-radius: 6px;
+    }
+    .pdf-controls button {
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #06101a;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .pdf-controls button:hover {
+      filter: brightness(1.1);
+    }
+    .pdf-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .pdf-page-info {
+      color: var(--text);
+      font-size: 14px;
+    }
+    #pdfCanvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Markdown Viewer Styles */
+    .markdown-preview {
+      max-width: none;
+      padding: 2rem;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--panel);
+      border-radius: 8px;
+    }
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3,
+    .markdown-preview h4,
+    .markdown-preview h5,
+    .markdown-preview h6 {
+      color: var(--accent);
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+    .markdown-preview h1 {
+      font-size: 2em;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.3em;
+    }
+    .markdown-preview h2 {
+      font-size: 1.5em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.3em;
+    }
+    .markdown-preview h3 {
+      font-size: 1.25em;
+    }
+    .markdown-preview p {
+      margin: 1em 0;
+    }
+    .markdown-preview pre {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+    .markdown-preview code {
+      background: var(--bg-secondary);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.9em;
+    }
+    .markdown-preview pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.9em;
+    }
+    .markdown-preview blockquote {
+      border-left: 4px solid var(--accent);
+      margin: 1em 0;
+      padding-left: 1em;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .markdown-preview ul,
+    .markdown-preview ol {
+      margin: 1em 0;
+      padding-left: 2em;
+    }
+    .markdown-preview li {
+      margin: 0.5em 0;
+    }
+    .markdown-preview table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    .markdown-preview th,
+    .markdown-preview td {
+      border: 1px solid var(--border);
+      padding: 0.5em;
+      text-align: left;
+    }
+    .markdown-preview th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+    }
+    .markdown-preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .markdown-preview a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .markdown-preview a:hover {
+      text-decoration: underline;
+    }
+    .markdown-preview hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2em 0;
     }
   </style>
 </head>
@@ -203,6 +365,157 @@
                 <img src="${API_BASE}/attachments/${encodeURIComponent(id)}/download" alt="${escapeHtml(att.filename)}">
               </div>
             `;
+          } else if (att.type === 'document' && (att.content_type === 'application/pdf' || att.filename.toLowerCase().endsWith('.pdf'))) {
+            // Show PDF preview using PDF.js
+            viewerContent.innerHTML = `
+              <div class="pdf-viewer">
+                <div class="pdf-controls">
+                  <button id="prevPage">Previous</button>
+                  <span class="pdf-page-info">
+                    Page <span id="pageNum">1</span> of <span id="pageCount">1</span>
+                  </span>
+                  <button id="nextPage">Next</button>
+                  <button id="zoomOut">Zoom Out</button>
+                  <button id="zoomIn">Zoom In</button>
+                </div>
+                <canvas id="pdfCanvas"></canvas>
+              </div>
+            `;
+            
+            // Load and render PDF
+            const pdfUrl = `${API_BASE}/attachments/${encodeURIComponent(id)}/download`;
+            let pdfDoc = null;
+            let pageNum = 1;
+            let pageRendering = false;
+            let pageNumPending = null;
+            let scale = 1.5;
+            
+            async function renderPage(num) {
+              pageRendering = true;
+              try {
+                const page = await pdfDoc.getPage(num);
+                const canvas = document.getElementById('pdfCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Calculate scale based on container width for responsiveness
+                const containerWidth = canvas.parentElement.clientWidth - 40; // Account for padding
+                const viewport = page.getViewport({ scale: 1.0 });
+                const calculatedScale = Math.min(scale, containerWidth / viewport.width);
+                
+                const scaledViewport = page.getViewport({ scale: calculatedScale });
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+                
+                const renderContext = {
+                  canvasContext: ctx,
+                  viewport: scaledViewport
+                };
+                await page.render(renderContext).promise;
+                pageRendering = false;
+                
+                if (pageNumPending !== null) {
+                  renderPage(pageNumPending);
+                  pageNumPending = null;
+                }
+              } catch (e) {
+                console.error('Error rendering page:', e);
+                pageRendering = false;
+              }
+              
+              // Update page info
+              document.getElementById('pageNum').textContent = num;
+              
+              // Update button states
+              document.getElementById('prevPage').disabled = (num <= 1);
+              document.getElementById('nextPage').disabled = (num >= pdfDoc.numPages);
+            }
+            
+            function queueRenderPage(num) {
+              if (pageRendering) {
+                pageNumPending = num;
+              } else {
+                renderPage(num);
+              }
+            }
+            
+            function onPrevPage() {
+              if (pageNum <= 1) return;
+              pageNum--;
+              queueRenderPage(pageNum);
+            }
+            
+            function onNextPage() {
+              if (pageNum >= pdfDoc.numPages) return;
+              pageNum++;
+              queueRenderPage(pageNum);
+            }
+            
+            function onZoomIn() {
+              scale = scale * 1.25;
+              queueRenderPage(pageNum);
+            }
+            
+            function onZoomOut() {
+              scale = scale * 0.8;
+              queueRenderPage(pageNum);
+            }
+            
+            // Check if PDF.js is loaded
+            if (typeof pdfjsLib === 'undefined') {
+              viewerContent.innerHTML = '<div class="no-preview">PDF.js library not loaded. Please check your internet connection.</div>';
+              return;
+            }
+            
+            // Load PDF document
+            pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+              pdfDoc = pdf;
+              document.getElementById('pageCount').textContent = pdf.numPages;
+              renderPage(pageNum);
+              
+              // Set up event listeners
+              document.getElementById('prevPage').addEventListener('click', onPrevPage);
+              document.getElementById('nextPage').addEventListener('click', onNextPage);
+              document.getElementById('zoomIn').addEventListener('click', onZoomIn);
+              document.getElementById('zoomOut').addEventListener('click', onZoomOut);
+            }).catch(function(error) {
+              console.error('Error loading PDF:', error);
+              viewerContent.innerHTML = '<div class="no-preview">Unable to load PDF preview</div>';
+            });
+            
+          } else if (att.type === 'text' && (att.filename.toLowerCase().endsWith('.md') || 
+                     att.filename.toLowerCase().endsWith('.markdown') || 
+                     att.content_type === 'text/markdown')) {
+            // Show Markdown preview
+            try {
+              // Check if marked.js is loaded
+              if (typeof marked === 'undefined') {
+                viewerContent.innerHTML = '<div class="no-preview">Marked.js library not loaded. Please check your internet connection.</div>';
+                return;
+              }
+              
+              const contentR = await fetch(`${API_BASE}/attachments/${encodeURIComponent(id)}/download`);
+              if (contentR.ok) {
+                const markdownText = await contentR.text();
+                
+                // Configure marked options
+                marked.setOptions({
+                  gfm: true,
+                  breaks: true,
+                  headerIds: true,
+                  mangle: false,
+                  sanitize: false
+                });
+                
+                // Convert markdown to HTML
+                const htmlContent = marked(markdownText);
+                viewerContent.innerHTML = `<div class="markdown-preview">${htmlContent}</div>`;
+              } else {
+                viewerContent.innerHTML = '<div class="no-preview">Unable to load markdown preview</div>';
+              }
+            } catch (e) {
+              console.error('Error loading markdown:', e);
+              viewerContent.innerHTML = '<div class="no-preview">Unable to load markdown preview</div>';
+            }
           } else if (att.type === 'text' || att.content_type.startsWith('text/')) {
             // Load and show text content
             try {
