@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-101
-current_version: 2
+current_version: 5
 created_at: 2025-08-16T13:08:00.307708-05:00
-updated_at: 2025-08-16T13:16:37.89419-05:00
+updated_at: 2025-08-16T17:17:28.128394-05:00
 entries:
     - id: hist_1755367680285752000
       issue_id: ISSUEMAP-101
@@ -98,3 +98,39 @@ entries:
           new_value: v0.5.0
       metadata:
         git_branch: main
+    - id: hist_1755382577103093000
+      issue_id: ISSUEMAP-101
+      version: 3
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:16:17.103094-05:00
+      message: 'Added dependency: ISSUEMAP-101 blocks ISSUEMAP-094'
+      changes: []
+      metadata:
+        action: dependency_created
+        dependency_type: blocks
+        target_issue: ISSUEMAP-094
+    - id: hist_1755382638985103000
+      issue_id: ISSUEMAP-101
+      version: 4
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:17:18.985103-05:00
+      message: 'Removed dependency: ISSUEMAP-101 blocks ISSUEMAP-094'
+      changes: []
+      metadata:
+        action: dependency_removed
+        dependency_type: blocks
+        target_issue: ISSUEMAP-094
+    - id: hist_1755382648128145000
+      issue_id: ISSUEMAP-101
+      version: 5
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:17:28.128147-05:00
+      message: 'Added dependency: ISSUEMAP-094 blocks ISSUEMAP-101'
+      changes: []
+      metadata:
+        action: dependency_created
+        dependency_type: blocks
+        target_issue: ISSUEMAP-094

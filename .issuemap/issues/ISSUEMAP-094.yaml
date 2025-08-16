@@ -27,7 +27,7 @@ description: |-
     - [ ] Orphaned files are detected and removed
     - [ ] Cleanup activity is logged
 type: feature
-status: open
+status: closed
 priority: high
 labels:
     - name: storage
@@ -40,7 +40,9 @@ branch: main
 commits: []
 comments: []
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.36475647972222225
 timestamps:
     created: 2025-08-16T13:03:55.066047-05:00
-    updated: 2025-08-16T13:13:13.954519-05:00
+    updated: 2025-08-16T17:35:48.937056-05:00
+    closed: 2025-08-16T17:35:48.937052-05:00

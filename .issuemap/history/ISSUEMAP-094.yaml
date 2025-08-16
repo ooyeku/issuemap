@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-094
-current_version: 2
+current_version: 8
 created_at: 2025-08-16T13:03:55.109881-05:00
-updated_at: 2025-08-16T13:13:13.974171-05:00
+updated_at: 2025-08-16T17:34:18.04496-05:00
 entries:
     - id: hist_1755367435087280000
       issue_id: ISSUEMAP-094
@@ -73,3 +73,73 @@ entries:
           new_value: v0.5.0
       metadata:
         git_branch: main
+    - id: hist_1755382344873044000
+      issue_id: ISSUEMAP-094
+      version: 3
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T17:12:24.873045-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755382344888895000
+      issue_id: ISSUEMAP-094
+      version: 4
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T17:12:24.888909-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: main
+    - id: hist_1755382577103522000
+      issue_id: ISSUEMAP-094
+      version: 5
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:16:17.103523-05:00
+      message: 'Added dependency: ISSUEMAP-101 blocks ISSUEMAP-094'
+      changes: []
+      metadata:
+        action: dependency_created
+        dependency_type: blocks
+        target_issue: ISSUEMAP-101
+    - id: hist_1755382638986191000
+      issue_id: ISSUEMAP-094
+      version: 6
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:17:18.986191-05:00
+      message: 'Removed dependency: ISSUEMAP-101 blocks ISSUEMAP-094'
+      changes: []
+      metadata:
+        action: dependency_removed
+        dependency_type: blocks
+        target_issue: ISSUEMAP-101
+    - id: hist_1755382648127341000
+      issue_id: ISSUEMAP-094
+      version: 7
+      type: updated
+      author: unknown
+      timestamp: 2025-08-16T17:17:28.127342-05:00
+      message: 'Added dependency: ISSUEMAP-094 blocks ISSUEMAP-101'
+      changes: []
+      metadata:
+        action: dependency_created
+        dependency_type: blocks
+        target_issue: ISSUEMAP-101
+    - id: hist_1755383658044411000
+      issue_id: ISSUEMAP-094
+      version: 8
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-16T17:34:18.044412-05:00
+      message: Stopped timer (0.4 hours)
+      changes: []
+      metadata:
+        action: timer_stopped
+        hours_logged: "0.36"

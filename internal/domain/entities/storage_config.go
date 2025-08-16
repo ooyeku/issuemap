@@ -30,6 +30,9 @@ type StorageConfig struct {
 
 	// Enable storage quota enforcement
 	EnforceQuotas bool `yaml:"enforce_quotas" json:"enforce_quotas"`
+
+	// Cleanup configuration
+	CleanupConfig *CleanupConfig `yaml:"cleanup,omitempty" json:"cleanup,omitempty"`
 }
 
 // DefaultStorageConfig returns default storage configuration
@@ -43,6 +46,7 @@ func DefaultStorageConfig() *StorageConfig {
 		WarningThreshold:    80,
 		CriticalThreshold:   95,
 		EnforceQuotas:       false,
+		CleanupConfig:       DefaultCleanupConfig(),
 	}
 }
 

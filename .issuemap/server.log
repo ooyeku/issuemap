@@ -952,3 +952,19 @@
 2025/08/16 16:53:12 server.go:347: Loaded 76 issues into memory from disk
 2025/08/16 17:08:17 server.go:347: Loaded 76 issues into memory from disk
 2025/08/16 17:08:36 server.go:347: Loaded 76 issues into memory from disk
+2025/08/16 17:10:29 server.go:389: GET /api/v1/issues 184.834µs
+2025/08/16 17:10:41 server.go:389: GET /api/v1/issues 308.917µs
+2025/08/16 17:10:41 server.go:389: GET /api/v1/issues/ISSUEMAP-093 7.021208ms
+2025/08/16 17:11:59 server.go:389: GET /api/v1/issues 132.5µs
+2025/08/16 17:11:59 server.go:389: GET /api/v1/issues/ISSUEMAP-098 10.6795ms
+2025/08/16 17:12:03 server.go:389: GET /api/v1/issues/ISSUEMAP-094 11.1625ms
+2025/08/16 17:12:03 server.go:389: GET /api/v1/issues/ISSUEMAP-094 7.923333ms
+2025/08/16 17:12:24 server.go:347: Loaded 76 issues into memory from disk
+2025/08/16 17:15:01 server.go:389: GET /api/v1/issues 419.542µs
+2025/08/16 17:32:16 server.go:149: IssueMap server starting on port 4043
+2025/08/16 17:32:16 server.go:150: API endpoints available at http://localhost:4043/api/v1
+2025/08/16 17:32:49 server.go:429: GET /api/v1/cleanup/config 104.958µs
+2025/08/16 17:33:01 server.go:429: GET /api/v1/cleanup/status 1.287375ms
+2025/08/16 17:33:17 server.go:429: POST /api/v1/cleanup 4.001166ms
+2025/08/16 17:34:18 server.go:347: Loaded 76 issues into memory from disk
+2025/08/16 17:35:48 server.go:347: Loaded 76 issues into memory from disk

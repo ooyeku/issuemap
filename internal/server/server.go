@@ -35,6 +35,8 @@ type Server struct {
 	issueService      *services.IssueService
 	attachmentService *services.AttachmentService
 	storageService    *services.StorageService
+	cleanupService    *services.CleanupService
+	schedulerService  *services.SchedulerService
 	memoryStorage     *entities.IssueLinkedList
 	syncService       *SyncService
 	pidFile           string
@@ -68,6 +70,12 @@ func NewServer(basePath string) (*Server, error) {
 	// Create storage service
 	storageService := services.NewStorageService(basePath, configRepo, issueRepo, attachmentRepo)
 
+	// Create cleanup service
+	cleanupService := services.NewCleanupService(basePath, configRepo, issueRepo, attachmentRepo)
+
+	// Create scheduler service
+	schedulerService := services.NewSchedulerService(cleanupService, storageService)
+
 	// Create attachment service with storage service for quota checking
 	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService)
 	memoryStorage := entities.NewIssueLinkedList()
@@ -84,6 +92,8 @@ func NewServer(basePath string) (*Server, error) {
 		issueService:      issueService,
 		attachmentService: attachmentService,
 		storageService:    storageService,
+		cleanupService:    cleanupService,
+		schedulerService:  schedulerService,
 		memoryStorage:     memoryStorage,
 		pidFile:           filepath.Join(basePath, app.ServerPIDFile),
 		logFile:           filepath.Join(basePath, app.ServerLogFile),
@@ -109,6 +119,11 @@ func (s *Server) Start() error {
 	// Start sync service to watch for file changes
 	if err := s.syncService.Start(); err != nil {
 		return fmt.Errorf("failed to start sync service: %w", err)
+	}
+
+	// Start scheduler service for automatic cleanup
+	if err := s.schedulerService.Start(); err != nil {
+		return fmt.Errorf("failed to start scheduler service: %w", err)
 	}
 
 	// Setup router and middleware
@@ -150,7 +165,12 @@ func (s *Server) Stop() error {
 
 	log.Println("Shutting down server...")
 
-	// Stop sync service first
+	// Stop scheduler service first
+	if s.schedulerService != nil {
+		s.schedulerService.Stop()
+	}
+
+	// Stop sync service
 	if s.syncService != nil {
 		s.syncService.Stop()
 	}
@@ -316,6 +336,13 @@ func (s *Server) setupRouter() http.Handler {
 	storage.HandleFunc("", s.getStorageStatusHandler).Methods("GET")
 	storage.HandleFunc("/config", s.getStorageConfigHandler).Methods("GET")
 	storage.HandleFunc("/config", s.updateStorageConfigHandler).Methods("PUT")
+
+	// Cleanup endpoints
+	cleanup := api.PathPrefix("/cleanup").Subrouter()
+	cleanup.HandleFunc("", s.runCleanupHandler).Methods("POST")
+	cleanup.HandleFunc("/config", s.getCleanupConfigHandler).Methods("GET")
+	cleanup.HandleFunc("/config", s.updateCleanupConfigHandler).Methods("PUT")
+	cleanup.HandleFunc("/status", s.getCleanupStatusHandler).Methods("GET")
 
 	// Git endpoints
 	gitApi := api.PathPrefix("/git").Subrouter()

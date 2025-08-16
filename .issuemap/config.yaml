@@ -34,3 +34,25 @@ storage:
     warning_threshold: 70
     critical_threshold: 95
     enforce_quotas: true
+    cleanup:
+        enabled: true
+        schedule: 0 2 * * *
+        retention_days:
+            closed_issues: 30
+            closed_issue_attachments: 30
+            history: 365
+            time_entries: 365
+            orphaned_attachments: 7
+            empty_directories: true
+        size_triggers:
+            max_total_size: 0
+            max_attachments_size: 0
+            max_history_size: 0
+            trigger_percentage: 90
+        archive_before_delete: false
+        archive_path: .issuemap_archive
+        dry_run_mode: false
+        minimum_keep:
+            closed_issues: 10
+            history_per_issue: 5
+            time_entries_per_issue: 5
