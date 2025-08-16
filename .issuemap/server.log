@@ -786,3 +786,8 @@
 2025/08/15 23:22:36 server.go:389: GET /api/v1/issues/ISSUEMAP-090 7.658542ms
 2025/08/15 23:23:52 server.go:389: GET /api/v1/issues/ISSUEMAP-091 11.427958ms
 2025/08/15 23:23:52 server.go:389: GET /api/v1/issues/ISSUEMAP-091 8.792416ms
+2025/08/15 23:24:42 server.go:389: GET /api/v1/issues/ISSUEMAP-092 10.814292ms
+2025/08/15 23:24:42 server.go:389: GET /api/v1/issues/ISSUEMAP-092 7.481125ms
+2025/08/15 23:25:13 server.go:347: Loaded 67 issues into memory from disk
+2025/08/15 23:32:59 server.go:347: Loaded 67 issues into memory from disk
+2025/08/15 23:34:54 server.go:347: Loaded 67 issues into memory from disk

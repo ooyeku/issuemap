@@ -19,16 +19,17 @@ import (
 )
 
 var (
-	listStatus    string
-	listType      string
-	listPriority  string
-	listAssignee  string
-	listLabels    []string
-	listMilestone string
-	listBranch    string
-	listLimit     int
-	listAll       bool
-	listBlocked   bool
+	listStatus     string
+	listType       string
+	listPriority   string
+	listAssignee   string
+	listLabels     []string
+	listMilestone  string
+	listBranch     string
+	listLimit      int
+	listAll        bool
+	listBlocked    bool
+	listNoTruncate bool
 )
 
 // listCmd represents the list command
@@ -62,6 +63,7 @@ func init() {
 	listCmd.Flags().IntVar(&listLimit, "limit", 20, "limit number of results")
 	listCmd.Flags().BoolVar(&listAll, "all", false, "show all issues (no limit)")
 	listCmd.Flags().BoolVar(&listBlocked, "blocked", false, "show only blocked issues")
+	listCmd.Flags().BoolVar(&listNoTruncate, "no-truncate", false, "disable text truncation for better readability")
 }
 
 func runList(cmd *cobra.Command, args []string) error {
@@ -191,16 +193,16 @@ func runList(cmd *cobra.Command, args []string) error {
 }
 
 func displayIssuesTable(issues []entities.Issue) {
-	// Column widths - optimized for better terminal fit
+	// Column widths - optimized for readability
 	const (
-		idWidth       = 10
-		titleWidth    = 24
-		typeWidth     = 7
-		statusWidth   = 10
-		priorityWidth = 8
-		assigneeWidth = 10
-		labelWidth    = 12
-		updatedWidth  = 6
+		idWidth       = 15
+		titleWidth    = 40
+		typeWidth     = 9
+		statusWidth   = 12
+		priorityWidth = 10
+		assigneeWidth = 12
+		labelWidth    = 15
+		updatedWidth  = 8
 	)
 
 	// Print enhanced header
@@ -293,6 +295,9 @@ func displayIssuesTable(issues []entities.Issue) {
 
 // truncateString truncates a string to fit within the specified width
 func truncateString(s string, width int) string {
+	if listNoTruncate {
+		return s
+	}
 	if len(s) <= width {
 		return s
 	}

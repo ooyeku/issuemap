@@ -15,6 +15,10 @@ import (
 	"github.com/ooyeku/issuemap/internal/infrastructure/storage"
 )
 
+var (
+	showNoTruncate bool
+)
+
 // showCmd represents the show command
 var showCmd = &cobra.Command{
 	Use:   "show <issue-id>",
@@ -34,6 +38,7 @@ Examples:
 
 func init() {
 	rootCmd.AddCommand(showCmd)
+	showCmd.Flags().BoolVar(&showNoTruncate, "no-truncate", false, "disable text truncation for better readability")
 }
 
 func runShow(cmd *cobra.Command, args []string) error {
@@ -157,8 +162,8 @@ func displayIssueDetails(issue *entities.Issue) {
 		printSectionHeader(fmt.Sprintf("Commits (%d)", len(issue.Commits)))
 		for _, commit := range issue.Commits {
 			commitMsg := commit.Message
-			if len(commitMsg) > 50 {
-				commitMsg = commitMsg[:50] + "..."
+			if !showNoTruncate && len(commitMsg) > 100 {
+				commitMsg = commitMsg[:100] + "..."
 			}
 
 			if noColor {

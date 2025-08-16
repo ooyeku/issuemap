@@ -2,7 +2,7 @@ id: ISSUEMAP-092
 title: Fix cli display to show full issue id
 description: issuemap show cli currently truncates critical information such as issue id and critical description text
 type: bug
-status: open
+status: closed
 priority: medium
 labels:
     - name: tui
@@ -13,7 +13,9 @@ branch: main
 commits: []
 comments: []
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.12930036916666668
 timestamps:
     created: 2025-08-15T22:11:02.781762-05:00
-    updated: 2025-08-15T22:55:02.377037-05:00
+    updated: 2025-08-15T23:34:54.497705-05:00
+    closed: 2025-08-15T23:34:54.497702-05:00
