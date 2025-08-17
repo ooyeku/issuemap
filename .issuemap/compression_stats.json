@@ -1,0 +1,33 @@
+{
+  "total_files": 3,
+  "compressed_files": 0,
+  "skipped_files": 3,
+  "total_original_size": 70,
+  "total_compressed_size": 70,
+  "space_saved": 0,
+  "overall_compression_ratio": 1,
+  "average_compression_ratio": 0,
+  "compression_by_type": {
+    ".log": {
+      "extension": ".log",
+      "file_count": 2,
+      "compressed_count": 0,
+      "original_size": 22,
+      "compressed_size": 22,
+      "average_ratio": 0,
+      "best_ratio": 1,
+      "worst_ratio": 0
+    },
+    ".txt": {
+      "extension": ".txt",
+      "file_count": 1,
+      "compressed_count": 0,
+      "original_size": 48,
+      "compressed_size": 48,
+      "average_ratio": 0,
+      "best_ratio": 1,
+      "worst_ratio": 0
+    }
+  },
+  "last_updated": "2025-08-16T19:39:48.093757-05:00"
+}
