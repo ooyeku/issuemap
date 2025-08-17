@@ -20,7 +20,7 @@ const (
 	VersionPatch = 0
 
 	// VersionPrerelease is the prerelease version (empty for stable)
-	VersionPrerelease = "test"
+	VersionPrerelease = ""
 
 	// BuildDate is set during build time
 	BuildDate = ""

@@ -2,6 +2,8 @@
 
 A simple, opinionated workflow for day‑to‑day development that integrates Git and IssueMap.
 
+**Note:** You can use either `issuemap` or the short alias `ismp` for all commands throughout this guide.
+
 Goals
 - Keep the mental model small: one issue = one branch = one merge.
 - Make essentials obvious; advanced features optional.
@@ -18,6 +20,7 @@ Who this is for
 
 ```sh
 issuemap server start
+# or: ismp server start
 ```
 
 1) Project setup (once per repo)
@@ -26,12 +29,14 @@ issuemap server start
 ```sh
 git init -b main
 issuemap init --name "My Project"
+# or: ismp init --name "My Project"
 ```
 
 - Optional: Start the local API server (for dashboards/integrations):
 
 ```sh
 issuemap server start
+# or: ismp server start
   ```
 
 2) Create an issue (one unit of work)
@@ -41,11 +46,17 @@ issuemap create "Add login with session cookie" \
   --type feature --priority high --labels auth,backend
 # or use a template
 issuemap create "Hotfix: CSRF token mismatch" --template hotfix
+
+# Short alias examples:
+ismp create "Add login with session cookie" \
+  --type feature --priority high --labels auth,backend
+ismp create "Hotfix: CSRF token mismatch" --template hotfix
 ``` 
 - See it:
 
 ```sh
 issuemap list
+# or: ismp list
 ```
 
 3) Prepare the branch (exactly one branch per issue)
@@ -266,3 +277,7 @@ issuemap merge              # on feature branch
 - On first commit referencing an issue: auto‑start time tracking.
 - On PR open/merge: reconcile status and close the issue.
 - On merge to `main`: tag release or update changelog using issue metadata.
+
+---
+
+**Tip:** Save keystrokes by using the `ismp` alias instead of `issuemap` for all commands. Both work identically!

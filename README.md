@@ -18,27 +18,34 @@ Install:
 # using Go
 go install github.com/ooyeku/issuemap@latest
 
-# or via Makefile (adds version info)
+# or via Makefile (adds version info and creates ismp alias)
 make install              # installs to $(go env GOPATH)/bin
 issuemap --version
+ismp --version            # short alias also available
 ```
 
 Initialize in a repo:
 ```bash
 cd /path/to/your/repo
 issuemap init
+# or use the short alias:
+ismp init
 ```
 
 Create and list issues:
 ```bash
 issuemap create --title "Fix flaky CI" --type bug --priority high --label ci
 issuemap list
+# or with the short alias:
+ismp create --title "Fix flaky CI" --type bug --priority high --label ci
+ismp list
 ```
 
 Open the web UI (starts server if needed):
 ```bash
 issuemap web
 # opens http://localhost:<port>/ (default port 4042; see below)
+# or: ismp web
 ```
 
 Run the server directly:
@@ -47,6 +54,7 @@ Run the server directly:
 issuemap server start
 issuemap server status
 issuemap server stop
+# or: ismp server start/status/stop
 
 # defaults
 # - base path:   .issuemap/
@@ -62,6 +70,12 @@ issuemap branch ISSUE-123   # creates/links a branch
 # ... commit as usual, reference the issue ID in messages if you like ...
 issuemap sync               # picks up changes, updates metadata/history
 issuemap close ISSUE-123 --reason done
+
+# or use the short alias throughout:
+ismp create --title "Implement search" --type feature
+ismp branch ISSUE-123
+ismp sync
+ismp close ISSUE-123 --reason done
 ```
 
 
@@ -124,8 +138,9 @@ A sampling of useful commands:
 - `issuemap guide` — interactive workflow guide
 
 Run `issuemap --help` or `issuemap <command> --help` for full usage.
+You can also use the short alias: `ismp --help` or `ismp <command> --help`.
 
-For a comprehensive workflow guide, see `docs/workflow.md` or run `issuemap guide`.
+For a comprehensive workflow guide, see `docs/workflow.md` or run `issuemap guide` (or `ismp guide`).
 
 
 ## HTTP API
