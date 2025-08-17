@@ -2,7 +2,7 @@ id: ISSUEMAP-102
 title: Implement issuemap attach cli
 description: Create issuemap attach command to attach file to an issue similar to capabilities available in web UI
 type: task
-status: in-progress
+status: closed
 priority: high
 labels: []
 milestone:
@@ -10,36 +10,10 @@ milestone:
 branch: main
 commits: []
 comments: []
-attachments:
-    - id: ISSUEMAP-102-att-1755391169835987000
-      issue_id: ISSUEMAP-102
-      filename: test_attachment.txt
-      content_type: text/plain; charset=utf-8
-      size: 48
-      type: text
-      storage_path: attachments/ISSUEMAP-102/1755391169836076000_test_attachment.txt
-      uploaded_by: Ola Yeku
-      uploaded_at: 2025-08-16T19:39:29.835989-05:00
-    - id: ISSUEMAP-102-att-1755391188093014000
-      issue_id: ISSUEMAP-102
-      filename: test1.log
-      content_type: text/plain; charset=utf-8
-      size: 11
-      type: text
-      storage_path: attachments/ISSUEMAP-102/1755391188093017000_test1.log
-      uploaded_by: Ola Yeku
-      uploaded_at: 2025-08-16T19:39:48.093015-05:00
-    - id: ISSUEMAP-102-att-1755391188093563000
-      issue_id: ISSUEMAP-102
-      filename: test2.log
-      content_type: text/plain; charset=utf-8
-      size: 11
-      type: text
-      storage_path: attachments/ISSUEMAP-102/1755391188093567000_test2.log
-      uploaded_by: Ola Yeku
-      uploaded_at: 2025-08-16T19:39:48.093563-05:00
+attachments: []
 metadata:
     actual_hours: 0.11694178305555555
 timestamps:
     created: 2025-08-16T19:00:46.470535-05:00
-    updated: 2025-08-16T19:41:57.194267-05:00
+    updated: 2025-08-16T19:43:27.16144-05:00
+    closed: 2025-08-16T19:43:27.161431-05:00
