@@ -73,8 +73,14 @@ func NewServer(basePath string) (*Server, error) {
 	// Create cleanup service
 	cleanupService := services.NewCleanupService(basePath, configRepo, issueRepo, attachmentRepo)
 
+	// Create archive service
+	archiveService := services.NewArchiveService(basePath, issueRepo, configRepo, attachmentRepo)
+
+	// Connect archive service to storage service
+	storageService.SetArchiveService(archiveService)
+
 	// Create scheduler service
-	schedulerService := services.NewSchedulerService(cleanupService, storageService)
+	schedulerService := services.NewSchedulerService(cleanupService, storageService, archiveService)
 
 	// Create attachment service with storage service for quota checking
 	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService, basePath)

@@ -41,7 +41,7 @@ description: |-
     - [ ] Restore works correctly
     - [ ] Automatic archival configurable
 type: feature
-status: open
+status: in-progress
 priority: medium
 labels:
     - name: storage
@@ -56,7 +56,8 @@ branch: main
 commits: []
 comments: []
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.26972576722222225
 timestamps:
     created: 2025-08-16T13:06:40.953549-05:00
-    updated: 2025-08-16T13:18:21.902375-05:00
+    updated: 2025-08-16T19:05:48.9806-05:00

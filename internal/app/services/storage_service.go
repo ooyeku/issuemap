@@ -26,6 +26,7 @@ type StorageService struct {
 	mu             sync.RWMutex
 	cache          *storageCache
 	dedupService   *DeduplicationService
+	archiveService *ArchiveService
 }
 
 type storageCache struct {
@@ -68,6 +69,13 @@ func (s *StorageService) SetDeduplicationService(dedupService *DeduplicationServ
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.dedupService = dedupService
+}
+
+// SetArchiveService sets the archive service
+func (s *StorageService) SetArchiveService(archiveService *ArchiveService) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.archiveService = archiveService
 }
 
 // GetStorageStatus returns current storage status
@@ -162,6 +170,17 @@ func (s *StorageService) calculateStorageStatus(ctx context.Context) (*entities.
 		mu.Unlock()
 	}()
 
+	// Archives directory
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		size, count := s.calculateDirSize(filepath.Join(s.basePath, "archives"))
+		mu.Lock()
+		status.ArchivesSize = size
+		status.ArchiveCount = count
+		mu.Unlock()
+	}()
+
 	wg.Wait()
 
 	// Add deduplication directory to total if it exists
@@ -169,7 +188,8 @@ func (s *StorageService) calculateStorageStatus(ctx context.Context) (*entities.
 
 	// Calculate total size
 	status.TotalSize = status.IssuesSize + status.AttachmentsSize +
-		status.HistorySize + status.TimeEntriesSize + status.MetadataSize + dedupSize
+		status.HistorySize + status.TimeEntriesSize + status.MetadataSize +
+		status.ArchivesSize + dedupSize
 
 	// Add deduplication information if available
 	s.mu.RLock()
@@ -177,6 +197,13 @@ func (s *StorageService) calculateStorageStatus(ctx context.Context) (*entities.
 		status.DeduplicationEnabled = s.dedupService.GetConfig().Enabled
 		if dedupStats, err := s.dedupService.GetDeduplicationStats(); err == nil {
 			status.DeduplicationStats = dedupStats
+		}
+	}
+
+	// Add archive information if available
+	if s.archiveService != nil {
+		if archiveStats, err := s.archiveService.GetArchiveStats(); err == nil {
+			status.ArchiveStats = archiveStats
 		}
 	}
 	s.mu.RUnlock()

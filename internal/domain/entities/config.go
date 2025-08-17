@@ -11,6 +11,7 @@ type Config struct {
 	UI            UIConfig          `yaml:"ui" json:"ui"`
 	SavedSearches map[string]string `yaml:"saved_searches,omitempty" json:"saved_searches,omitempty"`
 	StorageConfig *StorageConfig    `yaml:"storage,omitempty" json:"storage,omitempty"`
+	ArchiveConfig *ArchiveConfig    `yaml:"archive,omitempty" json:"archive,omitempty"`
 }
 
 // ProjectConfig contains project-specific settings

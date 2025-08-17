@@ -58,8 +58,10 @@ type StorageStatus struct {
 	HistorySize        int64               `json:"history_size"`
 	TimeEntriesSize    int64               `json:"time_entries_size"`
 	MetadataSize       int64               `json:"metadata_size"`
+	ArchivesSize       int64               `json:"archives_size"`
 	IssueCount         int                 `json:"issue_count"`
 	AttachmentCount    int                 `json:"attachment_count"`
+	ArchiveCount       int                 `json:"archive_count"`
 	LargestFiles       []FileInfo          `json:"largest_files"`
 	StorageByIssue     map[string]int64    `json:"storage_by_issue"`
 	AvailableDiskSpace int64               `json:"available_disk_space"`
@@ -71,6 +73,9 @@ type StorageStatus struct {
 	// Deduplication information
 	DeduplicationEnabled bool                `json:"deduplication_enabled,omitempty"`
 	DeduplicationStats   *DeduplicationStats `json:"deduplication_stats,omitempty"`
+
+	// Archive information
+	ArchiveStats *ArchiveStats `json:"archive_stats,omitempty"`
 }
 
 // FileInfo represents information about a file

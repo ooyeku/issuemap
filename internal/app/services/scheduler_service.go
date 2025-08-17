@@ -9,10 +9,11 @@ import (
 	"time"
 )
 
-// SchedulerService handles scheduled tasks like cleanup
+// SchedulerService handles scheduled tasks like cleanup and archiving
 type SchedulerService struct {
 	cleanupService *CleanupService
 	storageService *StorageService
+	archiveService *ArchiveService
 	ctx            context.Context
 	cancel         context.CancelFunc
 	wg             sync.WaitGroup
@@ -21,10 +22,11 @@ type SchedulerService struct {
 }
 
 // NewSchedulerService creates a new scheduler service
-func NewSchedulerService(cleanupService *CleanupService, storageService *StorageService) *SchedulerService {
+func NewSchedulerService(cleanupService *CleanupService, storageService *StorageService, archiveService *ArchiveService) *SchedulerService {
 	return &SchedulerService{
 		cleanupService: cleanupService,
 		storageService: storageService,
+		archiveService: archiveService,
 	}
 }
 
@@ -125,6 +127,9 @@ func (s *SchedulerService) checkScheduledTasks() {
 
 	// Check size-based triggers
 	s.checkSizeTriggers()
+
+	// Check if automatic archiving should run
+	s.checkArchiving()
 }
 
 // shouldRunCleanup checks if cleanup should run based on schedule
@@ -260,5 +265,37 @@ func formatBytes(bytes int64) string {
 		return strconv.FormatFloat(float64(bytes)/float64(KB), 'f', 2, 64) + " KB"
 	default:
 		return strconv.FormatInt(bytes, 10) + " bytes"
+	}
+}
+
+// checkArchiving checks if automatic archiving should run
+func (s *SchedulerService) checkArchiving() {
+	if s.archiveService == nil {
+		return
+	}
+
+	// Check if automatic archiving is enabled
+	if !s.archiveService.ShouldAutoArchive() {
+		return
+	}
+
+	log.Println("Running automatic archiving...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	defer cancel()
+
+	result, err := s.archiveService.RunAutoArchive(ctx)
+	if err != nil {
+		log.Printf("Automatic archiving failed: %v", err)
+		return
+	}
+
+	if result != nil && result.IssuesArchived > 0 {
+		log.Printf("Automatic archiving completed: %d issues archived, %s compressed (%.1f%% compression)",
+			result.IssuesArchived,
+			formatBytes(result.CompressedSize),
+			result.CompressionRatio*100)
+	} else {
+		log.Println("Automatic archiving completed: no issues to archive")
 	}
 }
