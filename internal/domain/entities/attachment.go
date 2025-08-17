@@ -29,6 +29,9 @@ type Attachment struct {
 	UploadedBy  string         `yaml:"uploaded_by" json:"uploaded_by"`
 	UploadedAt  time.Time      `yaml:"uploaded_at" json:"uploaded_at"`
 	Description string         `yaml:"description,omitempty" json:"description,omitempty"`
+
+	// Compression metadata
+	Compression *CompressionMetadata `yaml:"compression,omitempty" json:"compression,omitempty"`
 }
 
 // NewAttachment creates a new attachment

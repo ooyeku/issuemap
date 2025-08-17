@@ -29,19 +29,20 @@ import (
 
 // Server represents the IssueMap HTTP server
 type Server struct {
-	httpServer        *http.Server
-	port              int
-	basePath          string
-	issueService      *services.IssueService
-	attachmentService *services.AttachmentService
-	storageService    *services.StorageService
-	cleanupService    *services.CleanupService
-	schedulerService  *services.SchedulerService
-	memoryStorage     *entities.IssueLinkedList
-	syncService       *SyncService
-	pidFile           string
-	logFile           string
-	logFileHandle     *os.File
+	httpServer         *http.Server
+	port               int
+	basePath           string
+	issueService       *services.IssueService
+	attachmentService  *services.AttachmentService
+	storageService     *services.StorageService
+	cleanupService     *services.CleanupService
+	schedulerService   *services.SchedulerService
+	compressionService *services.CompressionService
+	memoryStorage      *entities.IssueLinkedList
+	syncService        *SyncService
+	pidFile            string
+	logFile            string
+	logFileHandle      *os.File
 }
 
 // ServerConfig holds server configuration
@@ -76,14 +77,22 @@ func NewServer(basePath string) (*Server, error) {
 	// Create archive service
 	archiveService := services.NewArchiveService(basePath, issueRepo, configRepo, attachmentRepo)
 
-	// Connect archive service to storage service
+	// Create compression service
+	compressionService := services.NewCompressionService(basePath, configRepo, attachmentRepo)
+
+	// Connect services to storage service
 	storageService.SetArchiveService(archiveService)
+	storageService.SetCompressionService(compressionService)
 
 	// Create scheduler service
 	schedulerService := services.NewSchedulerService(cleanupService, storageService, archiveService)
 
 	// Create attachment service with storage service for quota checking
 	attachmentService := services.NewAttachmentService(attachmentRepo, issueRepo, storageService, basePath)
+
+	// Connect compression service to attachment service
+	attachmentService.SetCompressionService(compressionService)
+
 	memoryStorage := entities.NewIssueLinkedList()
 
 	// Find available port
@@ -93,16 +102,17 @@ func NewServer(basePath string) (*Server, error) {
 	}
 
 	server := &Server{
-		port:              port,
-		basePath:          basePath,
-		issueService:      issueService,
-		attachmentService: attachmentService,
-		storageService:    storageService,
-		cleanupService:    cleanupService,
-		schedulerService:  schedulerService,
-		memoryStorage:     memoryStorage,
-		pidFile:           filepath.Join(basePath, app.ServerPIDFile),
-		logFile:           filepath.Join(basePath, app.ServerLogFile),
+		port:               port,
+		basePath:           basePath,
+		issueService:       issueService,
+		attachmentService:  attachmentService,
+		storageService:     storageService,
+		cleanupService:     cleanupService,
+		schedulerService:   schedulerService,
+		compressionService: compressionService,
+		memoryStorage:      memoryStorage,
+		pidFile:            filepath.Join(basePath, app.ServerPIDFile),
+		logFile:            filepath.Join(basePath, app.ServerLogFile),
 	}
 
 	// Create sync service
@@ -130,6 +140,11 @@ func (s *Server) Start() error {
 	// Start scheduler service for automatic cleanup
 	if err := s.schedulerService.Start(); err != nil {
 		return fmt.Errorf("failed to start scheduler service: %w", err)
+	}
+
+	// Start compression service for background compression
+	if err := s.compressionService.Start(); err != nil {
+		return fmt.Errorf("failed to start compression service: %w", err)
 	}
 
 	// Setup router and middleware
@@ -174,6 +189,11 @@ func (s *Server) Stop() error {
 	// Stop scheduler service first
 	if s.schedulerService != nil {
 		s.schedulerService.Stop()
+	}
+
+	// Stop compression service
+	if s.compressionService != nil {
+		s.compressionService.Stop()
 	}
 
 	// Stop sync service

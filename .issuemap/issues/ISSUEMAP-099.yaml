@@ -41,7 +41,7 @@ description: |-
     - [ ] Restore works correctly
     - [ ] Automatic archival configurable
 type: feature
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: storage
@@ -60,4 +60,5 @@ metadata:
     actual_hours: 0.26972576722222225
 timestamps:
     created: 2025-08-16T13:06:40.953549-05:00
-    updated: 2025-08-16T19:05:48.9806-05:00
+    updated: 2025-08-16T19:07:05.952157-05:00
+    closed: 2025-08-16T19:07:05.952153-05:00

@@ -17,29 +17,36 @@ import (
 
 // AttachmentService handles attachment operations
 type AttachmentService struct {
-	attachmentRepo repositories.AttachmentRepository
-	issueRepo      repositories.IssueRepository
-	storageService *StorageService
-	security       *AttachmentSecurity
-	dedupService   *DeduplicationService
-	basePath       string
+	attachmentRepo     repositories.AttachmentRepository
+	issueRepo          repositories.IssueRepository
+	storageService     *StorageService
+	security           *AttachmentSecurity
+	dedupService       *DeduplicationService
+	compressionService *CompressionService
+	basePath           string
 }
 
 // NewAttachmentService creates a new attachment service
 func NewAttachmentService(attachmentRepo repositories.AttachmentRepository, issueRepo repositories.IssueRepository, storageService *StorageService, basePath string) *AttachmentService {
 	return &AttachmentService{
-		attachmentRepo: attachmentRepo,
-		issueRepo:      issueRepo,
-		storageService: storageService,
-		security:       NewAttachmentSecurity(),
-		dedupService:   nil, // Will be set via SetDeduplicationService
-		basePath:       basePath,
+		attachmentRepo:     attachmentRepo,
+		issueRepo:          issueRepo,
+		storageService:     storageService,
+		security:           NewAttachmentSecurity(),
+		dedupService:       nil, // Will be set via SetDeduplicationService
+		compressionService: nil, // Will be set via SetCompressionService
+		basePath:           basePath,
 	}
 }
 
 // SetDeduplicationService sets the deduplication service
 func (s *AttachmentService) SetDeduplicationService(dedupService *DeduplicationService) {
 	s.dedupService = dedupService
+}
+
+// SetCompressionService sets the compression service
+func (s *AttachmentService) SetCompressionService(compressionService *CompressionService) {
+	s.compressionService = compressionService
 }
 
 // UploadAttachment uploads a new attachment for an issue
@@ -82,6 +89,7 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 	// Check if deduplication is enabled and should be used for this file
 	var storagePath string
 	var fileHash string
+	var isNew bool
 
 	if s.dedupService != nil && s.dedupService.ShouldDeduplicate(size, contentType) {
 		// Read content into buffer for hash calculation
@@ -100,13 +108,14 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 		}
 
 		// Get or create file hash entry
-		fileHashEntry, isNew, err := s.dedupService.GetOrCreateFileHash(hash, size, filename, contentType)
+		fileHashEntry, isNewFile, err := s.dedupService.GetOrCreateFileHash(hash, size, filename, contentType)
+		isNew = isNewFile
 		if err != nil {
 			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "get_file_hash")
 		}
 
 		// If this is a new file, save it to deduplicated storage
-		if isNew {
+		if isNewFile {
 			// Ensure target directory exists
 			targetDir := filepath.Dir(fileHashEntry.StoragePath)
 			if err := os.MkdirAll(targetDir, 0755); err != nil {
@@ -134,7 +143,7 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 		// Add reference to the deduplicated file
 		if err := s.dedupService.AddReference(attachment.ID, issueID, hash, filename); err != nil {
 			// Clean up if this was a new file
-			if isNew {
+			if isNewFile {
 				os.Remove(fileHashEntry.StoragePath)
 			}
 			return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "add_dedup_reference")
@@ -186,6 +195,23 @@ func (s *AttachmentService) UploadAttachment(ctx context.Context, issueID entiti
 		return nil, errors.Wrap(err, "AttachmentService.UploadAttachment", "update_issue")
 	}
 
+	// Attempt compression if compression service is available
+	if s.compressionService != nil {
+		// For deduplicated files, we only compress if this is a new file
+		// For traditional storage, we always attempt compression
+		shouldCompress := fileHash == "" || (fileHash != "" && isNew)
+
+		if shouldCompress {
+			if _, err := s.compressionService.CompressAttachment(ctx, attachment); err != nil {
+				// Log compression failure but don't fail the upload
+				// Compression is best-effort
+			}
+		} else if s.compressionService.GetConfig().BackgroundCompression {
+			// Queue for background compression
+			s.compressionService.QueueBackgroundCompression(attachment)
+		}
+	}
+
 	return attachment, nil
 }
 
@@ -206,7 +232,37 @@ func (s *AttachmentService) GetAttachmentContent(ctx context.Context, attachment
 		return nil, nil, errors.Wrap(err, "AttachmentService.GetAttachmentContent", "get_metadata")
 	}
 
-	// Get file content
+	// Check if attachment is compressed and needs decompression
+	if s.compressionService != nil && attachment.Compression != nil && attachment.Compression.Compressed {
+		// Create temporary file for decompressed content
+		tempFile, err := os.CreateTemp("", "attachment_"+attachmentID+"_*")
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "AttachmentService.GetAttachmentContent", "create_temp")
+		}
+
+		// Decompress to temporary file
+		if err := s.compressionService.DecompressAttachment(attachment, tempFile.Name()); err != nil {
+			tempFile.Close()
+			os.Remove(tempFile.Name())
+			return nil, nil, errors.Wrap(err, "AttachmentService.GetAttachmentContent", "decompress")
+		}
+
+		// Close and reopen for reading
+		tempFile.Close()
+		decompressedFile, err := os.Open(tempFile.Name())
+		if err != nil {
+			os.Remove(tempFile.Name())
+			return nil, nil, errors.Wrap(err, "AttachmentService.GetAttachmentContent", "open_decompressed")
+		}
+
+		// Return a ReadCloser that cleans up the temp file when closed
+		return &tempFileReader{
+			file:     decompressedFile,
+			tempPath: tempFile.Name(),
+		}, attachment, nil
+	}
+
+	// Get file content normally
 	content, err := s.attachmentRepo.GetFile(ctx, attachment.StoragePath)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "AttachmentService.GetAttachmentContent", "get_file")
@@ -315,4 +371,26 @@ func (s *AttachmentService) GetStorageStats(ctx context.Context) (*repositories.
 		return nil, errors.Wrap(err, "AttachmentService.GetStorageStats", "get_stats")
 	}
 	return stats, nil
+}
+
+// tempFileReader wraps a file reader and cleans up the temporary file when closed
+type tempFileReader struct {
+	file     *os.File
+	tempPath string
+}
+
+func (r *tempFileReader) Read(p []byte) (n int, err error) {
+	return r.file.Read(p)
+}
+
+func (r *tempFileReader) Close() error {
+	// Close the file first
+	if err := r.file.Close(); err != nil {
+		// Still try to remove the temp file
+		os.Remove(r.tempPath)
+		return err
+	}
+
+	// Remove the temporary file
+	return os.Remove(r.tempPath)
 }

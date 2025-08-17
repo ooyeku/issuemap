@@ -18,15 +18,16 @@ import (
 
 // StorageService handles storage monitoring and management
 type StorageService struct {
-	basePath       string
-	configRepo     repositories.ConfigRepository
-	issueRepo      repositories.IssueRepository
-	attachmentRepo repositories.AttachmentRepository
-	config         *entities.StorageConfig
-	mu             sync.RWMutex
-	cache          *storageCache
-	dedupService   *DeduplicationService
-	archiveService *ArchiveService
+	basePath           string
+	configRepo         repositories.ConfigRepository
+	issueRepo          repositories.IssueRepository
+	attachmentRepo     repositories.AttachmentRepository
+	config             *entities.StorageConfig
+	mu                 sync.RWMutex
+	cache              *storageCache
+	dedupService       *DeduplicationService
+	archiveService     *ArchiveService
+	compressionService *CompressionService
 }
 
 type storageCache struct {
@@ -54,13 +55,14 @@ func NewStorageService(
 	}
 
 	return &StorageService{
-		basePath:       basePath,
-		configRepo:     configRepo,
-		issueRepo:      issueRepo,
-		attachmentRepo: attachmentRepo,
-		config:         config,
-		cache:          &storageCache{},
-		dedupService:   nil, // Will be set via SetDeduplicationService
+		basePath:           basePath,
+		configRepo:         configRepo,
+		issueRepo:          issueRepo,
+		attachmentRepo:     attachmentRepo,
+		config:             config,
+		cache:              &storageCache{},
+		dedupService:       nil, // Will be set via SetDeduplicationService
+		compressionService: nil, // Will be set via SetCompressionService
 	}
 }
 
@@ -76,6 +78,13 @@ func (s *StorageService) SetArchiveService(archiveService *ArchiveService) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.archiveService = archiveService
+}
+
+// SetCompressionService sets the compression service
+func (s *StorageService) SetCompressionService(compressionService *CompressionService) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.compressionService = compressionService
 }
 
 // GetStorageStatus returns current storage status
@@ -204,6 +213,14 @@ func (s *StorageService) calculateStorageStatus(ctx context.Context) (*entities.
 	if s.archiveService != nil {
 		if archiveStats, err := s.archiveService.GetArchiveStats(); err == nil {
 			status.ArchiveStats = archiveStats
+		}
+	}
+
+	// Add compression information if available
+	if s.compressionService != nil {
+		status.CompressionEnabled = s.compressionService.GetConfig().Enabled
+		if compressionStats := s.compressionService.GetStats(); compressionStats != nil {
+			status.CompressionStats = compressionStats
 		}
 	}
 	s.mu.RUnlock()

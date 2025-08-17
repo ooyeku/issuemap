@@ -33,6 +33,9 @@ type StorageConfig struct {
 
 	// Cleanup configuration
 	CleanupConfig *CleanupConfig `yaml:"cleanup,omitempty" json:"cleanup,omitempty"`
+
+	// Compression configuration
+	CompressionConfig *CompressionConfig `yaml:"compression,omitempty" json:"compression,omitempty"`
 }
 
 // DefaultStorageConfig returns default storage configuration
@@ -47,6 +50,7 @@ func DefaultStorageConfig() *StorageConfig {
 		CriticalThreshold:   95,
 		EnforceQuotas:       false,
 		CleanupConfig:       DefaultCleanupConfig(),
+		CompressionConfig:   DefaultCompressionConfig(),
 	}
 }
 
@@ -76,6 +80,10 @@ type StorageStatus struct {
 
 	// Archive information
 	ArchiveStats *ArchiveStats `json:"archive_stats,omitempty"`
+
+	// Compression information
+	CompressionEnabled bool              `json:"compression_enabled,omitempty"`
+	CompressionStats   *CompressionStats `json:"compression_stats,omitempty"`
 }
 
 // FileInfo represents information about a file
