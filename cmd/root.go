@@ -5,6 +5,8 @@ package cmd
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/ooyeku/issuemap/internal/app"
 	"github.com/spf13/cobra"
@@ -19,7 +21,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "issuemap",
+	Use:   getCommandName(),
 	Short: app.AppDescription,
 	Long: app.AppLongDescription + `
 
@@ -31,6 +33,24 @@ Features:
 - Template-based issue creation
 - No external dependencies`,
 	Version: app.GetVersion(),
+}
+
+// getCommandName determines the command name based on how the binary was invoked
+func getCommandName() string {
+	if len(os.Args) > 0 {
+		baseName := filepath.Base(os.Args[0])
+		// Handle different executable names and aliases
+		switch {
+		case strings.Contains(baseName, "ismp"):
+			return "ismp"
+		case strings.Contains(baseName, "issuemap"):
+			return "issuemap"
+		default:
+			// Default to issuemap if we can't determine
+			return "issuemap"
+		}
+	}
+	return "issuemap"
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

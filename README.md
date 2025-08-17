@@ -77,18 +77,55 @@ These files are plain text and reviewable in PRs. Its recommended projects commi
 
 ## CLI highlights
 A sampling of useful commands:
+
+### Core Issue Management
 - `issuemap init` — set up `.issuemap/` in the current git repo
 - `issuemap create` — create a new issue (flags for title, type, priority, labels)
 - `issuemap list` — list issues with filters and sorting
 - `issuemap show ISSUE-123` — show details for one issue
 - `issuemap edit ISSUE-123` — edit fields
+- `issuemap assign` — assign/unassign issues to team members
+- `issuemap close` / `delete` — close or remove issues
+
+### Advanced Features
+- `issuemap search` — advanced search with query syntax and saved searches
 - `issuemap depend` / `deps` — manage dependencies between issues
-- `issuemap bulk` — bulk operations (labels, status, etc.)
-- `issuemap start` / `stop` — time tracking on an issue
+- `issuemap template` — create and manage issue templates
+- `issuemap bulk` — bulk operations (labels, status, assignments, etc.)
+- `issuemap attach` — attach files to issues with compression support
+- `issuemap dedup` — find and merge duplicate issues
+
+### Time Tracking & Reports
+- `issuemap estimate` — estimate work time for issues
+- `issuemap start` / `stop` — time tracking timers
+- `issuemap log` — manual time logging
+- `issuemap report` — generate time/velocity/burndown reports
+- `issuemap velocity` / `burndown` — team performance analytics
+
+### Git Integration
+- `issuemap branch` — create Git branches linked to issues
+- `issuemap sync` — sync changes with Git repository
+
+### Data Management
+- `issuemap archive` — archive old issues with compression
+- `issuemap restore` — restore from backups
+- `issuemap storage` — manage storage and optimize performance
+- `issuemap cleanup` — clean temporary files and optimize storage
+- `issuemap compress` — manage attachment compression settings
+
+### Server & Web UI
 - `issuemap server ...` — start/stop/status for the local API
 - `issuemap web` — open the web UI
+- `issuemap logs` — view system logs
+
+### Productivity
+- `issuemap history` — view detailed change history
+- `issuemap global` — cross-project operations
+- `issuemap guide` — interactive workflow guide
 
 Run `issuemap --help` or `issuemap <command> --help` for full usage.
+
+For a comprehensive workflow guide, see `docs/workflow.md` or run `issuemap guide`.
 
 
 ## HTTP API

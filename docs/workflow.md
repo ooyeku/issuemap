@@ -174,6 +174,66 @@ issuemap history ISSUE-101
 issuemap report --format table
   ```
 
+### Advanced Features
+
+#### File Attachments
+- Attach files to issues with automatic compression:
+
+```sh
+issuemap attach ISSUE-001 screenshot.png
+issuemap attach ISSUE-001 *.log --description "Debug logs"
+issuemap compress --enable --level 6
+```
+
+#### Search & Filtering
+- Advanced search capabilities:
+
+```sh
+issuemap search "type:bug priority:high"
+issuemap search "assignee:alice status:open"
+issuemap search save "my-bugs" "assignee:me type:bug"
+issuemap search run my-bugs
+```
+
+#### Bulk Operations
+- Efficiently manage multiple issues:
+
+```sh
+issuemap bulk --status open --set-priority high
+issuemap bulk --assignee alice --add-labels urgent
+issuemap dedup --threshold 0.8  # Remove duplicates
+```
+
+#### Archive & Storage Management
+- Archive old issues and manage storage:
+
+```sh
+issuemap archive --closed --older-than 6m
+issuemap archive --list
+issuemap archive --restore ISSUE-001
+issuemap storage status
+issuemap cleanup --temp
+```
+
+#### Time Tracking & Reports
+- Enhanced time tracking and reporting:
+
+```sh
+issuemap estimate ISSUE-001 4h
+issuemap velocity --period weekly
+issuemap burndown --milestone v1.0
+issuemap report time
+```
+
+#### Templates & Automation
+- Use and create templates:
+
+```sh
+issuemap template list
+issuemap template create hotfix --type bug --priority critical
+issuemap create --template hotfix "Critical security fix"
+```
+
 
 ### Troubleshooting Tips
 - Merge says the worktree has unstaged changes

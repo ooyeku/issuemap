@@ -19,22 +19,39 @@ build:
 install: build
 	@echo "Installing $(BINARY_NAME)..."
 	@go install -ldflags="-X 'github.com/ooyeku/$(BINARY_NAME)/internal/app.Version=$(VERSION)'" .
+	@echo "Creating ismp alias..."
+	@GOPATH_BIN="$$(go env GOPATH)/bin"; \
+	if [ -f "$$GOPATH_BIN/$(BINARY_NAME)" ]; then \
+		ln -sf "$$GOPATH_BIN/$(BINARY_NAME)" "$$GOPATH_BIN/ismp"; \
+		echo "Created ismp symlink -> $$GOPATH_BIN/ismp"; \
+	fi
 	@echo "$(BINARY_NAME) installed successfully!"
 	@echo "Binary location: $$(go env GOPATH)/bin/$(BINARY_NAME)"
-	@echo "Make sure $$(go env GOPATH)/bin is in your PATH to run '$(BINARY_NAME)' from anywhere"
+	@echo "Alias location: $$(go env GOPATH)/bin/ismp"
+	@echo "Make sure $$(go env GOPATH)/bin is in your PATH to run '$(BINARY_NAME)' or 'ismp' from anywhere"
 	@echo ""
 	@echo "Test the installation:"
 	@echo "  $(BINARY_NAME) --version"
+	@echo "  ismp --version"
 	@echo "  $(BINARY_NAME) --help"
+	@echo "  ismp --help"
 
 # Uninstall the application
 uninstall:
 	@echo "Uninstalling $(BINARY_NAME)..."
-	@if [ -f "$$(go env GOPATH)/bin/$(BINARY_NAME)" ]; then \
-		rm -f "$$(go env GOPATH)/bin/$(BINARY_NAME)"; \
+	@GOPATH_BIN="$$(go env GOPATH)/bin"; \
+	if [ -f "$$GOPATH_BIN/$(BINARY_NAME)" ]; then \
+		rm -f "$$GOPATH_BIN/$(BINARY_NAME)"; \
 		echo "$(BINARY_NAME) uninstalled successfully!"; \
 	else \
-		echo "$(BINARY_NAME) not found in $$(go env GOPATH)/bin/"; \
+		echo "$(BINARY_NAME) not found in $$GOPATH_BIN/"; \
+	fi; \
+	if [ -L "$$GOPATH_BIN/ismp" ]; then \
+		rm -f "$$GOPATH_BIN/ismp"; \
+		echo "ismp alias removed successfully!"; \
+	elif [ -f "$$GOPATH_BIN/ismp" ]; then \
+		rm -f "$$GOPATH_BIN/ismp"; \
+		echo "ismp alias removed successfully!"; \
 	fi
 
 # Check PATH configuration
@@ -48,6 +65,11 @@ echo "GOPATH/bin location: $$GOPATH_BIN"; \
 			echo "$(BINARY_NAME) is accessible from terminal"; \
 		else \
 			echo "$(BINARY_NAME) not found in PATH (try 'make install')"; \
+		fi; \
+		if command -v ismp >/dev/null 2>&1; then \
+			echo "ismp alias is accessible from terminal"; \
+		else \
+			echo "ismp alias not found in PATH (try 'make install')"; \
 		fi; \
 	else \
 	echo "$$GOPATH_BIN is NOT in your PATH"; \
@@ -213,6 +235,15 @@ build-all:
 	@GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'github.com/ooyeku/$(BINARY_NAME)/internal/app.Version=$(VERSION)'" -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 .
 	@GOOS=darwin GOARCH=arm64 go build -ldflags="-X 'github.com/ooyeku/$(BINARY_NAME)/internal/app.Version=$(VERSION)'" -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64 .
 	@GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/ooyeku/$(BINARY_NAME)/internal/app.Version=$(VERSION)'" -o $(BUILD_DIR)/$(BINARY_NAME)-windows-amd64.exe .
+	@echo "Creating ismp aliases for built binaries..."
+	@cd $(BUILD_DIR) && \
+	for file in $(BINARY_NAME)-*; do \
+		if [ -f "$$file" ]; then \
+			alias_name=$$(echo "$$file" | sed 's/$(BINARY_NAME)/ismp/'); \
+			ln -sf "$$file" "$$alias_name"; \
+			echo "Created alias: $$alias_name -> $$file"; \
+		fi; \
+	done
 
 # Quality check (lint + vet + test)
 check: lint vet test
