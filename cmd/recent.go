@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/ooyeku/issuemap/internal/app/services"
@@ -240,15 +241,15 @@ func getIssueStatusColor(status entities.Status) func(string) string {
 
 	switch status {
 	case entities.StatusOpen:
-		return colorValue // Green-ish
+		return func(s string) string { return color.GreenString(s) }
 	case entities.StatusInProgress:
-		return func(s string) string { return "\033[33m" + s + "\033[0m" } // Yellow
+		return func(s string) string { return color.YellowString(s) }
 	case entities.StatusReview:
-		return func(s string) string { return "\033[36m" + s + "\033[0m" } // Cyan
+		return func(s string) string { return color.CyanString(s) }
 	case entities.StatusDone:
-		return func(s string) string { return "\033[32m" + s + "\033[0m" } // Green
+		return func(s string) string { return color.HiGreenString(s) }
 	case entities.StatusClosed:
-		return colorMuted // Gray
+		return func(s string) string { return color.HiBlackString(s) }
 	default:
 		return func(s string) string { return s }
 	}
@@ -261,13 +262,13 @@ func getIssuePriorityColor(priority entities.Priority) func(string) string {
 
 	switch priority {
 	case entities.PriorityCritical:
-		return func(s string) string { return "\033[91m" + s + "\033[0m" } // Bright red
+		return func(s string) string { return color.HiRedString(s) }
 	case entities.PriorityHigh:
-		return func(s string) string { return "\033[31m" + s + "\033[0m" } // Red
+		return func(s string) string { return color.RedString(s) }
 	case entities.PriorityMedium:
-		return func(s string) string { return "\033[33m" + s + "\033[0m" } // Yellow
+		return func(s string) string { return color.YellowString(s) }
 	case entities.PriorityLow:
-		return colorMuted // Gray
+		return func(s string) string { return color.HiBlackString(s) }
 	default:
 		return func(s string) string { return s }
 	}
@@ -278,5 +279,5 @@ func colorMuted(s string) string {
 	if noColor {
 		return s
 	}
-	return "\033[90m" + s + "\033[0m" // Gray
+	return color.HiBlackString(s)
 }

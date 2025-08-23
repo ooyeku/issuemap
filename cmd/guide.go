@@ -80,7 +80,7 @@ func showGuideSection(section string) error {
 	case "aliases":
 		showAliasesSection()
 	default:
-		return fmt.Errorf("unknown section: %s. Available: basics, workflow, time, data, quality, advanced, aliases")
+		return fmt.Errorf("unknown section: %s. Available: basics, workflow, time, data, quality, advanced, aliases", section)
 	}
 	return nil
 }
