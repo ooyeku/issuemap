@@ -113,26 +113,25 @@ install-with-path: install
 		echo "   export PATH=\"\$$PATH:$$GOPATH_BIN\""; \
 	fi
 
-# Run unit tests (if any exist, otherwise run stable integration tests)
+# Run all tests (unit tests from all packages + stable integration tests)
 test:
-	@echo "Running tests..."
-	@if find ./test/unit ./internal ./cmd -name "*_test.go" 2>/dev/null | grep -q .; then \
-		echo "Running unit tests..."; \
-		go test -v ./test/unit/...; \
-		echo "Running stable integration tests (dependency & time tracking)..."; \
-		go test -v ./test/integration/ -run "TestDependency|TestTimeTracking"; \
+	@echo "Running all tests..."
+	@echo "=== Unit Tests ==="
+	@if find ./cmd ./internal ./test/unit -name "*_test.go" 2>/dev/null | grep -q .; then \
+		go test -short -v ./...; \
 	else \
-		echo "No unit tests found, running stable integration tests..."; \
-		go test -v ./test/integration/ -run "TestDependency|TestTimeTracking"; \
+		echo "No unit tests found"; \
 	fi
+	@echo "=== Integration Tests ==="
+	@go test -v ./test/integration/ -run "TestDependency|TestTimeTracking"
 
 # Run unit tests only (skip if none exist)
 test-unit:
 	@echo "Running unit tests..."
-	@if find ./internal ./cmd -name "*_test.go" 2>/dev/null | grep -q .; then \
-		go test -short -v ./...; \
+	@if find ./cmd ./internal ./test/unit -name "*_test.go" 2>/dev/null | grep -q .; then \
+		go test -short -v ./cmd/... ./internal/... ./test/unit/...; \
 	else \
-		echo "No unit tests found in main packages"; \
+		echo "No unit tests found"; \
 	fi
 
 # Run tests with coverage
