@@ -4,14 +4,25 @@ description: Implement ismp lint ISSUE-123 to check issues for missing fields or
 type: task
 status: in-progress
 priority: medium
-labels: []
+labels:
+    - name: validation
+      color: '#gray'
+assignee:
+    username: olayeku
+    email: ""
 milestone:
     name: v0.6.0
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: Ola Yeku
+      date: 2025-08-22T21:24:13.72579-05:00
+      text: Successfully implemented comprehensive issue linting with quality scoring and fix suggestions
 attachments: []
-metadata: {}
+metadata:
+    estimated_hours: 0.4
+    actual_hours: 0.1593394425
 timestamps:
     created: 2025-08-22T19:22:00.624709-05:00
-    updated: 2025-08-22T21:19:06.906392-05:00
+    updated: 2025-08-22T21:28:40.533722-05:00
