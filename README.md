@@ -110,9 +110,11 @@ A sampling of useful commands:
 - `issuemap dedup` — find and merge duplicate issues
 
 ### Time Tracking & Reports
+- `issuemap time start` / `stop` — time tracking timers (auto-sets status to in-progress)
+- `issuemap time log` — manual time logging
+- `issuemap time report` — time tracking reports
 - `issuemap estimate` — estimate work time for issues
-- `issuemap start` / `stop` — time tracking timers
-- `issuemap log` — manual time logging
+- `issuemap recent` — view recently worked issues
 - `issuemap report` — generate time/velocity/burndown reports
 - `issuemap velocity` / `burndown` — team performance analytics
 
@@ -121,6 +123,8 @@ A sampling of useful commands:
 - `issuemap sync` — sync changes with Git repository
 
 ### Data Management
+- `issuemap export` — export issues to CSV/JSON/YAML formats
+- `issuemap import` — import issues from YAML with validation
 - `issuemap archive` — archive old issues with compression
 - `issuemap restore` — restore from backups
 - `issuemap storage` — manage storage and optimize performance
@@ -132,10 +136,14 @@ A sampling of useful commands:
 - `issuemap web` — open the web UI
 - `issuemap logs` — view system logs
 
-### Productivity
+### Quality & Maintenance
+- `issuemap lint` — check issues for quality and completeness
+- `issuemap note` — add quick notes to issues
 - `issuemap history` — view detailed change history
+
+### Productivity
+- `issuemap guide` — comprehensive command guide and workflows
 - `issuemap global` — cross-project operations
-- `issuemap guide` — interactive workflow guide
 
 Run `issuemap --help` or `issuemap <command> --help` for full usage.
 You can also use the short alias: `ismp --help` or `ismp <command> --help`.

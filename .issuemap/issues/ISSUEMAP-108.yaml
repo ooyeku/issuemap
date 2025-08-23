@@ -5,8 +5,11 @@ type: task
 status: open
 priority: medium
 labels: []
+assignee:
+    username: olayeku
+    email: ""
 milestone:
-    name: v0.6.0
+    name: v0.7.0
 branch: main
 commits: []
 comments: []
@@ -14,4 +17,4 @@ attachments: []
 metadata: {}
 timestamps:
     created: 2025-08-22T19:23:43.013404-05:00
-    updated: 2025-08-22T21:05:54.013637-05:00
+    updated: 2025-08-22T21:45:23.413813-05:00

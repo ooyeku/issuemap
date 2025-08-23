@@ -2,7 +2,7 @@ id: ISSUEMAP-106
 title: Issue Lint
 description: Implement ismp lint ISSUE-123 to check issues for missing fields or standards
 type: task
-status: in-progress
+status: closed
 priority: medium
 labels:
     - name: validation
@@ -25,4 +25,5 @@ metadata:
     actual_hours: 0.1593394425
 timestamps:
     created: 2025-08-22T19:22:00.624709-05:00
-    updated: 2025-08-22T21:28:40.533722-05:00
+    updated: 2025-08-22T21:34:31.97258-05:00
+    closed: 2025-08-22T21:34:31.972575-05:00

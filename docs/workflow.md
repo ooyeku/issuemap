@@ -76,11 +76,21 @@ git add -A
 git commit -m "ISSUE-001: implement cookie session login"
 ```
 
-- Optional time tracking:
+- Optional time tracking (auto-sets status to in-progress):
 
 ```sh
-issuemap start ISSUE-001   # start a timer
-issuemap stop ISSUE-001    # stop and log time
+issuemap time start ISSUE-001   # start a timer (auto-sets to in-progress)
+issuemap time stop              # stop and log time
+# or use short alias:
+ismp time start ISSUE-001
+ismp time stop
+```
+
+- Add progress notes:
+
+```sh
+issuemap note ISSUE-001 "Implemented authentication logic"
+# or: ismp note ISSUE-001 "Fixed login bug"
 ```
 
 5) Keep IssueMap in sync (as you go)
@@ -125,6 +135,7 @@ issuemap list --type feature --status open
 
 ```sh
 issuemap list --status open --type feature
+issuemap recent                    # see recently worked issues
 ```
 
 - Assign and estimate (optional):
@@ -132,22 +143,27 @@ issuemap list --status open --type feature
 ```sh
 issuemap assign ISSUE-001 me
 issuemap estimate ISSUE-001 4h
-  ```
+```
+
 - Branch and code:
 
 ```sh
 issuemap branch ISSUE-001
+issuemap time start ISSUE-001     # auto-sets to in-progress
 # edit code
 git commit -m "ISSUE-001: first pass"
+issuemap note ISSUE-001 "Made good progress on authentication"
 issuemap sync --auto-update
-  ```
+```
+
 - Wrap up:
 
 ```sh
-issuemap merge        # from feature branch
+issuemap time stop                 # log time worked
+issuemap merge                     # from feature branch
 # or
-issuemap merge ISSUE-001   # from main
-  ```
+issuemap merge ISSUE-001           # from main
+```
 
 
 ### Conventions (sane defaults)
@@ -186,6 +202,28 @@ issuemap report --format table
   ```
 
 ### Advanced Features
+
+#### Quality & Maintenance  
+- Check issue quality and get improvement suggestions:
+
+```sh
+issuemap lint ISSUE-001                    # lint specific issue
+issuemap lint --all                        # lint all issues  
+issuemap lint --severity error             # only show errors
+issuemap lint --fix ISSUE-001              # show fix suggestions
+```
+
+#### Data Import/Export
+- Import and export issues in various formats:
+
+```sh
+issuemap export --format csv --output issues.csv
+issuemap export --format json --filter "status=open"
+issuemap export --format yaml --filter "milestone=v1.0"
+issuemap import issues.yaml                # import from YAML
+issuemap import --dry-run issues.yaml      # preview import
+issuemap import --overwrite issues.yaml    # replace existing
+```
 
 #### File Attachments
 - Attach files to issues with automatic compression:
@@ -230,6 +268,11 @@ issuemap cleanup --temp
 - Enhanced time tracking and reporting:
 
 ```sh
+issuemap time start ISSUE-001 --description "Working on auth"
+issuemap time stop                         # stops current timer
+issuemap time log ISSUE-001 2.5 --description "Code review"  
+issuemap time report --since 2024-01-01   # time reports
+issuemap recent                            # recently worked issues
 issuemap estimate ISSUE-001 4h
 issuemap velocity --period weekly
 issuemap burndown --milestone v1.0
@@ -260,15 +303,30 @@ git add .issuemap && git commit -m "Update issues"
 
 
 ### Minimal Cheat Sheet
-- Create → Branch → Commit → Sync → Merge → Close
+- Create → Branch → Start → Commit → Note → Sync → Stop → Merge → Close
 
 ```sh
 issuemap create "Title" --type feature --priority medium
 issuemap branch ISSUE-123
+issuemap time start ISSUE-123      # auto-sets to in-progress  
 git commit -m "ISSUE-123: change"
+issuemap note ISSUE-123 "Progress update"
 issuemap sync --auto-update
-issuemap merge              # on feature branch
-# or: issuemap merge ISSUE-123   # on main
+issuemap time stop                  # log time worked
+issuemap merge                      # on feature branch
+# or: issuemap merge ISSUE-123     # on main
+```
+
+### Built-in Help & Guidance
+- Get comprehensive help and examples:
+
+```sh
+issuemap guide                      # full workflow guide
+issuemap guide basics               # essential commands
+issuemap guide workflow             # recommended processes
+issuemap guide time                 # time tracking help
+issuemap guide quality              # quality and linting
+# or use short alias: ismp guide [section]
 ```
 
 

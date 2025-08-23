@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-110
-current_version: 4
+current_version: 6
 created_at: 2025-08-22T19:43:49.851852-05:00
-updated_at: 2025-08-22T21:06:05.267982-05:00
+updated_at: 2025-08-22T21:45:18.449275-05:00
 entries:
     - id: hist_1755909829836337000
       issue_id: ISSUEMAP-110
@@ -61,5 +61,31 @@ entries:
         - field: milestone
           old_value: ""
           new_value: v0.6.0
+      metadata:
+        git_branch: main
+    - id: hist_1755917049163896000
+      issue_id: ISSUEMAP-110
+      version: 5
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:44:09.163905-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: v0.6.0
+          new_value: v0.7.0
+      metadata:
+        git_branch: main
+    - id: hist_1755917118448679000
+      issue_id: ISSUEMAP-110
+      version: 6
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:45:18.448693-05:00
+      message: Updated assignee
+      changes:
+        - field: assignee
+          old_value: ""
+          new_value: olayeku
       metadata:
         git_branch: main
