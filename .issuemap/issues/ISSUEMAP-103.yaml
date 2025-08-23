@@ -2,7 +2,7 @@ id: ISSUEMAP-103
 title: Quick Notes
 description: 'Implement one-line notes to issues without opening the editor: ismp note ISSUE-123 I did xyz'
 type: task
-status: in-progress
+status: closed
 priority: high
 labels: []
 milestone:
@@ -28,7 +28,8 @@ comments:
       text: Testing web UI visibility - this note should appear in both CLI and web interface
 attachments: []
 metadata:
-    actual_hours: 0.8
+    actual_hours: 1.1705355547222223
 timestamps:
     created: 2025-08-22T19:16:00.351208-05:00
-    updated: 2025-08-22T20:51:08.375786-05:00
+    updated: 2025-08-22T20:55:24.267076-05:00
+    closed: 2025-08-22T20:53:32.683978-05:00

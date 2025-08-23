@@ -7,9 +7,18 @@ priority: high
 labels: []
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: Ola Yeku
+      date: 2025-08-22T20:54:55.059163-05:00
+      text: This should show the most recent issues worked on and a few items done by them (from history) and not the most recent history/actions taken
+    - id: 2
+      author: Ola Yeku
+      date: 2025-08-22T21:00:02.143301-05:00
+      text: Successfully implemented the recent command - shows last 5 worked-on issues with their recent activities
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.08554714472222222
 timestamps:
     created: 2025-08-22T19:17:16.191405-05:00
-    updated: 2025-08-22T19:17:16.191405-05:00
+    updated: 2025-08-22T21:00:59.488876-05:00

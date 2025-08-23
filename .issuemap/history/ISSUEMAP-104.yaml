@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-104
-current_version: 1
+current_version: 5
 created_at: 2025-08-22T19:17:16.228639-05:00
-updated_at: 2025-08-22T19:17:16.228645-05:00
+updated_at: 2025-08-22T21:00:59.504862-05:00
 entries:
     - id: hist_1755908236211742000
       issue_id: ISSUEMAP-104
@@ -30,3 +30,44 @@ entries:
         git_author: Ola Yeku
         git_branch: main
         git_email: ooyeku@gmail.com
+    - id: hist_1755914095076460000
+      issue_id: ISSUEMAP-104
+      version: 2
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:54:55.07646-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: This should show the most recent issues worked on and a few items done by them (from history) and not the most recent history/actions taken
+    - id: hist_1755914151511649000
+      issue_id: ISSUEMAP-104
+      version: 3
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:55:51.51165-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755914402161079000
+      issue_id: ISSUEMAP-104
+      version: 4
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:00:02.161079-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Successfully implemented the recent command - shows last 5 worked-on issues with their recent activities
+    - id: hist_1755914459504673000
+      issue_id: ISSUEMAP-104
+      version: 5
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:00:59.504673-05:00
+      message: Stopped timer (0.1 hours)
+      changes: []
+      metadata:
+        action: timer_stopped
+        hours_logged: "0.09"
