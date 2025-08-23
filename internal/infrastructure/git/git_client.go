@@ -190,7 +190,8 @@ func (g *GitClient) GetCommitsByIssue(ctx context.Context, issueID entities.Issu
 			if targetNum > 0 {
 				if m := regexp.MustCompile(`\d+`).FindString(ru); m != "" {
 					if n, err := strconv.Atoi(m); err == nil && n == targetNum {
-						// To avoid accidental collisions, prefer numeric match when ref starts with '#' or contains '-' pattern
+						// Allow numeric match for references that look like issue IDs (contain '-' or start with '#')
+						// This prevents false positives from random numbers in commit messages
 						if strings.HasPrefix(strings.TrimSpace(ru), "#") || strings.Contains(ru, "-") {
 							numericMatch = true
 						}
@@ -248,6 +249,11 @@ func (g *GitClient) ParseIssueReferences(message string) []string {
 			// Clean up the match (remove "Closes", "Fixes", etc.)
 			cleanMatch := regexp.MustCompile(`(?i)(?:closes?|fixes?|resolves?)\s+`).ReplaceAllString(match, "")
 			cleanMatch = strings.TrimSpace(cleanMatch)
+
+			// Skip empty matches after cleanup
+			if cleanMatch == "" {
+				continue
+			}
 
 			if !seen[cleanMatch] {
 				references = append(references, cleanMatch)

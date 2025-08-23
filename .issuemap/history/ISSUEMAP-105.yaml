@@ -1,0 +1,32 @@
+issue_id: ISSUEMAP-105
+current_version: 1
+created_at: 2025-08-22T19:20:01.606671-05:00
+updated_at: 2025-08-22T19:20:01.606674-05:00
+entries:
+    - id: hist_1755908401591203000
+      issue_id: ISSUEMAP-105
+      version: 1
+      type: created
+      author: Ola Yeku
+      timestamp: 2025-08-22T19:20:01.591205-05:00
+      message: 'Issue created: Issue Import/Export'
+      changes:
+        - field: title
+          old_value: null
+          new_value: Issue Import/Export
+        - field: description
+          old_value: null
+          new_value: Emplement issue import and export to JSON
+        - field: type
+          old_value: null
+          new_value: task
+        - field: status
+          old_value: null
+          new_value: open
+        - field: priority
+          old_value: null
+          new_value: high
+      metadata:
+        git_author: Ola Yeku
+        git_branch: main
+        git_email: ooyeku@gmail.com

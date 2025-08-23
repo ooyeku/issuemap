@@ -69,7 +69,10 @@ func init() {
 	// run
 	bulkCmd.AddCommand(bulkRunCmd)
 	bulkRunCmd.Flags().StringVarP(&bulkQuery, "query", "q", "", "search query to select issues (required)")
-	bulkRunCmd.MarkFlagRequired("query")
+	err := bulkRunCmd.MarkFlagRequired("query")
+	if err != nil {
+		return
+	}
 	bulkRunCmd.Flags().BoolVar(&bulkDryRun, "dry-run", false, "simulate without writing changes")
 	bulkRunCmd.Flags().BoolVar(&bulkRollback, "rollback", true, "rollback on first failure")
 	bulkRunCmd.Flags().StringVar(&bulkAssignUser, "assign", "", "assign all to user (empty to unassign)")
@@ -81,7 +84,10 @@ func init() {
 	// export
 	bulkCmd.AddCommand(bulkExportCmd)
 	bulkExportCmd.Flags().StringVarP(&bulkQuery, "query", "q", "", "search query to select issues (required)")
-	bulkExportCmd.MarkFlagRequired("query")
+	qerr := bulkExportCmd.MarkFlagRequired("query")
+	if qerr != nil {
+		return
+	}
 	bulkExportCmd.Flags().StringVarP(&bulkExportCSV, "output", "o", "", "output CSV file (default stdout)")
 
 	// import

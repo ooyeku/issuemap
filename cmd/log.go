@@ -33,6 +33,11 @@ Examples:
   issuemap log --hours 0.5 --description "Bug investigation" ISSUE-003`,
 	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'log' command will be removed in a future version. Use 'time log' instead:")
+		printWarning("  issuemap time log ISSUE-001 2.5")
+		fmt.Println()
+
 		if len(args) < 1 {
 			return fmt.Errorf("issue ID is required")
 		}

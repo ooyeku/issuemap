@@ -39,6 +39,11 @@ Examples:
   issuemap restore --backup-id abc123 --dry-run  # Preview restore
   issuemap restore --json                    # JSON output`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'restore' command will be removed in a future version. Use 'storage restore' instead:")
+		printWarning("  issuemap storage restore")
+		fmt.Println()
+
 		return runRestore(cmd, args)
 	},
 }

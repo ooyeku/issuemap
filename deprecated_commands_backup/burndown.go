@@ -31,7 +31,12 @@ Examples:
   issuemap burndown --days 14                         # Last 14 days
   issuemap burndown --from 2024-01-01 --to 2024-01-31  # Custom period`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runBurndown(cmd)
+		// Deprecation warning
+		printWarning("DEPRECATED: 'burndown' command will be removed in a future version. Use 'report --type burndown' instead:")
+		printWarning("  issuemap report --type burndown")
+		fmt.Println()
+
+		return runBurndown(cmd, args)
 	},
 }
 
@@ -43,7 +48,7 @@ func init() {
 	burndownCmd.Flags().IntVarP(&burndownDays, "days", "d", 30, "number of days back from today")
 }
 
-func runBurndown(cmd *cobra.Command) error {
+func runBurndown(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	// Initialize services

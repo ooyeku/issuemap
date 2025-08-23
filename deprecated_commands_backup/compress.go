@@ -49,6 +49,11 @@ Examples:
   issuemap compress --run-batch --batch-size 10  # Compress existing files
   issuemap compress --disable                 # Disable compression`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'compress' command will be removed in a future version. Use 'storage compress' instead:")
+		printWarning("  issuemap storage compress")
+		fmt.Println()
+
 		return runCompress(cmd, args)
 	},
 }

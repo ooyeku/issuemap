@@ -120,9 +120,9 @@ func runAttach(cmd *cobra.Command, issueIDStr string, filePaths []string) error 
 
 	for _, filePath := range expandedPaths {
 		if !noColor {
-			color.Yellow("📎 Uploading %s...", filePath)
+			color.Yellow("Uploading %s...", filePath)
 		} else {
-			fmt.Printf("📎 Uploading %s...\n", filePath)
+			fmt.Printf("Uploading %s...\n", filePath)
 		}
 
 		attachment, err := uploadSingleFile(ctx, attachmentService, issueID, filePath, currentUser)
@@ -205,7 +205,12 @@ func uploadSingleFile(ctx context.Context, attachmentService *services.Attachmen
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", err)
+		}
+	}(file)
 
 	// Get filename
 	filename := filepath.Base(filePath)

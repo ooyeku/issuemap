@@ -1,0 +1,15 @@
+id: ISSUEMAP-105
+title: Issue Import/Export
+description: Emplement issue import and export to JSON
+type: task
+status: open
+priority: high
+labels: []
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-22T19:20:01.570352-05:00
+    updated: 2025-08-22T19:20:01.570352-05:00

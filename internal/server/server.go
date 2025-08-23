@@ -406,8 +406,28 @@ func (s *Server) loadIssuesIntoMemory() error {
 
 	// Add each issue to memory storage
 	for i := range issueList.Issues {
-		issueCopy := issueList.Issues[i]
-		s.memoryStorage.Add(&issueCopy)
+		// Create a new issue instance to avoid pointer reuse bug
+		original := issueList.Issues[i]
+		issue := &entities.Issue{
+			ID:          original.ID,
+			Title:       original.Title,
+			Description: original.Description,
+			Type:        original.Type,
+			Status:      original.Status,
+			Priority:    original.Priority,
+			Labels:      make([]entities.Label, len(original.Labels)),
+			Assignee:    original.Assignee,
+			Milestone:   original.Milestone,
+			Branch:      original.Branch,
+			Commits:     make([]entities.CommitRef, len(original.Commits)),
+			Comments:    make([]entities.Comment, len(original.Comments)),
+			Metadata:    original.Metadata,
+			Timestamps:  original.Timestamps,
+		}
+		copy(issue.Labels, original.Labels)
+		copy(issue.Commits, original.Commits)
+		copy(issue.Comments, original.Comments)
+		s.memoryStorage.Add(issue)
 	}
 
 	log.Printf("Loaded %d issues into memory from disk", len(issueList.Issues))

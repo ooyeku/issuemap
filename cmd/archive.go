@@ -221,15 +221,15 @@ func archiveIssues(ctx context.Context, archiveService *services.ArchiveService)
 	// Perform archive operation
 	if !noColor {
 		if archiveDryRun {
-			color.Yellow("🔍 Analyzing issues for archival...")
+			color.Yellow("Analyzing issues for archival...")
 		} else {
-			color.Yellow("📦 Archiving issues...")
+			color.Yellow("Archiving issues...")
 		}
 	} else {
 		if archiveDryRun {
-			fmt.Println("🔍 Analyzing issues for archival...")
+			fmt.Println("Analyzing issues for archival...")
 		} else {
-			fmt.Println("📦 Archiving issues...")
+			fmt.Println("Archiving issues...")
 		}
 	}
 
@@ -337,15 +337,15 @@ func restoreIssues(ctx context.Context, archiveService *services.ArchiveService,
 
 	if !noColor {
 		if archiveDryRun {
-			color.Yellow("🔍 Analyzing issues for restoration...")
+			color.Yellow("Analyzing issues for restoration...")
 		} else {
-			color.Yellow("📤 Restoring issues from archive...")
+			color.Yellow("Restoring issues from archive...")
 		}
 	} else {
 		if archiveDryRun {
-			fmt.Println("🔍 Analyzing issues for restoration...")
+			fmt.Println("Analyzing issues for restoration...")
 		} else {
-			fmt.Println("📤 Restoring issues from archive...")
+			fmt.Println("Restoring issues from archive...")
 		}
 	}
 
@@ -369,9 +369,9 @@ func restoreIssues(ctx context.Context, archiveService *services.ArchiveService,
 
 func verifyArchive(ctx context.Context, archiveService *services.ArchiveService, archiveName string) error {
 	if !noColor {
-		color.Yellow("🔍 Verifying archive integrity...")
+		color.Yellow("Verifying archive integrity...")
 	} else {
-		fmt.Println("🔍 Verifying archive integrity...")
+		fmt.Println("Verifying archive integrity...")
 	}
 
 	err := archiveService.VerifyArchive(ctx, archiveName)

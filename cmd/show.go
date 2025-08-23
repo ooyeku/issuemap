@@ -163,7 +163,7 @@ func displayIssueDetails(issue *entities.Issue) {
 		for _, commit := range issue.Commits {
 			commitMsg := commit.Message
 			if !showNoTruncate && len(commitMsg) > 100 {
-				commitMsg = commitMsg[:100] + "..."
+				commitMsg = commitMsg[:97] + "..."
 			}
 
 			if noColor {

@@ -1,0 +1,31 @@
+id: ISSUEMAP-109
+title: Consolidate and streamline CLI commands
+description: Reduce command count from 37 to 26 by consolidating redundant commands and improving organization. This will improve user experience and reduce maintenance burden.
+type: feature
+status: in-progress
+priority: high
+labels:
+    - name: refactoring
+      color: '#gray'
+    - name: cli
+      color: '#gray'
+    - name: ux
+      color: '#gray'
+branch: main
+commits: []
+comments: []
+attachments:
+    - id: ISSUEMAP-109-att-1755909084816275000
+      issue_id: ISSUEMAP-109
+      filename: consolidation.txt
+      content_type: text/plain; charset=utf-8
+      size: 7157
+      type: text
+      storage_path: dedup/ef/9a460a14caaabd8030ece3fe2a067360334ee16c0f3ae1e6498032073373cf
+      uploaded_by: Ola Yeku
+      uploaded_at: 2025-08-22T19:31:24.816277-05:00
+metadata:
+    actual_hours: 0.8466401733333333
+timestamps:
+    created: 2025-08-22T19:31:07.102833-05:00
+    updated: 2025-08-22T20:28:20.084485-05:00

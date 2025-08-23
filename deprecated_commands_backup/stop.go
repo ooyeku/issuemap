@@ -28,6 +28,11 @@ Examples:
   issuemap stop --force --close ISSUE-001 # Force stop and close the issue`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'stop' command will be removed in a future version. Use 'time stop' instead:")
+		printWarning("  issuemap time stop [ISSUE-ID]")
+		fmt.Println()
+
 		var maybeIssueID *entities.IssueID
 		if len(args) == 1 {
 			id := normalizeIssueID(args[0])

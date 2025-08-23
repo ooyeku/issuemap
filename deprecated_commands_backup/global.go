@@ -48,6 +48,10 @@ Examples:
   issuemap backup                        # Backup current project
   issuemap archive list                  # List archived issues`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'global' command will be removed in a future version.")
+		printWarning("  For cross-project operations, use shell scripting or automation tools.")
+		fmt.Println()
 		// Initialize global service
 		globalService = services.NewGlobalService()
 	},

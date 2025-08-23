@@ -1,0 +1,15 @@
+id: ISSUEMAP-108
+title: IssueMap Reports
+description: Implement robust markdown report using ismp report
+type: task
+status: open
+priority: medium
+labels: []
+branch: main
+commits: []
+comments: []
+attachments: []
+metadata: {}
+timestamps:
+    created: 2025-08-22T19:23:43.013404-05:00
+    updated: 2025-08-22T19:23:43.013404-05:00

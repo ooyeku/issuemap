@@ -226,12 +226,32 @@ func (s *IssueService) GetIssue(ctx context.Context, id entities.IssueID) (*enti
 		return nil, errors.Wrap(err, "IssueService.GetIssue", "get_by_id")
 	}
 
+	// Create a copy of the issue to avoid modifying the original from repository
+	issueCopy := &entities.Issue{
+		ID:          issue.ID,
+		Title:       issue.Title,
+		Description: issue.Description,
+		Type:        issue.Type,
+		Status:      issue.Status,
+		Priority:    issue.Priority,
+		Labels:      make([]entities.Label, len(issue.Labels)),
+		Assignee:    issue.Assignee,
+		Milestone:   issue.Milestone,
+		Branch:      issue.Branch,
+		Commits:     []entities.CommitRef{}, // Will be populated below
+		Comments:    make([]entities.Comment, len(issue.Comments)),
+		Metadata:    issue.Metadata,
+		Timestamps:  issue.Timestamps,
+	}
+	copy(issueCopy.Labels, issue.Labels)
+	copy(issueCopy.Comments, issue.Comments)
+
 	// Update issue with latest commits if git is available.
 	// Do not gate on branch presence, since commit messages can reference issues without a branch link.
 	if s.gitRepo != nil {
 		commits, err := s.gitRepo.GetCommitsByIssue(ctx, id)
 		if err == nil {
-			// Update commits in issue
+			// Update commits in issue copy
 			var commitRefs []entities.CommitRef
 			for _, commit := range commits {
 				commitRef := entities.CommitRef{
@@ -242,11 +262,11 @@ func (s *IssueService) GetIssue(ctx context.Context, id entities.IssueID) (*enti
 				}
 				commitRefs = append(commitRefs, commitRef)
 			}
-			issue.Commits = commitRefs
+			issueCopy.Commits = commitRefs
 		}
 	}
 
-	return issue, nil
+	return issueCopy, nil
 }
 
 // UpdateIssue updates an existing issue

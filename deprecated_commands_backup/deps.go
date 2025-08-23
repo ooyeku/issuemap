@@ -33,6 +33,14 @@ Examples:
   issuemap deps --stats                    # Show dependency statistics
   issuemap deps --impact ISSUE-001        # Analyze impact of changes to issue`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'deps' command will be removed in a future version. Use 'depend' with flags instead:")
+		printWarning("  issuemap depend --graph      (instead of deps --graph)")
+		printWarning("  issuemap depend --stats      (instead of deps --stats)")
+		printWarning("  issuemap depend --blocked    (instead of deps --blocked)")
+		printWarning("  issuemap depend --validate   (instead of deps --validate)")
+		printWarning("  issuemap depend --impact     (instead of deps --impact)")
+		fmt.Println()
 		if depsGraph {
 			return runDepsGraph(cmd)
 		}

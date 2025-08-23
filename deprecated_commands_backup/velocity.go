@@ -34,7 +34,12 @@ Examples:
   issuemap velocity --periods 3 --type month    # Last 3 months
   issuemap velocity --from 2024-01-01 --to 2024-01-31  # Custom period`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runVelocity(cmd)
+		// Deprecation warning
+		printWarning("DEPRECATED: 'velocity' command will be removed in a future version. Use 'report --type velocity' instead:")
+		printWarning("  issuemap report --type velocity")
+		fmt.Println()
+
+		return runVelocity(cmd, args)
 	},
 }
 
@@ -47,7 +52,7 @@ func init() {
 	velocityCmd.Flags().StringVar(&velocityDateTo, "to", "", "custom end date (YYYY-MM-DD)")
 }
 
-func runVelocity(cmd *cobra.Command) error {
+func runVelocity(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	// Initialize services
@@ -71,7 +76,7 @@ func runVelocity(cmd *cobra.Command) error {
 	issueService := services.NewIssueService(issueRepo, configRepo, gitRepo)
 	historyRepo := storage.NewFileHistoryRepository(issuemapPath)
 	historyService := services.NewHistoryService(historyRepo, gitRepo)
-	
+
 	timeTrackingService := services.NewTimeTrackingService(
 		timeEntryRepo,
 		activeTimerRepo,
@@ -143,7 +148,7 @@ func displayVelocity(velocities []*services.VelocityData) {
 		fmt.Printf("Velocity (Issues/Week): %.1f\n", v.VelocityPoints)
 		fmt.Printf("Velocity (Hours/Week): %.1f\n", v.VelocityHours)
 		fmt.Printf("Estimation Accuracy: %.1f%% ", v.Accuracy*100)
-		
+
 		if v.Accuracy > 1.1 {
 			fmt.Printf("(Over-estimated)\n")
 		} else if v.Accuracy < 0.9 {
@@ -151,14 +156,14 @@ func displayVelocity(velocities []*services.VelocityData) {
 		} else {
 			fmt.Printf("(Good)\n")
 		}
-		
+
 		return
 	}
 
 	// Multi-period table view
-	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n", 
+	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n",
 		"Period", "Issues", "Est Hours", "Act Hours", "Vel/Week", "Accuracy")
-	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n", 
+	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n",
 		"--------------------", "--------", "------------", "------------", "------------", "------------")
 
 	var totalIssues int
@@ -191,7 +196,7 @@ func displayVelocity(velocities []*services.VelocityData) {
 		avgAccuracy = totalActHours / totalEstHours
 	}
 
-	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n", 
+	fmt.Printf("%-20s %-8s %-12s %-12s %-12s %-12s\n",
 		"--------------------", "--------", "------------", "------------", "------------", "------------")
 	fmt.Printf("%-20s %8d %12.1f %12.1f %12.1f %12s\n",
 		"AVERAGE",
@@ -205,7 +210,7 @@ func displayVelocity(velocities []*services.VelocityData) {
 	// Summary insights
 	fmt.Printf("\nSummary Insights:\n")
 	fmt.Printf("• Average velocity: %.1f issues/week, %.1f hours/week\n", avgVelPoints, avgVelHours)
-	
+
 	if avgAccuracy > 1.1 {
 		fmt.Printf("• Team tends to over-estimate (takes %.0f%% more time than estimated)\n", (avgAccuracy-1)*100)
 	} else if avgAccuracy < 0.9 {
@@ -218,18 +223,18 @@ func displayVelocity(velocities []*services.VelocityData) {
 	if len(velocities) >= 3 {
 		firstHalf := velocities[:len(velocities)/2]
 		secondHalf := velocities[len(velocities)/2:]
-		
+
 		var firstHalfAvg, secondHalfAvg float64
 		for _, v := range firstHalf {
 			firstHalfAvg += v.VelocityPoints
 		}
 		firstHalfAvg /= float64(len(firstHalf))
-		
+
 		for _, v := range secondHalf {
 			secondHalfAvg += v.VelocityPoints
 		}
 		secondHalfAvg /= float64(len(secondHalf))
-		
+
 		trend := secondHalfAvg - firstHalfAvg
 		if trend > 0.5 {
 			fmt.Printf("• Velocity is trending upward (+%.1f issues/week)\n", trend)

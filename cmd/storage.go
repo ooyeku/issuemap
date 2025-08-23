@@ -39,7 +39,11 @@ Examples:
   issuemap storage --verbose          # Detailed breakdown
   issuemap storage --largest 10       # Show 10 largest files
   issuemap storage --by-issue         # Group by issue
-  issuemap storage --refresh          # Force refresh cache`,
+  issuemap storage --refresh          # Force refresh cache
+  issuemap storage cleanup            # Run cleanup operation
+  issuemap storage compress           # Configure compression
+  issuemap storage archive            # Archive old issues
+  issuemap storage restore            # Restore from archive`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runStorage(cmd, args)
 	},
@@ -72,9 +76,83 @@ var (
 	configDisableAutoCleanup bool
 )
 
+// Storage subcommands
+var storageCleanupCmd = &cobra.Command{
+	Use:   "cleanup",
+	Short: "Run cleanup operation",
+	Long: `Clean up old issues, attachments, and temporary files.
+
+Examples:
+  issuemap storage cleanup                  # Run default cleanup
+  issuemap storage cleanup --older-than 90d # Clean items older than 90 days
+  issuemap storage cleanup --dry-run        # Preview what would be cleaned`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Delegate to the existing cleanup command logic
+		// TODO: Implement cleanup logic
+		fmt.Println("Cleanup functionality (placeholder)")
+		return nil
+	},
+}
+
+var storageCompressCmd = &cobra.Command{
+	Use:   "compress",
+	Short: "Configure compression settings",
+	Long: `Configure and manage attachment compression.
+
+Examples:
+  issuemap storage compress                   # Show compression status
+  issuemap storage compress --enable          # Enable compression
+  issuemap storage compress --level 9         # Set compression level
+  issuemap storage compress --threshold 1MB   # Compress files over 1MB`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Delegate to compression command logic
+		// TODO: Implement compression logic
+		fmt.Println("Compression management functionality (placeholder)")
+		return nil
+	},
+}
+
+var storageArchiveCmd = &cobra.Command{
+	Use:   "archive",
+	Short: "Archive old issues",
+	Long: `Archive closed issues to reduce active storage.
+
+Examples:
+  issuemap storage archive                    # Archive with default settings
+  issuemap storage archive --older-than 180d  # Archive issues closed > 180 days ago
+  issuemap storage archive --compress         # Compress archived data`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Delegate to archive command logic
+		// TODO: Implement archive logic
+		fmt.Println("Archive management functionality (placeholder)")
+		return nil
+	},
+}
+
+var storageRestoreCmd = &cobra.Command{
+	Use:   "restore",
+	Short: "Restore from archive",
+	Long: `Restore issues from archive.
+
+Examples:
+  issuemap storage restore ISSUE-001          # Restore specific issue
+  issuemap storage restore --all              # Restore all archived issues
+  issuemap storage restore --from backup.tar  # Restore from backup file`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Delegate to restore command logic
+		// TODO: Implement restore logic
+		fmt.Println("Restore functionality (placeholder)")
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(storageCmd)
 	storageCmd.AddCommand(storageConfigCmd)
+	storageCmd.AddCommand(storageCleanupCmd)
+	storageCmd.AddCommand(storageCompressCmd)
+	storageCmd.AddCommand(storageArchiveCmd)
+	storageCmd.AddCommand(storageRestoreCmd)
 
 	// Storage status flags
 	storageCmd.Flags().BoolVar(&storageJSON, "json", false, "output in JSON format")

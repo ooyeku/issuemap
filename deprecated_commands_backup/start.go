@@ -29,6 +29,11 @@ Examples:
   issuemap start ISSUE-002 --description "Working on authentication"`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Deprecation warning
+		printWarning("DEPRECATED: 'start' command will be removed in a future version. Use 'time start' instead:")
+		printWarning("  issuemap time start ISSUE-001")
+		fmt.Println()
+
 		// Accept both numeric (e.g., 001) and full (ISSUE-001) formats
 		issueID := normalizeIssueID(args[0])
 		return runStart(cmd, issueID)
