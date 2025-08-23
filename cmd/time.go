@@ -178,7 +178,7 @@ func runTimeStart(cmd *cobra.Command, issueID entities.IssueID) error {
 	timeService := services.NewTimeTrackingService(timeRepo, activeTimerRepo, issueService, historyService)
 
 	// Check if issue exists
-	_, err = issueService.GetIssue(ctx, issueID)
+	issue, err := issueService.GetIssue(ctx, issueID)
 	if err != nil {
 		printError(fmt.Errorf("issue %s not found", issueID))
 		return err
@@ -190,6 +190,19 @@ func runTimeStart(cmd *cobra.Command, issueID entities.IssueID) error {
 	if err != nil {
 		printError(err)
 		return err
+	}
+
+	// Automatically set status to in-progress if it's currently open
+	if issue.Status == entities.StatusOpen {
+		updates := map[string]interface{}{
+			"status": string(entities.StatusInProgress),
+		}
+		_, err = issueService.UpdateIssue(ctx, issueID, updates)
+		if err != nil {
+			printWarning(fmt.Sprintf("timer started but failed to update status to in-progress: %v", err))
+		} else {
+			printInfo("Status automatically changed to in-progress")
+		}
 	}
 
 	printSuccess(fmt.Sprintf("Timer started for issue %s", issueID))

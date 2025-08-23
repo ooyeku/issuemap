@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-105
-current_version: 1
+current_version: 6
 created_at: 2025-08-22T19:20:01.606671-05:00
-updated_at: 2025-08-22T19:20:01.606674-05:00
+updated_at: 2025-08-22T21:16:11.39583-05:00
 entries:
     - id: hist_1755908401591203000
       issue_id: ISSUEMAP-105
@@ -30,3 +30,60 @@ entries:
         git_author: Ola Yeku
         git_branch: main
         git_email: ooyeku@gmail.com
+    - id: hist_1755914669278034000
+      issue_id: ISSUEMAP-105
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:04:29.278044-05:00
+      message: Updated description
+      changes:
+        - field: description
+          old_value: Emplement issue import and export to JSON
+          new_value: Implement issue import and export to CSV/JSON.  Import should be simple and allow users to write clean text format in yaml and import it with ismp import importfile.yaml.  Implementation should have strong validation
+      metadata:
+        git_branch: main
+    - id: hist_1755914697285340000
+      issue_id: ISSUEMAP-105
+      version: 3
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:04:57.28535-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.6.0
+      metadata:
+        git_branch: main
+    - id: hist_1755914811007048000
+      issue_id: ISSUEMAP-105
+      version: 4
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:06:51.007049-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755915176676070000
+      issue_id: ISSUEMAP-105
+      version: 5
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:12:56.67607-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Successfully implemented full import/export functionality with CSV/JSON/YAML support and strong validation
+    - id: hist_1755915371395351000
+      issue_id: ISSUEMAP-105
+      version: 6
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:16:11.395351-05:00
+      message: Stopped timer (0.2 hours)
+      changes: []
+      metadata:
+        action: timer_stopped
+        hours_logged: "0.16"

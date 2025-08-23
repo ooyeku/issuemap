@@ -1,15 +1,23 @@
 id: ISSUEMAP-105
 title: Issue Import/Export
-description: Emplement issue import and export to JSON
+description: Implement issue import and export to CSV/JSON.  Import should be simple and allow users to write clean text format in yaml and import it with ismp import importfile.yaml.  Implementation should have strong validation
 type: task
-status: open
+status: closed
 priority: high
 labels: []
+milestone:
+    name: v0.6.0
 branch: main
 commits: []
-comments: []
+comments:
+    - id: 1
+      author: Ola Yeku
+      date: 2025-08-22T21:12:56.658496-05:00
+      text: Successfully implemented full import/export functionality with CSV/JSON/YAML support and strong validation
 attachments: []
-metadata: {}
+metadata:
+    actual_hours: 0.15565356805555555
 timestamps:
     created: 2025-08-22T19:20:01.570352-05:00
-    updated: 2025-08-22T19:20:01.570352-05:00
+    updated: 2025-08-22T21:17:52.328666-05:00
+    closed: 2025-08-22T21:17:52.328658-05:00

@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-104
-current_version: 5
+current_version: 6
 created_at: 2025-08-22T19:17:16.228639-05:00
-updated_at: 2025-08-22T21:00:59.504862-05:00
+updated_at: 2025-08-22T21:05:07.514376-05:00
 entries:
     - id: hist_1755908236211742000
       issue_id: ISSUEMAP-104
@@ -71,3 +71,16 @@ entries:
       metadata:
         action: timer_stopped
         hours_logged: "0.09"
+    - id: hist_1755914707513878000
+      issue_id: ISSUEMAP-104
+      version: 6
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T21:05:07.513886-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.6.0
+      metadata:
+        git_branch: main

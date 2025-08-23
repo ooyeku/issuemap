@@ -2,9 +2,11 @@ id: ISSUEMAP-104
 title: Recent issues view
 description: 'Show last 5 worked-on issues: ismp recent'
 type: task
-status: open
+status: closed
 priority: high
 labels: []
+milestone:
+    name: v0.6.0
 branch: main
 commits: []
 comments:
@@ -21,4 +23,5 @@ metadata:
     actual_hours: 0.08554714472222222
 timestamps:
     created: 2025-08-22T19:17:16.191405-05:00
-    updated: 2025-08-22T21:00:59.488876-05:00
+    updated: 2025-08-22T21:05:07.493172-05:00
+    closed: 2025-08-22T21:01:20.867507-05:00

@@ -5,6 +5,8 @@ type: task
 status: open
 priority: medium
 labels: []
+milestone:
+    name: v0.6.0
 branch: main
 commits: []
 comments:
@@ -20,4 +22,4 @@ attachments: []
 metadata: {}
 timestamps:
     created: 2025-08-22T19:43:49.814534-05:00
-    updated: 2025-08-22T20:41:11.475713-05:00
+    updated: 2025-08-22T21:06:05.2467-05:00
