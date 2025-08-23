@@ -1,9 +1,9 @@
 {
-  "total_files": 3,
+  "total_files": 4,
   "compressed_files": 0,
-  "skipped_files": 3,
-  "total_original_size": 70,
-  "total_compressed_size": 70,
+  "skipped_files": 4,
+  "total_original_size": 7227,
+  "total_compressed_size": 7227,
   "space_saved": 0,
   "overall_compression_ratio": 1,
   "average_compression_ratio": 0,
@@ -20,14 +20,14 @@
     },
     ".txt": {
       "extension": ".txt",
-      "file_count": 1,
+      "file_count": 2,
       "compressed_count": 0,
-      "original_size": 48,
-      "compressed_size": 48,
+      "original_size": 7205,
+      "compressed_size": 7205,
       "average_ratio": 0,
       "best_ratio": 1,
       "worst_ratio": 0
     }
   },
-  "last_updated": "2025-08-16T19:39:48.093757-05:00"
+  "last_updated": "2025-08-22T19:31:24.827788-05:00"
 }

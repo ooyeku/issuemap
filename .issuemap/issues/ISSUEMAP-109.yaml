@@ -2,7 +2,7 @@ id: ISSUEMAP-109
 title: Consolidate and streamline CLI commands
 description: Reduce command count from 37 to 26 by consolidating redundant commands and improving organization. This will improve user experience and reduce maintenance burden.
 type: feature
-status: in-progress
+status: closed
 priority: high
 labels:
     - name: refactoring
@@ -28,4 +28,5 @@ metadata:
     actual_hours: 0.8466401733333333
 timestamps:
     created: 2025-08-22T19:31:07.102833-05:00
-    updated: 2025-08-22T20:28:20.084485-05:00
+    updated: 2025-08-22T20:30:15.886961-05:00
+    closed: 2025-08-22T20:30:15.886957-05:00

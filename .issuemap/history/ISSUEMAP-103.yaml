@@ -1,7 +1,7 @@
 issue_id: ISSUEMAP-103
-current_version: 1
+current_version: 11
 created_at: 2025-08-22T19:16:00.391938-05:00
-updated_at: 2025-08-22T19:16:00.391938-05:00
+updated_at: 2025-08-22T20:51:08.397232-05:00
 entries:
     - id: hist_1755908160376904000
       issue_id: ISSUEMAP-103
@@ -30,3 +30,110 @@ entries:
         git_author: Ola Yeku
         git_branch: main
         git_email: ooyeku@gmail.com
+    - id: hist_1755912790332177000
+      issue_id: ISSUEMAP-103
+      version: 2
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:33:10.332179-05:00
+      message: Started timer
+      changes: []
+      metadata:
+        action: timer_started
+    - id: hist_1755913086500156000
+      issue_id: ISSUEMAP-103
+      version: 3
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:38:06.500157-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Implemented the quick notes functionality as requested
+    - id: hist_1755913166973796000
+      issue_id: ISSUEMAP-103
+      version: 4
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:39:26.973796-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Second test note to debug the issue
+    - id: hist_1755913251428712000
+      issue_id: ISSUEMAP-103
+      version: 5
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:40:51.428713-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Testing after the fix - this should now be saved properly
+    - id: hist_1755913257603121000
+      issue_id: ISSUEMAP-103
+      version: 6
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:40:57.603121-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Second note - validating multiple notes functionality
+    - id: hist_1755913370383852000
+      issue_id: ISSUEMAP-103
+      version: 7
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:42:50.383852-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Update documentation with note usecases
+    - id: hist_1755913598058537000
+      issue_id: ISSUEMAP-103
+      version: 8
+      type: commented
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:46:38.058537-05:00
+      message: Added comment
+      changes: []
+      metadata:
+        comment_text: Testing web UI visibility - this note should appear in both CLI and web interface
+    - id: hist_1755913763508837000
+      issue_id: ISSUEMAP-103
+      version: 9
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:49:23.508837-05:00
+      message: Logged 0.8 hours
+      changes: []
+      metadata:
+        action: time_logged
+        hours_logged: "0.80"
+    - id: hist_1755913788410298000
+      issue_id: ISSUEMAP-103
+      version: 10
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:49:48.410306-05:00
+      message: Updated status
+      changes:
+        - field: status
+          old_value: open
+          new_value: in-progress
+      metadata:
+        git_branch: main
+    - id: hist_1755913868396648000
+      issue_id: ISSUEMAP-103
+      version: 11
+      type: updated
+      author: Ola Yeku
+      timestamp: 2025-08-22T20:51:08.396656-05:00
+      message: Updated milestone
+      changes:
+        - field: milestone
+          old_value: ""
+          new_value: v0.6.0
+      metadata:
+        git_branch: main

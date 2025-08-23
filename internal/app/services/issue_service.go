@@ -413,6 +413,18 @@ func (s *IssueService) UpdateIssue(ctx context.Context, id entities.IssueID, upd
 					*issue.Metadata.ActualHours = hours
 				}
 			}
+		case "comments":
+			if comments, ok := value.([]entities.Comment); ok {
+				issue.Comments = comments
+			}
+		case "timestamps.updated":
+			if timestamp, ok := value.(time.Time); ok {
+				issue.Timestamps.Updated = timestamp
+			}
+		case "timestamps.closed":
+			if timestamp, ok := value.(*time.Time); ok {
+				issue.Timestamps.Closed = timestamp
+			}
 		}
 	}
 
